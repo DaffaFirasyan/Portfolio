@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { certificates } from './certificates';
 import { LIMITS, longest, STRESS_RATIO } from './constraints';
 import { education } from './education';
@@ -7,6 +10,8 @@ import { projects } from './projects';
 import { skillCategories } from './skills';
 
 const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
+
+const publicPath = (url: string) => join(process.cwd(), 'public', url.replace(/^\//, ''));
 
 describe('constraints', () => {
   it('exposes the documented limits', () => {
@@ -267,5 +272,24 @@ describe('certificates', () => {
 
   it('includes at least one certificate without a credential url', () => {
     expect(certificates.some((c) => c.credentialUrl === undefined)).toBe(true);
+  });
+});
+
+describe('assets', () => {
+  it('resolves every referenced file in public/', () => {
+    const referenced = [
+      profile.avatarUrl,
+      profile.cvUrl,
+      ...projects.map((p) => p.thumbnail),
+      ...projects.flatMap((p) => p.images ?? []),
+      ...certificates.map((c) => c.imageUrl),
+      ...certificates.map((c) => c.thumbnailUrl),
+      ...education.map((e) => e.logoUrl).filter((u): u is string => Boolean(u)),
+      ...experiences.map((e) => e.logoUrl).filter((u): u is string => Boolean(u)),
+    ];
+
+    for (const url of referenced) {
+      expect(existsSync(publicPath(url)), `missing asset: ${url}`).toBe(true);
+    }
   });
 });

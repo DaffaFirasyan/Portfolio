@@ -1676,48 +1676,53 @@ describe('assets', () => {
 Run: `npm test`
 Expected: FAIL — `missing asset: /profile/avatar.webp`.
 
-- [ ] **Step 3: Generate the placeholder images**
-
-Requires ImageMagick 7 (`magick`). Dimensions come from spec §5: project thumbnails 800×500, certificate thumbnails 600×420, certificate full images at their natural ratio, avatar 800×800, logos 256×256.
+- [ ] **Step 3: Install the image tool**
 
 ```bash
-mkdir -p public/projects public/certificates public/education public/profile public/cv && node -e "
-const {execFileSync}=require('child_process');
-const ids=['kg-maintenance-assistant','sentiment-dashboard','campus-room-booking','ocr-invoice-parser','thesis-corpus-explorer','attendance-vision','kos-finder','rainfall-forecast'];
-const certs=['deeplearning-nlp','neo4j-graph-academy','aws-cloud-practitioner','tensorflow-developer','bangkit-ml','dicoding-backend','hackathon-winner','google-data-analytics','docker-fundamentals','ui-ux-workshop','sql-advanced','git-collaboration','english-toefl','python-fundamentals'];
-const gen=(size,out,label)=>execFileSync('magick',['-size',size,'canvas:#12161D','-fill','#8A97A6','-gravity','center','-pointsize','20','-annotate','0',label,out],{stdio:'inherit'});
-for(const id of ids) gen('800x500','public/projects/'+id+'.webp',id);
-for(const id of certs){gen('600x420','public/certificates/thumb-'+id+'.webp',id);gen('1400x1000','public/certificates/'+id+'.webp',id);}
-gen('800x800','public/profile/avatar.webp','avatar');
-gen('256x256','public/education/telkom-university.webp','logo');
-"
+npm i -D sharp@0.35.3
 ```
 
-- [ ] **Step 4: Create the placeholder CV**
+**Do not use ImageMagick.** It is not installed here, and on Windows the `convert` that sits on `PATH` at `C:\WINDOWS\system32\convert` is the FAT-to-NTFS disk utility — a command that silently means something entirely different from what an image script intends. `sharp` is dev-only, needs no external binary, and rasterises SVG, which is what gives the placeholders their labels.
+
+- [ ] **Step 4: Write `scripts/generate-placeholders.mjs`**
+
+The script derives the asset list **from the data files themselves** rather than from a hardcoded array, so it cannot drift from what the invariant checks. The data files are TypeScript, so it strips the type-only import and the type annotation and imports the remainder from a `data:` URL.
+
+Dimensions come from spec §5: project thumbnails 800×500, certificate thumbnails 600×420, certificate full images 1400×1000, avatar 800×800, logos 256×256. Images are WebP quality 80 on `#12161D` with the slug drawn in `#8A97A6`.
+
+The CV placeholder is a hand-written minimal single-page PDF with a correct cross-reference table, so no second dependency is needed. See the committed script for the full source.
+
+- [ ] **Step 5: Add an npm script**
+
+Add to `package.json` scripts: `"placeholders": "node scripts/generate-placeholders.mjs"`.
+
+- [ ] **Step 6: Generate and verify**
 
 ```bash
-magick -size 1240x1754 canvas:white -fill '#333333' -gravity center -pointsize 48 -annotate 0 'CV placeholder' public/cv/daffa-firasyan-cv.pdf
+npm run placeholders
 ```
 
-If ImageMagick reports a PDF delegate error, Ghostscript is missing. Either install it, or drop any existing PDF at that exact path — the invariant checks existence, not contents.
+Verify by reading the files back rather than trusting that they appeared — assert with sharp's `metadata()` that each group has exactly its expected dimensions, and check the RIFF/WEBP magic bytes rather than the extension. For the PDF, confirm it starts with `%PDF-`, ends with `%%EOF`, and that its `startxref` offset points at the literal string `xref`.
 
-- [ ] **Step 5: Run the test**
+Expected: 38 images, 0 mismatches, and a ~570-byte PDF.
+
+- [ ] **Step 7: Run the test**
 
 Run: `npm test`
-Expected: all pass.
+Expected: all pass — 32 existing plus 1 new.
 
-- [ ] **Step 6: Verify the placeholder dimensions are exact**
+- [ ] **Step 8: Prove the invariant is not vacuous**
 
 ```bash
-magick identify -format "%f %wx%h\n" public/projects/kg-maintenance-assistant.webp public/certificates/thumb-deeplearning-nlp.webp
+mv public/certificates/thumb-sql-advanced.webp /tmp/held.webp && npm test; mv /tmp/held.webp public/certificates/thumb-sql-advanced.webp
 ```
 
-Expected: `kg-maintenance-assistant.webp 800x500` and `thumb-deeplearning-nlp.webp 600x420`.
+Expected: the run without the file fails with `missing asset: /certificates/thumb-sql-advanced.webp`, and the run after restoring passes.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 9: Commit**
 
 ```bash
-git add public/ src/data/invariants.test.ts && git commit -m "feat: add placeholder assets and asset existence invariant"
+git add public/ scripts/ package.json package-lock.json src/data/invariants.test.ts && git commit -m "feat: add placeholder assets and asset existence invariant"
 ```
 
 ---
