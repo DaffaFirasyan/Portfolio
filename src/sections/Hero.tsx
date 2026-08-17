@@ -10,7 +10,11 @@ export default function Hero() {
               {profile.openToWork ? `${profile.location} — Open to work` : profile.location}
             </p>
 
-            <h1 className="mt-4 font-display text-display-sm font-extrabold leading-none tracking-[-0.02em] text-primary md:text-display">
+            {/* break-words because profile.name is the one rendered string with no
+                LIMITS entry — you cannot cap a person's name — and it sits in the
+                largest type on the page. At 320px a single token beyond ~11
+                characters would otherwise overflow the viewport. */}
+            <h1 className="mt-4 font-display text-display-sm font-extrabold leading-none tracking-[-0.02em] break-words text-primary md:text-display">
               {profile.name}
             </h1>
 
