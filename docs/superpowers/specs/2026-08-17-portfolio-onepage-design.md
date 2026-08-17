@@ -176,6 +176,15 @@ Jumlah record: **8 projek** (PRD §5.1 mengizinkan 4–9), **14 sertifikat** (8 
 
 Kalau grid selamat di kondisi ini, konten asli hanya bisa lebih ringan. Arah sebaliknya juga diuji manual: 1 projek, 0 sertifikat, filter tanpa hasil.
 
+**Batas aturan stress — baca sebelum menempel konten asli.** Aturan stress bekerja untuk field yang penulisnya karang sendiri: judul projek, `problem`, `tagline`, bio. Ia tidak bekerja untuk **nama diri yang datang dari luar**, yaitu `certificate.issuer` dan `experience.organization`. "Coursera" tidak bisa dipanjangkan jadi 36 karakter; itu namanya.
+
+Saat konten asli masuk, dua bagian assertion ini kemungkinan besar gagal:
+
+- `certificates … stresses the layout on title, issuer and skill count` — bagian `issuer`
+- `experiences … stresses the layout on role, organization and highlights` — bagian `organization`
+
+Itu bukan tanda datanya salah. Yang benar dilakukan: **hapus dua bagian assertion tersebut**, bukan memaksa nama institusi memanjang dan bukan menurunkan plafonnya. Plafon 40 tetap berguna — ia menjamin layout selamat kalau memang ada penerbit sepanjang itu. Yang gugur hanya kewajiban membuktikannya lewat data contoh.
+
 ### 4.2 Invarian Dijaga Tes, Bukan Runtime
 
 Validator runtime seperti Zod menambah beban bundle untuk data yang sepenuhnya statis — tidak sepadan dengan target §1.2. Diganti satu suite Vitest yang gagal keras bila:
