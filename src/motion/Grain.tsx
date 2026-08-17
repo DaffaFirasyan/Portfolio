@@ -27,7 +27,11 @@ export default function Grain() {
     <div
       ref={host}
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 -z-10 opacity-[0.035]"
+      // overflow-hidden is load-bearing. Noise sizes its canvas to the window,
+      // not to this host, so on a page with a scrollbar it is ~15px wider than
+      // the content area and pushes the whole document sideways. Backdrop
+      // clips the same way.
+      className="pointer-events-none absolute inset-0 -z-10 overflow-hidden opacity-[0.035]"
     >
       {onScreen && <Noise patternSize={250} patternAlpha={18} patternRefreshInterval={3} />}
     </div>
