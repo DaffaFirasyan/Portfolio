@@ -17,18 +17,17 @@ This file exists so a session that remembers nothing can pick the work up withou
 | [Foundation & content](plans/2026-08-17-foundation-and-content-layer.md) | Spec phases 0–1 | **Built.** 16 tasks |
 | [Navigation](plans/2026-08-17-navigation.md) | Spec phase 2 | **Built.** 9 tasks |
 | [Motion & hero](plans/2026-08-17-motion-and-hero.md) | Spec phases 3–4 | **Built.** 7 tasks |
-| Sections & interaction | Spec phases 5–7 | Not written |
+| [Sections & cross-highlight](plans/2026-08-18-sections-and-cross-highlight.md) | Spec phase 5 + phase 7 animation | **Written, not started.** 7 tasks |
+| Interactive surfaces | Project filter, modal, certificate lightbox | Not written |
 | Contact & launch | Spec phases 8–10 | Not written |
 
 The authority on decisions is [the design spec](specs/2026-08-17-portfolio-onepage-design.md). Each plan records the decisions it changed and why.
 
 ## What to do next
 
-Write and execute the fourth plan: animating About, Skills, Experience, Projects and Education, then the project filter and modal and the certificate lightbox.
+Execute [the sections and cross-highlight plan](plans/2026-08-18-sections-and-cross-highlight.md), task by task from Task 1.
 
-Most of the groundwork is done. `src/motion/` already exports `Reveal`, `Heading`, `Surface`, `Backdrop`, and six hero-specific wrappers; `Surface` in particular was built ahead of its first use and is waiting for the About and Skills cards. Follow the same rule the existing wrappers follow: read `useMotionAllowed()`, render plain markup when motion is refused, and never import React Bits from a section.
-
-Before vendoring any further React Bits component, read its source. Two of the ones already in the tree render their own semantic element — `SplitText` renders the heading via a `tag` prop, `BlurText` renders its own `<p>` — so wrapping them naively nests a heading inside a heading or a paragraph inside a paragraph.
+Before vendoring any further React Bits component, read its source. Four have now been rejected on inspection — `PillNav`, `MagicBento`, `ScrollReveal` and `GlareHover` — because they are finished widgets rather than pieces, and three already in the tree needed edits: `SplitText` renders its own heading via a `tag` prop, `BlurText` renders its own `<p>`, and `SpotlightCard` hardcoded a palette that collided with the design tokens.
 
 ## Decisions that changed after the spec was approved
 
