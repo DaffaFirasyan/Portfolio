@@ -52,6 +52,36 @@ describe.each([
   });
 });
 
+describe.each([
+  ['motion allowed', true],
+  ['motion refused', false],
+])('Reveal height passthrough, %s', (_label, animate) => {
+  beforeEach(() => setMotion({ animate }));
+
+  it('claims no height of its own by default', () => {
+    const { container } = render(
+      <Reveal>
+        <p>body copy</p>
+      </Reveal>,
+    );
+
+    // Stacked Reveals in a column would each become the full height of that
+    // column, so a hero with five of them grows to five times its height.
+    for (const el of container.querySelectorAll('*')) {
+      expect(el.className).not.toContain('h-full');
+    }
+  });
+
+  it('passes the parent height through when asked to fill', () => {
+    const { container } = render(
+      <Reveal fill>
+        <p>card body</p>
+      </Reveal>,
+    );
+    expect(container.querySelector('.h-full')).not.toBeNull();
+  });
+});
+
 describe('when motion is allowed', () => {
   beforeEach(() => setMotion({ animate: true }));
 

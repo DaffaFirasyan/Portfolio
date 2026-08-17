@@ -12,8 +12,11 @@ export default function Skills() {
   return (
     <SectionShell {...shellProps('skills')}>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {/* `fill` because each Reveal is the grid item here: without it the
+            card inside cannot match the height of the others in its row. It is
+            opt-in precisely because stacked Reveals must not claim height. */}
         {skillCategories.map((category, index) => (
-          <Reveal key={category.id} delay={STEP * index}>
+          <Reveal key={category.id} delay={STEP * index} fill>
             <Surface className="h-full p-6">
               <h3 className="font-display text-lg font-bold text-primary">{category.name}</h3>
 
