@@ -1,0 +1,24 @@
+# Normalise text to LF in the repository. Without this, working on Windows
+# stores CRLF and every diff is noise.
+* text=auto eol=lf
+
+# Binary assets must never be line-ending converted.
+#
+# The CV placeholder is the reason this file exists: a PDF stores byte offsets
+# in its cross-reference table, and it is mostly ASCII, so git happily
+# misdetects it as text. Converting its line endings on checkout shifts every
+# offset and produces a PDF that is valid in the working tree and broken in
+# every clone.
+*.pdf   binary
+*.webp  binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.mp4   binary
+*.webm  binary
