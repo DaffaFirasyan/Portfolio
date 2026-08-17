@@ -1,6 +1,7 @@
 import SectionShell from '@/components/layout/SectionShell';
 import { shellProps } from '@/data/sections';
 import { skillCategories } from '@/data/skills';
+import { useSkillHighlight } from '@/highlight/SkillHighlight';
 import Chip from '@/motion/Chip';
 import Reveal from '@/motion/Reveal';
 import Surface from '@/motion/Surface';
@@ -9,6 +10,8 @@ import Surface from '@/motion/Surface';
 const STEP = 0.06;
 
 export default function Skills() {
+  const { setActive, clear } = useSkillHighlight();
+
   return (
     <SectionShell {...shellProps('skills')}>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -26,7 +29,21 @@ export default function Skills() {
               <ul className="mt-4 flex flex-wrap gap-2">
                 {category.skills.map((skill) => (
                   <li key={skill.name}>
-                    <Chip>{skill.name}</Chip>
+                    {/* A button, and an honest one: clicking gives it focus,
+                        and focus is what keeps the related projects lit. That
+                        also makes the whole thing reachable by keyboard rather
+                        than hover only, which would hide it from anyone not
+                        using a mouse. */}
+                    <button
+                      type="button"
+                      onMouseEnter={() => setActive(skill.name, skill.relatedProjectIds ?? [])}
+                      onFocus={() => setActive(skill.name, skill.relatedProjectIds ?? [])}
+                      onMouseLeave={clear}
+                      onBlur={clear}
+                      className="rounded-full"
+                    >
+                      <Chip>{skill.name}</Chip>
+                    </button>
                   </li>
                 ))}
               </ul>

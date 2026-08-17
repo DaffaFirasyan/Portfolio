@@ -6,6 +6,7 @@ import Projects from '@/sections/Projects';
 import Education from '@/sections/Education';
 import Contact from '@/sections/Contact';
 import { profile } from '@/data/profile';
+import { SkillHighlightProvider } from '@/highlight/SkillHighlight';
 import Navbar from '@/nav/Navbar';
 
 export default function App() {
@@ -20,15 +21,17 @@ export default function App() {
 
       <Navbar />
 
-      <main>
-        <Hero />
-        <About />
-        <Skills />
-        <Experience />
-        <Projects />
-        <Education />
-        <Contact />
-      </main>
+      <SkillHighlightProvider>
+        <main>
+          <Hero />
+          <About />
+          <Skills />
+          <Experience />
+          <Projects />
+          <Education />
+          <Contact />
+        </main>
+      </SkillHighlightProvider>
 
       <footer className="border-t border-edge py-10">
         <div className="mx-auto w-full max-w-[1200px] px-6 md:px-12">

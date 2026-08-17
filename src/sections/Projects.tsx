@@ -1,13 +1,25 @@
 import SectionShell from '@/components/layout/SectionShell';
 import { shellProps } from '@/data/sections';
 import { projects } from '@/data/projects';
+import { useSkillHighlight } from '@/highlight/SkillHighlight';
 
 export default function Projects() {
+  const { isDimmed } = useSkillHighlight();
+
   return (
     <SectionShell {...shellProps('projects')}>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {projects.map((p) => (
-          <article key={p.id} className="rounded-xl border border-edge bg-surface p-5">
+          // Only opacity changes while a skill is active. Anything touching
+          // size, margin or position would shift the grid under the reader's
+          // cursor, which the design forbids outright.
+          <article
+            key={p.id}
+            data-dimmed={isDimmed(p.id) ? 'true' : undefined}
+            className={`rounded-xl border border-edge bg-surface p-5 transition-opacity duration-150 ${
+              isDimmed(p.id) ? 'opacity-40' : 'opacity-100'
+            }`}
+          >
             <img
               src={p.thumbnail}
               alt={`${p.title} preview`}
