@@ -1,9 +1,10 @@
 import SectionShell from '@/components/layout/SectionShell';
+import { shellProps } from '@/data/sections';
 import { profile } from '@/data/profile';
 
 export default function About() {
   return (
-    <SectionShell id="about" index={1} label="About" title="Who I am">
+    <SectionShell {...shellProps('about')}>
       <div className="grid gap-10 md:grid-cols-12">
         <div className="md:col-span-5">
           <img

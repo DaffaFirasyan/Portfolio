@@ -2,6 +2,11 @@ export interface SectionMeta {
   id: string;
   label: string;
   index: number;
+  /**
+   * Heading rendered inside the section. Absent for the hero, which carries
+   * the page's h1 rather than a numbered section header.
+   */
+  title?: string;
 }
 
 export interface SectionNavProps {

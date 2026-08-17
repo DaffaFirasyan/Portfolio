@@ -1,9 +1,10 @@
 import SectionShell from '@/components/layout/SectionShell';
+import { shellProps } from '@/data/sections';
 import { profile } from '@/data/profile';
 
 export default function Contact() {
   return (
-    <SectionShell id="contact" index={6} label="Contact" title="Let us talk">
+    <SectionShell {...shellProps('contact')}>
       <p className="max-w-[60ch] text-muted">
         The fastest way to reach me is email. I read everything and reply to anything specific.
       </p>

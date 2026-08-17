@@ -1,9 +1,10 @@
 import SectionShell from '@/components/layout/SectionShell';
+import { shellProps } from '@/data/sections';
 import { projects } from '@/data/projects';
 
 export default function Projects() {
   return (
-    <SectionShell id="projects" index={4} label="Projects" title="Selected work">
+    <SectionShell {...shellProps('projects')}>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {projects.map((p) => (
           <article key={p.id} className="rounded-xl border border-edge bg-surface p-5">

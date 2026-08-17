@@ -1,10 +1,11 @@
 import SectionShell from '@/components/layout/SectionShell';
+import { shellProps } from '@/data/sections';
 import { education } from '@/data/education';
 import { certificates } from '@/data/certificates';
 
 export default function Education() {
   return (
-    <SectionShell id="education" index={5} label="Education" title="Study and certification">
+    <SectionShell {...shellProps('education')}>
       {education.map((e) => (
         <div key={e.id} className="rounded-xl border border-edge bg-surface p-6">
           <h3 className="font-display text-lg font-bold text-primary">{e.degree}</h3>

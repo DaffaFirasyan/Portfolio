@@ -7,6 +7,7 @@ import { education } from './education';
 import { experiences } from './experiences';
 import { profile } from './profile';
 import { projects } from './projects';
+import { SECTIONS, shellProps } from './sections';
 import { skillCategories } from './skills';
 
 const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
@@ -291,5 +292,39 @@ describe('assets', () => {
     for (const url of referenced) {
       expect(existsSync(publicPath(url)), `missing asset: ${url}`).toBe(true);
     }
+  });
+});
+
+describe('sections', () => {
+  it('has unique ids and contiguous indices', () => {
+    const ids = SECTIONS.map((s) => s.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(SECTIONS.map((s) => s.index)).toEqual(SECTIONS.map((_, i) => i));
+  });
+
+  it('gives every section except the hero a heading title', () => {
+    for (const s of SECTIONS) {
+      if (s.id === 'home') {
+        expect(s.title, 'the hero renders the name as h1, not a section title').toBeUndefined();
+      } else {
+        expect(s.title?.trim() ?? '', `${s.id}.title`).not.toBe('');
+      }
+    }
+  });
+
+  it('builds shell props for every titled section', () => {
+    for (const s of SECTIONS.filter((section) => section.title)) {
+      expect(shellProps(s.id)).toEqual({
+        id: s.id,
+        index: s.index,
+        label: s.label,
+        title: s.title,
+      });
+    }
+  });
+
+  it('refuses to build shell props where the metadata is missing', () => {
+    expect(() => shellProps('home'), 'the hero has no section title').toThrow(/home/);
+    expect(() => shellProps('nonexistent')).toThrow(/nonexistent/);
   });
 });

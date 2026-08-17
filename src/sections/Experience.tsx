@@ -1,4 +1,5 @@
 import SectionShell from '@/components/layout/SectionShell';
+import { shellProps } from '@/data/sections';
 import { experiences } from '@/data/experiences';
 
 function formatMonth(value: string): string {
@@ -11,7 +12,7 @@ function formatMonth(value: string): string {
 
 export default function Experience() {
   return (
-    <SectionShell id="experience" index={3} label="Experience" title="Where I have worked">
+    <SectionShell {...shellProps('experience')}>
       <ol className="relative border-l border-edge pl-6">
         {experiences.map((e) => (
           <li key={e.id} className="mb-10 last:mb-0">
