@@ -2522,6 +2522,14 @@ git add src/App.tsx src/App.test.tsx && git commit -m "feat: assemble the one-pa
 - No file under `src/sections/` imports from `src/components/reactbits/`.
 - Replacing skeleton content with real content requires editing only `src/data/` and `public/`.
 
+## Amended After Execution
+
+The Task 13–15 snippets below pass a section's `id`, `index`, `label` and `title` to `SectionShell` as literals. That shipped, then was refactored — the final code does not look like those snippets.
+
+Two problems with the literal form. The heading copy lived in a component, so changing it violated the last bullet above. And the number and nav label were duplicated between the section and `SECTIONS`, which navigation reads in plan 2 — two facts that happened to agree, with nothing keeping them agreeing.
+
+`src/data/sections.ts` now carries a `title` per entry and exports `shellProps(id)`, which returns all four and throws when the metadata is missing. Sections call `<SectionShell {...shellProps('about')} >`. The hero has no entry title and `shellProps('home')` throws by design — it renders the page's `h1`, not a numbered header.
+
 ## Not In This Plan
 
 Navigation and active-section tracking (plan 2). Motion primitives, React Bits, and the Galaxy backdrop (plan 3). Contact form, project modal, certificate lightbox, node-rail navigation, and deployment (plan 4).
