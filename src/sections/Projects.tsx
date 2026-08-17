@@ -1,15 +1,54 @@
+import { useMemo, useState } from 'react';
+
 import SectionShell from '@/components/layout/SectionShell';
 import { shellProps } from '@/data/sections';
 import { projects } from '@/data/projects';
 import { useSkillHighlight } from '@/highlight/SkillHighlight';
+import { ALL, categoriesOf, filterByCategory } from '@/lib/filter';
+import Chip from '@/motion/Chip';
 
 export default function Projects() {
   const { isDimmed } = useSkillHighlight();
+  const [category, setCategory] = useState(ALL);
+
+  const categories = useMemo(() => categoriesOf(projects), []);
+  const visible = useMemo(() => filterByCategory(projects, category), [category]);
 
   return (
     <SectionShell {...shellProps('projects')}>
+      <ul className="mb-8 flex flex-wrap gap-2">
+        {categories.map((name) => (
+          <li key={name}>
+            <button
+              type="button"
+              aria-pressed={name === category}
+              onClick={() => setCategory(name)}
+              className="rounded-full"
+            >
+              <Chip className={name === category ? 'border-accent text-accent' : undefined}>
+                {name}
+              </Chip>
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      {visible.length === 0 ? (
+        // Never a blank area. An empty grid reads as a broken page rather than
+        // as an answer, so it says what happened and offers the way back.
+        <div className="rounded-xl border border-edge bg-surface p-8 text-center">
+          <p className="text-muted">{`No projects in ${category} yet.`}</p>
+          <button
+            type="button"
+            onClick={() => setCategory(ALL)}
+            className="mt-4 inline-flex min-h-11 items-center rounded-full border border-accent px-5 text-sm font-semibold text-accent"
+          >
+            Show all projects
+          </button>
+        </div>
+      ) : (
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {projects.map((p) => (
+        {visible.map((p) => (
           // Only opacity changes while a skill is active. Anything touching
           // size, margin or position would shift the grid under the reader's
           // cursor, which the design forbids outright.
@@ -74,6 +113,7 @@ export default function Projects() {
           </article>
         ))}
       </div>
+      )}
     </SectionShell>
   );
 }
