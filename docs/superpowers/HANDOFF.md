@@ -8,16 +8,16 @@ This file exists so a session that remembers nothing can pick the work up withou
 
 ## Where the work stands
 
-**Branch:** `feat/foundation-and-content-layer`, 54 commits ahead of `main`. Nothing is merged; `main` still sits at the first plan document.
+**Branch:** `feat/foundation-and-content-layer`, 66 commits ahead of `main`. Nothing is merged; `main` still sits at the first plan document.
 
-**State:** 128 tests pass across 16 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean. Initial JS is 165 KB gzip against a 250 KB budget, with the WebGL backdrop split into a further 15 KB chunk that only loads when the capability check passes.
+**State:** 143 tests pass across 18 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean. Initial JS is 165 KB gzip against a 250 KB budget, with the WebGL backdrop split into a further 15 KB chunk that only loads when the capability check passes.
 
 | Plan | Covers | Status |
 |---|---|---|
 | [Foundation & content](plans/2026-08-17-foundation-and-content-layer.md) | Spec phases 0–1 | **Built.** 16 tasks |
 | [Navigation](plans/2026-08-17-navigation.md) | Spec phase 2 | **Built.** 9 tasks |
 | [Motion & hero](plans/2026-08-17-motion-and-hero.md) | Spec phases 3–4 | **Built.** 7 tasks |
-| [Sections & cross-highlight](plans/2026-08-18-sections-and-cross-highlight.md) | Spec phase 5 + phase 7 animation | **Written, not started.** 7 tasks |
+| [Sections & cross-highlight](plans/2026-08-18-sections-and-cross-highlight.md) | Spec phase 5 + phase 7 animation | **Built.** 7 tasks |
 | Interactive surfaces | Project filter, modal, certificate lightbox | Not written |
 | Contact & launch | Spec phases 8–10 | Not written |
 
@@ -25,7 +25,7 @@ The authority on decisions is [the design spec](specs/2026-08-17-portfolio-onepa
 
 ## What to do next
 
-Execute [the sections and cross-highlight plan](plans/2026-08-18-sections-and-cross-highlight.md), task by task from Task 1.
+Write and execute the fifth plan: the project category filter, the project detail modal, and the certificate lightbox. All three need focus management and keyboard handling, which is why they were kept together rather than spread across the animation work.
 
 Before vendoring any further React Bits component, read its source. Four have now been rejected on inspection — `PillNav`, `MagicBento`, `ScrollReveal` and `GlareHover` — because they are finished widgets rather than pieces, and three already in the tree needed edits: `SplitText` renders its own heading via a `tag` prop, `BlurText` renders its own `<p>`, and `SpotlightCard` hardcoded a palette that collided with the design tokens.
 
@@ -50,6 +50,10 @@ Every one of these produced a wrong turn before it was understood. They are not 
 **`.gitattributes` is load-bearing.** The placeholder CV is mostly ASCII, so git misdetected the PDF as text and line-ending conversion corrupted it — valid in the working tree at 570 bytes, broken in a fresh clone at 602. Binary types are marked explicitly.
 
 **Verify package versions against the registry rather than recalling them.** Every version pinned from memory in the first plan was wrong, including three majors. `npm view <pkg> version` before writing a plan.
+
+**Two layout traps this project has already hit.** `AnimatedContent` sets a transform on its wrapper, and a transformed ancestor becomes the containing block for absolutely positioned descendants — so anything positioned against a section must stay outside its `Reveal`, as the timeline dots do. And `Reveal` adds one or two divs, which breaks a `h-full` chain: it takes `fill` for the grid-item case and must not take it anywhere else, because stacked Reveals each claim the full height of their column.
+
+**A fixed header can overflow invisibly.** `documentElement.scrollWidth` does not grow for a fixed element, so an overflow sweep reports clean while a control sits off screen and unreachable. Measure the header contents against `clientWidth` directly.
 
 ## Architectural rules that are enforced, not just documented
 
