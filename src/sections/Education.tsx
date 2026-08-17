@@ -38,7 +38,7 @@ export default function Education() {
               decoding="async"
               className="mb-3 w-full rounded-lg border border-edge"
             />
-            <p className="text-sm font-semibold text-primary">{c.title}</p>
+            <p className="text-sm font-semibold break-words text-primary">{c.title}</p>
             <p className="mt-1 font-mono text-xs uppercase tracking-[0.12em] text-muted">
               {`${c.issuer} · ${c.issueDate}`}
             </p>

@@ -10,7 +10,7 @@ export default function Contact() {
 
       <a
         href={`mailto:${profile.email}`}
-        className="mt-6 inline-block font-display text-2xl font-bold text-accent"
+        className="mt-6 inline-block font-display text-2xl font-bold break-words text-accent"
       >
         {profile.email}
       </a>

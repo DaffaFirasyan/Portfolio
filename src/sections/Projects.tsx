@@ -19,7 +19,9 @@ export default function Projects() {
             <p className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
               {`${p.category} · ${p.year}`}
             </p>
-            <h3 className="mt-2 font-display text-lg font-bold text-primary">{p.title}</h3>
+            <h3 className="mt-2 font-display text-lg font-bold break-words text-primary">
+              {p.title}
+            </h3>
             <p className="mt-2 text-sm text-muted">{p.problem}</p>
             {p.outcome && <p className="mt-2 text-sm text-accent-2">{p.outcome}</p>}
 

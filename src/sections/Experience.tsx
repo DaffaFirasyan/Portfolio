@@ -22,7 +22,9 @@ export default function Experience() {
             <p className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
               {`${formatMonth(e.startDate)} — ${e.endDate === 'present' ? 'Present' : formatMonth(e.endDate)}`}
             </p>
-            <h3 className="mt-2 font-display text-lg font-bold text-primary">{e.role}</h3>
+            <h3 className="mt-2 font-display text-lg font-bold break-words text-primary">
+              {e.role}
+            </h3>
             <p className="text-accent-2">{e.organization}</p>
             <p className="mt-2 max-w-[68ch] text-muted">{e.summary}</p>
             <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-muted">
