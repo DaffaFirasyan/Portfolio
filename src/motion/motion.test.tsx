@@ -52,6 +52,28 @@ describe.each([
   });
 });
 
+describe('when motion is allowed', () => {
+  beforeEach(() => setMotion({ animate: true }));
+
+  it('Reveal never hides its content with a class', () => {
+    const { container } = render(
+      <Reveal>
+        <p>body copy</p>
+      </Reveal>,
+    );
+
+    // The wrapper used to ship an `invisible` class that only GSAP removed, so
+    // anything preventing GSAP from running left the content hidden for good.
+    // The starting state is applied from a layout effect instead, which means
+    // the markup alone is visible.
+    for (const el of container.querySelectorAll('*')) {
+      expect(el.className, 'content is hidden by a class rather than by script').not.toContain(
+        'invisible',
+      );
+    }
+  });
+});
+
 describe('with motion refused', () => {
   beforeEach(() => setMotion({ animate: false }));
 

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useLayoutEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -47,7 +47,18 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  // Deliberately a layout effect, not an effect.
+  //
+  // Upstream hid the wrapper with an `invisible` class and relied on this code
+  // to reveal it. Anything that stopped the code running — GSAP failing to
+  // load, an exception during setup — left the content hidden forever, with
+  // nothing on screen to say why. Content that fails invisibly is the worst
+  // direction for it to fail in.
+  //
+  // The class is gone, so the markup is visible on its own. This runs before
+  // the browser paints, so the hidden starting state is still applied without a
+  // flash, but only when the code actually runs.
+  useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
 
@@ -127,7 +138,7 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
   ]);
 
   return (
-    <div ref={ref} className={`invisible ${className}`} {...props}>
+    <div ref={ref} className={className} {...props}>
       {children}
     </div>
   );
