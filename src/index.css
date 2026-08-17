@@ -1,5 +1,10 @@
 @import 'tailwindcss';
 
+/* Tailwind v4 scans the whole repository by default. The plan and spec name
+   utility classes in prose, which would otherwise generate real CSS and make
+   "this class is in the bundle" useless as proof that a component uses it. */
+@source not '../docs';
+
 @theme {
   --color-void: #0a0c10;
   --color-surface: #12161d;

@@ -219,8 +219,15 @@ export default defineConfig({
 
 Colors are spec §2 / PRD §3.1 verbatim. The three custom text sizes fill gaps in Tailwind's default scale (PRD §3.2 asks for 2rem, 3rem, 4.5rem, 7rem; Tailwind has no 2rem step).
 
+The `@source not` line is load-bearing. Tailwind v4 scans the whole repository by default, and this plan and the spec both name utility classes in prose — without the exclusion, `docs/` generates real CSS, and "this class is in the bundle" stops proving that any component uses it.
+
 ```css
 @import 'tailwindcss';
+
+/* Tailwind v4 scans the whole repository by default. The plan and spec name
+   utility classes in prose, which would otherwise generate real CSS and make
+   "this class is in the bundle" useless as proof that a component uses it. */
+@source not '../docs';
 
 @theme {
   --color-void: #0a0c10;
