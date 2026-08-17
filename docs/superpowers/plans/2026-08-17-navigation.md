@@ -49,7 +49,7 @@ Spec decision D6 chose `PillNav` on the stated grounds that it was a "drop-in Re
 
 That is roughly 40KB of source to own and maintain, carrying a router this site has no use for, its own colour prop system that would have to be reconciled with the design tokens, and its own GSAP timelines — for a seven-anchor menu. Task 8 writes the equivalent in well under a tenth of that, with correct `aria-current`, `aria-expanded`, and Escape handling, styled directly from the tokens.
 
-**So this plan does not vendor either component**, and `react-router-dom` is never installed. GSAP is still installed here because plan 3 needs it.
+**So this plan does not vendor either component**, and neither `react-router-dom` nor GSAP is installed here — GSAP arrives in plan 3, where React Bits actually is used.
 
 This does not weaken the architecture. `src/components/reactbits/` and the ESLint boundary guarding `src/sections/**` stay exactly as they are — plan 3 genuinely uses React Bits (`SplitText`, `AnimatedContent`, `SpotlightCard`, `Galaxy`), and that is where the boundary earns its keep. What changes is only that navigation, which turned out to need precise control over active state and accessibility semantics, is written rather than adopted.
 
@@ -260,7 +260,7 @@ Expected: prints `clean`, 55 tests pass.
 - [ ] **Step 3: Commit**
 
 ```bash
-git add package.json package-lock.json && git commit -m "chore: add gsap and lenis"
+git add package.json package-lock.json && git commit -m "chore: add lenis"
 ```
 
 ---
