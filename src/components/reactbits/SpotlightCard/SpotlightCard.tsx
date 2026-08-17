@@ -45,6 +45,11 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
     setOpacity(0);
   };
 
+  // Only structural classes are kept below. Upstream also set rounded-3xl,
+  // border-neutral-800, bg-neutral-900 and p-8, which collide with this
+  // project's design tokens — and since both are utilities in the same layer,
+  // which one wins depends on stylesheet order rather than the order they
+  // appear in the class attribute. Appearance belongs to the caller.
   return (
     <div
       ref={divRef}
@@ -53,9 +58,10 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
       onBlur={handleBlur}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`relative rounded-3xl border border-neutral-800 bg-neutral-900 overflow-hidden p-8 ${className}`}
+      className={`relative overflow-hidden ${className}`}
     >
       <div
+        data-spotlight=""
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 ease-in-out"
         style={{
           opacity,

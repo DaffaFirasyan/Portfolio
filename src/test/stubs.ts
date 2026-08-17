@@ -77,3 +77,24 @@ window.matchMedia = ((query: string) => ({
 })) as unknown as typeof window.matchMedia;
 
 Element.prototype.scrollIntoView = function scrollIntoView() {};
+
+/**
+ * jsdom implements no FontFaceSet, so `document.fonts` is undefined. Text
+ * animations wait on it before measuring, because splitting a heading into
+ * characters against a fallback font produces the wrong glyph widths.
+ *
+ * Reporting 'loaded' lets those components take their already-ready path
+ * instead of awaiting a promise that would never settle.
+ */
+if (!('fonts' in document)) {
+  Object.defineProperty(document, 'fonts', {
+    configurable: true,
+    value: {
+      status: 'loaded',
+      ready: Promise.resolve(),
+      check: () => true,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    },
+  });
+}
