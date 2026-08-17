@@ -57,7 +57,7 @@ export default function Navbar() {
             event.preventDefault();
             navigate('home');
           }}
-          className="font-display text-lg font-extrabold text-primary"
+          className="inline-flex min-h-11 items-center font-display text-lg font-extrabold text-primary"
         >
           {profile.shortName}
         </a>
@@ -75,7 +75,7 @@ export default function Navbar() {
           <a
             href={profile.cvUrl}
             download
-            className="rounded-full border border-accent px-4 py-1.5 text-sm font-semibold text-accent"
+            className="inline-flex min-h-11 items-center rounded-full border border-accent px-4 text-sm font-semibold text-accent"
           >
             CV
           </a>
@@ -85,7 +85,7 @@ export default function Navbar() {
             aria-label="Menu"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((open) => !open)}
-            className="rounded-full border border-edge px-3 py-1.5 text-sm text-muted md:hidden"
+            className="inline-flex min-h-11 items-center rounded-full border border-edge px-4 text-sm text-muted md:hidden"
           >
             Menu
           </button>
@@ -108,7 +108,7 @@ export default function Navbar() {
                     event.preventDefault();
                     navigate(section.id);
                   }}
-                  className="block rounded-lg px-3 py-2 text-primary"
+                  className="flex min-h-11 items-center rounded-lg px-3 text-primary"
                 >
                   {section.label}
                 </a>

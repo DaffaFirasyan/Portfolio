@@ -34,7 +34,7 @@ export default function PillNavAdapter({
                   event.preventDefault();
                   onNavigate(section.id);
                 }}
-                className={`block rounded-full px-3 py-1.5 text-sm transition-colors ${
+                className={`flex min-h-11 items-center rounded-full px-4 text-sm transition-colors ${
                   isActive ? 'bg-accent font-semibold text-void' : 'text-muted hover:text-primary'
                 }`}
               >
