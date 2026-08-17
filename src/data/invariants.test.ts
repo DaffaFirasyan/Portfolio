@@ -1,4 +1,5 @@
 import { LIMITS, longest, STRESS_RATIO } from './constraints';
+import { profile } from './profile';
 import { projects } from './projects';
 import { skillCategories } from './skills';
 
@@ -109,5 +110,43 @@ describe('skills', () => {
 
   it('links at least one skill to a project so cross-highlight has something to show', () => {
     expect(allSkills.some((s) => (s.relatedProjectIds?.length ?? 0) > 0)).toBe(true);
+  });
+});
+
+describe('profile', () => {
+  it('keeps the tagline inside the limit and near it', () => {
+    expect(profile.tagline.length).toBeLessThanOrEqual(LIMITS.profile.tagline);
+    expect(profile.tagline.length).toBeGreaterThanOrEqual(
+      LIMITS.profile.tagline * STRESS_RATIO,
+    );
+  });
+
+  it('has three or four roles inside the length limit', () => {
+    expect(profile.roles.length).toBeGreaterThanOrEqual(3);
+    expect(profile.roles.length).toBeLessThanOrEqual(LIMITS.profile.roles);
+    for (const role of profile.roles) {
+      expect(role.length, role).toBeLessThanOrEqual(LIMITS.profile.role);
+    }
+    expect(longest(profile.roles)).toBeGreaterThanOrEqual(
+      LIMITS.profile.role * STRESS_RATIO,
+    );
+  });
+
+  it('has two or three bio paragraphs inside the length limit', () => {
+    expect(profile.bio.length).toBeGreaterThanOrEqual(2);
+    expect(profile.bio.length).toBeLessThanOrEqual(LIMITS.profile.bio);
+    for (const paragraph of profile.bio) {
+      expect(paragraph.length).toBeLessThanOrEqual(LIMITS.profile.bioParagraph);
+    }
+    expect(longest(profile.bio)).toBeGreaterThanOrEqual(
+      LIMITS.profile.bioParagraph * STRESS_RATIO,
+    );
+  });
+
+  it('has a valid email and social urls', () => {
+    expect(profile.email).toMatch(/^[^@\s]+@[^@\s]+\.[^@\s]+$/);
+    for (const social of profile.socials) {
+      expect(() => new URL(social.url), social.label).not.toThrow();
+    }
   });
 });
