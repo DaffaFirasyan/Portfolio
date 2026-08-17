@@ -79,6 +79,31 @@ window.matchMedia = ((query: string) => ({
 Element.prototype.scrollIntoView = function scrollIntoView() {};
 
 /**
+ * jsdom 29 defines HTMLDialogElement but implements neither showModal nor
+ * close, so anything built on the native dialog cannot even render in a test.
+ *
+ * This stub tracks `open` and fires `close`, which is enough to exercise the
+ * wiring around a dialog. It traps no focus and makes nothing inert — those are
+ * the parts only a real browser can be trusted with, and they are checked
+ * there rather than here.
+ */
+if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.showModal) {
+  HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
+    this.open = true;
+  };
+
+  HTMLDialogElement.prototype.close = function close(
+    this: HTMLDialogElement,
+    returnValue?: string,
+  ) {
+    if (!this.open) return;
+    this.open = false;
+    if (returnValue !== undefined) this.returnValue = returnValue;
+    this.dispatchEvent(new Event('close'));
+  };
+}
+
+/**
  * jsdom implements no FontFaceSet, so `document.fonts` is undefined. Text
  * animations wait on it before measuring, because splitting a heading into
  * characters against a fallback font produces the wrong glyph widths.

@@ -34,3 +34,40 @@ describe('jsdom stubs', () => {
     expect(window.matchMedia('(hover: hover) and (pointer: fine)').matches).toBe(false);
   });
 });
+
+describe('dialog stub', () => {
+  it('implements the two methods jsdom leaves out', () => {
+    const dialog = document.createElement('dialog');
+    expect(typeof dialog.showModal).toBe('function');
+    expect(typeof dialog.close).toBe('function');
+  });
+
+  it('tracks open state the way the real element does', () => {
+    const dialog = document.createElement('dialog');
+    document.body.appendChild(dialog);
+
+    expect(dialog.open).toBe(false);
+    dialog.showModal();
+    expect(dialog.open).toBe(true);
+    dialog.close();
+    expect(dialog.open).toBe(false);
+
+    dialog.remove();
+  });
+
+  it('fires a close event, which is how components learn it was dismissed', () => {
+    const dialog = document.createElement('dialog');
+    document.body.appendChild(dialog);
+
+    let closed = 0;
+    dialog.addEventListener('close', () => (closed += 1));
+
+    dialog.showModal();
+    dialog.close();
+    // Closing an already-closed dialog must not fire again.
+    dialog.close();
+
+    expect(closed).toBe(1);
+    dialog.remove();
+  });
+});

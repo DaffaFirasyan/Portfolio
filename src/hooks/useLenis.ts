@@ -8,6 +8,14 @@ export const NAV_OFFSET = 80;
 
 export interface SmoothScroll {
   scrollTo: (id: string) => void;
+  /**
+   * Pause smooth scrolling, for a modal that must not let the page move
+   * behind it. A no-op when Lenis never mounted, so callers need not know
+   * whether it did.
+   */
+  stop: () => void;
+  /** Resume after a stop. */
+  start: () => void;
 }
 
 /**
@@ -53,5 +61,10 @@ export function useLenis(): SmoothScroll {
     target.scrollIntoView({ behavior: 'auto', block: 'start' });
   }, []);
 
-  return { scrollTo };
+  // Body overflow is locked by the dialog rather than here, so these stay
+  // no-ops under reduced motion where there is no instance to pause.
+  const stop = useCallback(() => lenis.current?.stop(), []);
+  const start = useCallback(() => lenis.current?.start(), []);
+
+  return { scrollTo, stop, start };
 }

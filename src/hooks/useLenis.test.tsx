@@ -44,4 +44,28 @@ describe('useLenis', () => {
     const { result } = renderHook(() => useLenis());
     expect(() => result.current.scrollTo('nowhere')).not.toThrow();
   });
+
+  it('exposes the scroll lock a modal needs', () => {
+    mockMedia(() => false);
+    const { result } = renderHook(() => useLenis());
+
+    expect(typeof result.current.stop).toBe('function');
+    expect(typeof result.current.start).toBe('function');
+    expect(() => {
+      result.current.stop();
+      result.current.start();
+    }).not.toThrow();
+  });
+
+  it('leaves stop and start safe to call when smooth scrolling never mounted', () => {
+    // Under reduced motion there is no Lenis instance at all, and a modal must
+    // still be able to ask for the lock without knowing that.
+    mockMedia((query) => query.includes('prefers-reduced-motion'));
+    const { result } = renderHook(() => useLenis());
+
+    expect(() => {
+      result.current.stop();
+      result.current.start();
+    }).not.toThrow();
+  });
 });
