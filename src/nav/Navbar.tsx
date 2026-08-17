@@ -62,7 +62,10 @@ export default function Navbar() {
           {profile.shortName}
         </a>
 
-        <nav aria-label="Sections" className="hidden md:block">
+        {/* lg, not md. At 768 the seven pills measure 687px inside a 753px
+            container, which pushed the CV link entirely off screen while the
+            Menu button was already hidden — leaving no way to reach it. */}
+        <nav aria-label="Sections" className="hidden lg:block">
           <PillNavAdapter
             sections={SECTIONS}
             activeId={activeId}
@@ -85,7 +88,7 @@ export default function Navbar() {
             aria-label="Menu"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((open) => !open)}
-            className="inline-flex min-h-11 items-center rounded-full border border-edge px-4 text-sm text-muted md:hidden"
+            className="inline-flex min-h-11 items-center rounded-full border border-edge px-4 text-sm text-muted lg:hidden"
           >
             Menu
           </button>
@@ -95,7 +98,7 @@ export default function Navbar() {
       {menuOpen && (
         <nav
           aria-label="Sections, mobile"
-          className="border-b border-edge bg-void px-6 py-4 md:hidden"
+          className="border-b border-edge bg-void px-6 py-4 lg:hidden"
         >
           <ul className="flex flex-col gap-1">
             {SECTIONS.map((section) => (
