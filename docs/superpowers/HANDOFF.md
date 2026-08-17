@@ -1,6 +1,6 @@
 # Handoff — read this first
 
-Written 2026-08-17, at the point where plans 1, 2 and 3 are built.
+Written 2026-08-18, at the point where plans 1, 2 and 3 are built and verified in a browser.
 
 This file exists so a session that remembers nothing can pick the work up without asking. Everything below is either recorded here or in a committed document — nothing important lives only in a conversation.
 
@@ -8,7 +8,7 @@ This file exists so a session that remembers nothing can pick the work up withou
 
 ## Where the work stands
 
-**Branch:** `feat/foundation-and-content-layer`, 47 commits ahead of `main`. Nothing is merged; `main` still sits at the first plan document.
+**Branch:** `feat/foundation-and-content-layer`, 54 commits ahead of `main`. Nothing is merged; `main` still sits at the first plan document.
 
 **State:** 119 tests pass across 15 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean. Initial JS is 165 KB gzip against a 250 KB budget, with the WebGL backdrop split into a further 15 KB chunk that only loads when the capability check passes.
 
@@ -62,9 +62,9 @@ Every one of these produced a wrong turn before it was understood. They are not 
 ## Things known to be imperfect
 
 - **The stress rule does not apply to proper nouns.** `certificate.issuer` and `experience.organization` are names owned by someone else — "Coursera" cannot be stretched to 36 characters. When real content lands, those two assertion clauses should be deleted, not worked around. Spec §4.1 records this.
-- **The WebGL backdrop has never run, and neither has anything else that animates.** Confirmed in the owner's own browser: `prefers-reduced-motion` is `true` while `deviceMemory` is 16 and `hardwareConcurrency` is 20 — so the low-end heuristic is not the cause, the OS preference is. Windows has **Settings → Accessibility → Visual effects → Animation effects** switched off, which makes every Chromium browser on the machine report `reduce`.
+- **Nothing animates while Windows has animation effects off**, and that setting is easy to forget. It makes every Chromium browser on the machine report `prefers-reduced-motion: reduce`, which correctly disables the starfield, per-character headings, the rotating role, the counters, the tilt, the grain, and Lenis smooth scroll all at once. The switch is **Settings → Accessibility → Visual effects → Animation effects**. The low-end heuristic is not involved on this machine — `deviceMemory` is 16 and `hardwareConcurrency` is 20.
 
-  With the setting turned on, verified in a browser: `prefers-reduced-motion` reads false, Lenis mounts (`html.lenis`), `SplitText` splits the h1, the Galaxy chunk is fetched on demand, and there is **exactly one WebGL 2.0 context** at hero width with the gradient fallback gone.
+  With the setting on, verified in a browser: `prefers-reduced-motion` reads false, Lenis mounts (`html.lenis`), `SplitText` splits the h1, the Galaxy chunk is fetched on demand, and there is **exactly one WebGL 2.0 context** at hero width with the gradient fallback gone.
 
   Do not relax the gate to make the effects visible during development. The preference is an explicit request, and honouring it completely is the thing this architecture was built around.
 
