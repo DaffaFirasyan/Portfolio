@@ -388,7 +388,7 @@ export function scrollProgress(
 - [ ] **Step 4: Run the test**
 
 Run: `npm test`
-Expected: all pass — 55 existing plus 9 new.
+Expected: all pass — 55 existing plus 8 new, so 63 total.
 
 - [ ] **Step 5: Commit**
 
@@ -560,7 +560,7 @@ The threshold list is several values rather than the single 0.4 the spec mention
 - [ ] **Step 4: Run the test**
 
 Run: `npm test`
-Expected: all pass — 64 existing plus 5 new.
+Expected: all pass — 63 existing plus 5 new, so 68 total.
 
 - [ ] **Step 5: Commit**
 
@@ -738,7 +738,7 @@ export function useMotionAllowed(): MotionCapability {
 - [ ] **Step 5: Run the test**
 
 Run: `npm test`
-Expected: all pass — 69 existing plus 4 new.
+Expected: all pass — 68 existing plus 4 new, so 72 total.
 
 - [ ] **Step 6: Commit**
 
@@ -851,7 +851,7 @@ export function useLenis(): SmoothScroll {
 - [ ] **Step 4: Run the test**
 
 Run: `npm test`
-Expected: all pass — 73 existing plus 3 new (see the note below on the third test).
+Expected: all pass — 72 existing plus 3 new, so 75 total (see the note below on the third test).
 
 **Be careful about which path these tests actually exercise.** The stubbed `matchMedia` reports `matches: false` for every query, including `prefers-reduced-motion`, so `animate` is **true** and Lenis really is constructed during the test. That means the test above covers the Lenis branch of `scrollTo`, not the fallback.
 
@@ -882,7 +882,7 @@ it('falls back to native scrolling when the reader asked for reduced motion', ()
 });
 ```
 
-That makes it three tests in this task rather than two, so the suite total after this task is 76.
+That makes it three tests in this task rather than two, so the suite total after this task is 75.
 
 - [ ] **Step 5: Commit**
 
@@ -1021,7 +1021,7 @@ Links keep real `href` anchors rather than becoming buttons. That way the naviga
 - [ ] **Step 4: Run the test**
 
 Run: `npm test`
-Expected: all pass — 76 existing plus 4 new.
+Expected: all pass — 75 existing plus 4 new, so 79 total.
 
 - [ ] **Step 5: Commit**
 
@@ -1233,7 +1233,7 @@ Append to `src/App.test.tsx`:
 - [ ] **Step 6: Run the tests**
 
 Run: `npm test`
-Expected: all pass — 80 existing plus 4 new.
+Expected: all pass — 79 existing plus 4 new, so 83 total.
 
 Existing App tests must still pass unchanged. If "has exactly one h1" now fails, the navbar logo was rendered as a heading; make it a link instead.
 
