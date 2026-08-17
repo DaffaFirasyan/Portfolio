@@ -1,5 +1,8 @@
+import { useRef } from 'react';
+
 import Noise from '@/components/reactbits/Noise/Noise';
 import { useMotionAllowed } from '@/hooks/useMotionAllowed';
+import { useOnScreen } from '@/hooks/useOnScreen';
 
 /**
  * A film-grain texture laid over the backdrop.
@@ -7,15 +10,26 @@ import { useMotionAllowed } from '@/hooks/useMotionAllowed';
  * Purely decorative, so it disappears entirely when motion is refused rather
  * than being rendered still — a static grain would only add contrast noise
  * over text for no benefit.
+ *
+ * It also unmounts once scrolled past, for the same reason the backdrop does:
+ * the canvas repaints on a timer whether or not anyone is looking at it, and
+ * leaving that running while the reader is three sections away is work nobody
+ * asked for.
  */
 export default function Grain() {
   const { animate } = useMotionAllowed();
+  const host = useRef<HTMLDivElement>(null);
+  const onScreen = useOnScreen(host);
 
   if (!animate) return null;
 
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 opacity-[0.035]">
-      <Noise patternSize={250} patternAlpha={18} patternRefreshInterval={3} />
+    <div
+      ref={host}
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 -z-10 opacity-[0.035]"
+    >
+      {onScreen && <Noise patternSize={250} patternAlpha={18} patternRefreshInterval={3} />}
     </div>
   );
 }
