@@ -19,7 +19,16 @@ const Galaxy = lazy(() => import('@/components/reactbits/Galaxy/Galaxy'));
 export default function Backdrop() {
   const { webgl } = useMotionAllowed();
   const host = useRef<HTMLDivElement>(null);
-  const [onScreen, setOnScreen] = useState(false);
+
+  // Starts true, and the observer only ever turns it off.
+  //
+  // The backdrop sits behind the hero, which is the top of the page and is
+  // therefore on screen by construction. Starting false meant the starfield
+  // depended on IntersectionObserver delivering at least one callback — and
+  // if it never did, the page silently lost its backdrop with nothing to
+  // indicate why. Failing towards the intended experience is the right
+  // direction for something purely decorative.
+  const [onScreen, setOnScreen] = useState(true);
 
   useEffect(() => {
     const element = host.current;
