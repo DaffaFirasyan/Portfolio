@@ -66,6 +66,10 @@ const Magnet: React.FC<MagnetProps> = ({
   return (
     <div
       ref={magnetRef}
+      // Marks the animated branch so a test can tell it apart from the plain
+      // one a touch device gets. SpotlightCard carries data-spotlight for the
+      // same reason.
+      data-magnet=""
       className={wrapperClassName}
       style={{ position: 'relative', display: 'inline-block' }}
       {...props}
