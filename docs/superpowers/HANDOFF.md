@@ -62,6 +62,10 @@ Every one of these produced a wrong turn before it was understood. They are not 
 ## Things known to be imperfect
 
 - **The stress rule does not apply to proper nouns.** `certificate.issuer` and `experience.organization` are names owned by someone else — "Coursera" cannot be stretched to 36 characters. When real content lands, those two assertion clauses should be deleted, not worked around. Spec §4.1 records this.
-- **The WebGL backdrop has never run.** This machine's browser reports `prefers-reduced-motion: reduce`, so every verification so far exercised the fallback — thoroughly, which is the harder path to get right, but it means nobody has yet seen the starfield render, confirmed there is exactly one WebGL context, or watched it unmount when the hero scrolls away. Those three checks are still open.
+- **The WebGL backdrop has never run, and neither has anything else that animates.** Confirmed in the owner's own browser: `prefers-reduced-motion` is `true` while `deviceMemory` is 16 and `hardwareConcurrency` is 20 — so the low-end heuristic is not the cause, the OS preference is. Windows has **Settings → Accessibility → Visual effects → Animation effects** switched off, which makes every Chromium browser on the machine report `reduce`.
+
+  Everything gated on that preference is therefore untested against real rendering: the starfield, per-character headings, the rotating role, the blur-in tagline, the counters, the tilt, the grain, and Lenis smooth scroll. Turning the setting on lights all of them at once, so one reload verifies the lot. Still open: exactly one WebGL context exists, and it unmounts when the hero scrolls away.
+
+  Do not relax the gate to make the effects visible during development. The preference is an explicit request, and honouring it completely is the thing this architecture was built around.
 - **Active-section tracking has never been watched in a real browser.** Its logic is covered by unit tests driving the observer directly, including fast scroll and document-order tie-breaks, but nobody has seen the indicator follow a real scroll. Worth a look in `npm run dev`.
 - **All content is placeholder.** Names, projects, certificates and the CV are realistic fixtures written at the maximum lengths the layout contract permits, so the layout is stress-tested before real content arrives.
