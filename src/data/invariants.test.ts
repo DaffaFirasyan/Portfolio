@@ -1,4 +1,6 @@
+import { certificates } from './certificates';
 import { LIMITS, longest, STRESS_RATIO } from './constraints';
+import { education } from './education';
 import { experiences } from './experiences';
 import { profile } from './profile';
 import { projects } from './projects';
@@ -201,5 +203,69 @@ describe('experiences', () => {
 
   it('has at most one entry still marked present', () => {
     expect(experiences.filter((e) => e.endDate === 'present').length).toBeLessThanOrEqual(1);
+  });
+});
+
+describe('education', () => {
+  it('keeps highlights inside their limits', () => {
+    for (const e of education) {
+      expect(e.highlights?.length ?? 0).toBeLessThanOrEqual(LIMITS.education.highlights);
+      for (const h of e.highlights ?? []) {
+        expect(h.length, h).toBeLessThanOrEqual(LIMITS.education.highlight);
+      }
+    }
+  });
+
+  it('does not end before it starts', () => {
+    for (const e of education) {
+      if (e.endYear !== 'present') {
+        expect(e.endYear, e.id).toBeGreaterThanOrEqual(e.startYear);
+      }
+    }
+  });
+});
+
+describe('certificates', () => {
+  it('has unique ids and at least fourteen entries', () => {
+    const ids = certificates.map((c) => c.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(certificates.length).toBeGreaterThanOrEqual(14);
+  });
+
+  it('keeps text fields inside their limits', () => {
+    for (const c of certificates) {
+      expect(c.title.length, `${c.id}.title`).toBeLessThanOrEqual(LIMITS.certificate.title);
+      expect(c.issuer.length, `${c.id}.issuer`).toBeLessThanOrEqual(LIMITS.certificate.issuer);
+      expect(c.skills.length, `${c.id}.skills`).toBeLessThanOrEqual(LIMITS.certificate.skills);
+    }
+  });
+
+  it('stresses the layout on title, issuer and skill count', () => {
+    expect(longest(certificates.map((c) => c.title))).toBeGreaterThanOrEqual(
+      LIMITS.certificate.title * STRESS_RATIO,
+    );
+    expect(longest(certificates.map((c) => c.issuer))).toBeGreaterThanOrEqual(
+      LIMITS.certificate.issuer * STRESS_RATIO,
+    );
+    expect(Math.max(...certificates.map((c) => c.skills.length))).toBe(LIMITS.certificate.skills);
+  });
+
+  it('uses YYYY-MM dates', () => {
+    for (const c of certificates) {
+      expect(c.issueDate, `${c.id}.issueDate`).toMatch(MONTH);
+      if (c.expiryDate) expect(c.expiryDate, `${c.id}.expiryDate`).toMatch(MONTH);
+    }
+  });
+
+  it('never carries a present-but-invalid credential url', () => {
+    for (const c of certificates) {
+      if (c.credentialUrl === undefined) continue;
+      expect(c.credentialUrl, `${c.id}.credentialUrl`).not.toBe('');
+      expect(() => new URL(c.credentialUrl as string), c.id).not.toThrow();
+    }
+  });
+
+  it('includes at least one certificate without a credential url', () => {
+    expect(certificates.some((c) => c.credentialUrl === undefined)).toBe(true);
   });
 });
