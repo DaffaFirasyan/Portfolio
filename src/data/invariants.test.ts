@@ -1,7 +1,10 @@
 import { LIMITS, longest, STRESS_RATIO } from './constraints';
+import { experiences } from './experiences';
 import { profile } from './profile';
 import { projects } from './projects';
 import { skillCategories } from './skills';
+
+const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
 
 describe('constraints', () => {
   it('exposes the documented limits', () => {
@@ -148,5 +151,55 @@ describe('profile', () => {
     for (const social of profile.socials) {
       expect(() => new URL(social.url), social.label).not.toThrow();
     }
+  });
+});
+
+describe('experiences', () => {
+  it('has unique ids', () => {
+    const ids = experiences.map((e) => e.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('keeps text fields inside their limits', () => {
+    for (const e of experiences) {
+      expect(e.role.length, `${e.id}.role`).toBeLessThanOrEqual(LIMITS.experience.role);
+      expect(e.organization.length, `${e.id}.organization`).toBeLessThanOrEqual(
+        LIMITS.experience.organization,
+      );
+      expect(e.summary.length, `${e.id}.summary`).toBeLessThanOrEqual(LIMITS.experience.summary);
+      expect(e.highlights.length, `${e.id}.highlights`).toBeGreaterThanOrEqual(2);
+      expect(e.highlights.length, `${e.id}.highlights`).toBeLessThanOrEqual(
+        LIMITS.experience.highlights,
+      );
+      for (const h of e.highlights) {
+        expect(h.length, `${e.id} highlight`).toBeLessThanOrEqual(LIMITS.experience.highlight);
+      }
+    }
+  });
+
+  it('stresses the layout on role, organization and highlights', () => {
+    expect(longest(experiences.map((e) => e.role))).toBeGreaterThanOrEqual(
+      LIMITS.experience.role * STRESS_RATIO,
+    );
+    expect(longest(experiences.map((e) => e.organization))).toBeGreaterThanOrEqual(
+      LIMITS.experience.organization * STRESS_RATIO,
+    );
+    expect(Math.max(...experiences.map((e) => e.highlights.length))).toBe(
+      LIMITS.experience.highlights,
+    );
+  });
+
+  it('uses YYYY-MM dates that do not run backwards', () => {
+    for (const e of experiences) {
+      expect(e.startDate, `${e.id}.startDate`).toMatch(MONTH);
+      if (e.endDate !== 'present') {
+        expect(e.endDate, `${e.id}.endDate`).toMatch(MONTH);
+        expect(e.endDate >= e.startDate, `${e.id} ends before it starts`).toBe(true);
+      }
+    }
+  });
+
+  it('has at most one entry still marked present', () => {
+    expect(experiences.filter((e) => e.endDate === 'present').length).toBeLessThanOrEqual(1);
   });
 });
