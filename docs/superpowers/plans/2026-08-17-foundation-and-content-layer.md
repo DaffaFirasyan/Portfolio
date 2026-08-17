@@ -400,7 +400,7 @@ git add package.json package-lock.json eslint.config.js && git commit -m "chore:
 - [ ] **Step 1: Install test dependencies**
 
 ```bash
-npm i -D vitest@4.1.10 jsdom@30.0.1 @testing-library/react@16.3.2 @testing-library/jest-dom@7.0.1 @testing-library/user-event@14.6.4
+npm i -D vitest@4.1.10 jsdom@29.0.0 @testing-library/react@16.3.2 @testing-library/jest-dom@7.0.1 @testing-library/user-event@14.6.4
 ```
 
 - [ ] **Step 2: Write `src/test/setup.ts`**
@@ -437,7 +437,11 @@ export default defineConfig({
 
 Add `"types": ["vitest/globals", "node"]` inside `compilerOptions`, directly after the `"paths"` entry.
 
-`"node"` is not optional here. An explicit `types` array switches off automatic inclusion of every `@types` package, and `vite.config.ts` imports `node:url` — dropping it reintroduces the `TS2591` error from Task 1.
+`"node"` is defensive rather than strictly required. An explicit `types` array does switch off automatic inclusion of every `@types` package, but Vite's own `dist/node/index.d.ts` opens with `/// <reference types="node" />`, and a direct reference inside an imported declaration file loads regardless of the `types` array. So `node:url` resolves either way today. Keep the entry anyway — depending on a transitive reference inside a dependency's type file to survive minor upgrades is not a bet worth taking.
+
+`/// <reference types="vitest/config" />` at the top of `vite.config.ts` *is* strictly required: without it, `tsc` rejects the `test` block with `TS2769`.
+
+jsdom is pinned one major behind its latest. jsdom 30 requires Node `^22.22.2 || ^24.15.0 || >=26.0.0`; if the local Node is older, npm installs it anyway with only an `EBADENGINE` warning, leaving an unsupported combination that works until it suddenly does not — most likely during the DOM-heavy work in Tasks 13–16. jsdom 29 accepts `^22.13.0`. If the local Node satisfies jsdom 30's range, use 30 instead.
 
 - [ ] **Step 5: Write a throwaway test to prove the runner works**
 
