@@ -70,7 +70,7 @@ The repository already contains `.git`, `.gitignore`, and `docs/`. `npm create v
 - [ ] **Step 2: Install runtime and build dependencies**
 
 ```bash
-npm i react@19.2.8 react-dom@19.2.8 && npm i -D vite@8.2.1 @vitejs/plugin-react@6.0.5 typescript@7.0.2 @types/react@19.2.18 @types/react-dom@19.2.4
+npm i react@19.2.8 react-dom@19.2.8 && npm i -D vite@8.2.1 @vitejs/plugin-react@6.0.5 typescript@7.0.2 @types/react@19.2.18 @types/react-dom@19.2.4 @types/node@22.20.1
 ```
 
 - [ ] **Step 3: Write `tsconfig.json`**
@@ -94,12 +94,15 @@ npm i react@19.2.8 react-dom@19.2.8 && npm i -D vite@8.2.1 @vitejs/plugin-react@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
-    "paths": { "@/*": ["src/*"] }
+    "paths": { "@/*": ["./src/*"] }
   },
   "include": ["src", "vite.config.ts"]
 }
 ```
+
+`baseUrl` is absent on purpose. TypeScript 7 removed it (`TS5102`), and without it `paths` values must be relative — hence `./src/*` rather than `src/*`.
+
+`@types/node` is in the dev dependencies above because `vite.config.ts` sits in `include` and imports `node:url`. Nothing else provides those types, not even transitively through Vite.
 
 - [ ] **Step 4: Write `vite.config.ts`**
 
@@ -416,7 +419,9 @@ export default defineConfig({
 
 - [ ] **Step 4: Add vitest globals to `tsconfig.json`**
 
-Add `"types": ["vitest/globals"]` inside `compilerOptions`, directly after the `"paths"` entry.
+Add `"types": ["vitest/globals", "node"]` inside `compilerOptions`, directly after the `"paths"` entry.
+
+`"node"` is not optional here. An explicit `types` array switches off automatic inclusion of every `@types` package, and `vite.config.ts` imports `node:url` — dropping it reintroduces the `TS2591` error from Task 1.
 
 - [ ] **Step 5: Write a throwaway test to prove the runner works**
 
