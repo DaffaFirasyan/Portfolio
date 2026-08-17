@@ -56,6 +56,36 @@ describe('About', () => {
     }
     expect(screen.getByRole('img', { name: new RegExp(profile.name, 'i') })).toBeInTheDocument();
   });
+
+  it('keeps every bio paragraph as one element, not one per word', () => {
+    const { container } = render(<About />);
+
+    for (const paragraph of profile.bio) {
+      // Exact match on purpose. A word-splitting effect joins words with
+      // non-breaking spaces, so the lookup fails and this reports the real
+      // problem rather than a confusing count.
+      const match = [...container.querySelectorAll('p')].find(
+        (p) => p.textContent === paragraph,
+      );
+      expect(match, 'a bio paragraph was split across elements').toBeDefined();
+      // A word-splitting effect here would mean roughly two hundred elements
+      // and two hundred scroll triggers on prose, which is the pattern the
+      // spec's own performance note warns against.
+      expect(match!.childElementCount).toBe(0);
+    }
+  });
+
+  it('keeps the quick facts a real description list', () => {
+    const { container } = render(<About />);
+
+    // Surface renders a div, so wrapping the dl in it is fine but replacing
+    // the dl with it leaves dt and dd with no list parent — invalid markup
+    // that silently drops the semantics assistive technology relies on.
+    for (const term of container.querySelectorAll('dt, dd')) {
+      expect(term.closest('dl'), `${term.tagName} has no dl ancestor`).not.toBeNull();
+    }
+    expect(container.querySelectorAll('dt').length).toBeGreaterThan(0);
+  });
 });
 
 describe('Skills', () => {
