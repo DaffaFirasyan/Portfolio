@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 
+import Heading from '@/motion/Heading';
+
 interface SectionShellProps {
   id: string;
   index: number;
@@ -15,9 +17,12 @@ export default function SectionShell({ id, index, label, title, children }: Sect
         <p className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
           {`${String(index).padStart(2, '0')} / ${label}`}
         </p>
-        <h2 className="mt-3 font-display text-h2 font-bold tracking-[-0.02em] text-primary">
+        <Heading
+          level={2}
+          className="mt-3 font-display text-h2 font-bold tracking-[-0.02em] text-primary"
+        >
           {title}
-        </h2>
+        </Heading>
         <div className="mt-10">{children}</div>
       </div>
     </section>
