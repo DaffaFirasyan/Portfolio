@@ -25,7 +25,7 @@ Query the registry — `npm view <pkg> version`. Versions recalled from memory w
 
 ```bash
 npm run dev        # dev server
-npm test           # vitest, currently 119 tests
+npm test           # vitest, currently 128 tests
 npm run lint       # eslint, includes the import boundary
 npm run build      # tsc --noEmit && vite build
 npm run placeholders  # regenerate placeholder assets from src/data

@@ -10,7 +10,7 @@ This file exists so a session that remembers nothing can pick the work up withou
 
 **Branch:** `feat/foundation-and-content-layer`, 54 commits ahead of `main`. Nothing is merged; `main` still sits at the first plan document.
 
-**State:** 119 tests pass across 15 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean. Initial JS is 165 KB gzip against a 250 KB budget, with the WebGL backdrop split into a further 15 KB chunk that only loads when the capability check passes.
+**State:** 128 tests pass across 16 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean. Initial JS is 165 KB gzip against a 250 KB budget, with the WebGL backdrop split into a further 15 KB chunk that only loads when the capability check passes.
 
 | Plan | Covers | Status |
 |---|---|---|
@@ -41,7 +41,7 @@ The spec is not silently wrong anywhere, but three of its decisions were revised
 
 Every one of these produced a wrong turn before it was understood. They are not obvious from the code.
 
-**The browser pane does not composite unless it is displayed.** No frames means no scroll events and CSS transitions frozen at `currentTime: 0`. This produced two false bug reports during the plan-2 verification — the navbar background looked broken and scroll tracking looked dead, and both were fine. If a browser measurement looks impossible, check `element.getAnimations()` and whether the page is compositing before concluding the code is wrong. Screenshots and real input events are unavailable in this pane.
+**The browser pane does not composite unless it is displayed, and `requestAnimationFrame` never fires there** — measured at 0 frames. That one fact explains every symptom: no scroll events, CSS transitions frozen at `currentTime: 0`, no IntersectionObserver callbacks, and every GSAP animation stuck at its starting values, since GSAP runs entirely on rAF. Always force an explicit size with `resize_window` first, too; the pane's native size is 0x0 when hidden, which makes every element measure zero wide. This produced two false bug reports during the plan-2 verification — the navbar background looked broken and scroll tracking looked dead, and both were fine. If a browser measurement looks impossible, check `element.getAnimations()` and whether the page is compositing before concluding the code is wrong. Screenshots and real input events are unavailable in this pane.
 
 **jsdom 29 implements none of** `IntersectionObserver`, `ResizeObserver`, `matchMedia`, `scrollIntoView`, or `document.fonts`, and every `getBoundingClientRect()` returns zeroes. `src/test/stubs.ts` provides observable fakes — `observers` is a live registry a test can drive by hand, which is the only way to exercise observer wiring here. Layout-derived logic therefore lives in pure functions over numbers (`src/lib/scroll.ts`), not in components.
 
