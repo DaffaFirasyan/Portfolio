@@ -1,5 +1,6 @@
 import { LIMITS, longest, STRESS_RATIO } from './constraints';
 import { projects } from './projects';
+import { skillCategories } from './skills';
 
 describe('constraints', () => {
   it('exposes the documented limits', () => {
@@ -72,5 +73,41 @@ describe('projects', () => {
         expect(() => new URL(value as string)).not.toThrow();
       }
     }
+  });
+});
+
+describe('skills', () => {
+  const allSkills = skillCategories.flatMap((c) => c.skills);
+
+  it('has three or four categories with unique ids', () => {
+    expect(skillCategories.length).toBeGreaterThanOrEqual(3);
+    expect(skillCategories.length).toBeLessThanOrEqual(4);
+    const ids = skillCategories.map((c) => c.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('keeps skill names inside the limit', () => {
+    for (const s of allSkills) {
+      expect(s.name.length, s.name).toBeLessThanOrEqual(LIMITS.skill.name);
+    }
+  });
+
+  it('stresses the layout — some skill name reaches 90% of the limit', () => {
+    expect(longest(allSkills.map((s) => s.name))).toBeGreaterThanOrEqual(
+      LIMITS.skill.name * STRESS_RATIO,
+    );
+  });
+
+  it('only references project ids that exist', () => {
+    const projectIds = new Set(projects.map((p) => p.id));
+    for (const s of allSkills) {
+      for (const id of s.relatedProjectIds ?? []) {
+        expect(projectIds.has(id), `${s.name} references missing project "${id}"`).toBe(true);
+      }
+    }
+  });
+
+  it('links at least one skill to a project so cross-highlight has something to show', () => {
+    expect(allSkills.some((s) => (s.relatedProjectIds?.length ?? 0) > 0)).toBe(true);
   });
 });
