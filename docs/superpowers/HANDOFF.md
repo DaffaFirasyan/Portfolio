@@ -10,7 +10,7 @@ This file exists so a session that remembers nothing can pick the work up withou
 
 **Branch:** `feat/foundation-and-content-layer`, 47 commits ahead of `main`. Nothing is merged; `main` still sits at the first plan document.
 
-**State:** 112 tests pass across 14 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean. Initial JS is 165 KB gzip against a 250 KB budget, with the WebGL backdrop split into a further 15 KB chunk that only loads when the capability check passes.
+**State:** 119 tests pass across 15 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean. Initial JS is 165 KB gzip against a 250 KB budget, with the WebGL backdrop split into a further 15 KB chunk that only loads when the capability check passes.
 
 | Plan | Covers | Status |
 |---|---|---|
@@ -68,6 +68,8 @@ Every one of these produced a wrong turn before it was understood. They are not 
 
   Do not relax the gate to make the effects visible during development. The preference is an explicit request, and honouring it completely is the thing this architecture was built around.
 
-  **Still unverified against real rendering:** that the backdrop unmounts when the hero scrolls away, and that the hero entrance reads as a staggered sequence finishing inside ~1.2s. Both need a compositing browser — the in-app pane delivers no IntersectionObserver callbacks and advances no transitions. Unit tests cover the unmount logic by driving the observer directly.
+  The owner confirmed in a real browser that both canvases leave the DOM once the hero is scrolled past, so the unmount works end to end. The film grain is gated the same way through `useOnScreen` — it repainted every third frame regardless of visibility until that was fixed.
+
+  **Still unverified:** that the hero entrance reads as a staggered sequence finishing inside ~1.2s. Needs a compositing browser; the in-app pane advances no transitions and delivers no IntersectionObserver callbacks.
 - **Active-section tracking has never been watched in a real browser.** Its logic is covered by unit tests driving the observer directly, including fast scroll and document-order tie-breaks, but nobody has seen the indicator follow a real scroll. Worth a look in `npm run dev`.
 - **All content is placeholder.** Names, projects, certificates and the CV are realistic fixtures written at the maximum lengths the layout contract permits, so the layout is stress-tested before real content arrives.
