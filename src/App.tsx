@@ -6,6 +6,7 @@ import Projects from '@/sections/Projects';
 import Education from '@/sections/Education';
 import Contact from '@/sections/Contact';
 import { profile } from '@/data/profile';
+import Navbar from '@/nav/Navbar';
 
 export default function App() {
   return (
@@ -16,6 +17,8 @@ export default function App() {
       >
         Skip to content
       </a>
+
+      <Navbar />
 
       <main>
         <Hero />

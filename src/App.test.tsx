@@ -31,6 +31,12 @@ describe('App', () => {
     }
   });
 
+  it('keeps the skip link ahead of the navigation', () => {
+    const { container } = render(<App />);
+    const focusable = container.querySelectorAll('a[href], button');
+    expect(focusable[0]).toHaveTextContent(/skip to content/i);
+  });
+
   it('exposes a skip link as the first focusable element', () => {
     render(<App />);
     expect(screen.getByRole('link', { name: /skip to content/i })).toHaveAttribute(
