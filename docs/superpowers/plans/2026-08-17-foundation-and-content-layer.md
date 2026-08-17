@@ -6,7 +6,7 @@
 
 **Architecture:** Content lives in `src/data/*.ts` behind types in `src/types/index.ts`. Section components read that data and render semantic HTML — no animation, no React Bits, no hardcoded copy. A single Vitest suite enforces eleven invariants over the data, including a *stress* rule that fails if the skeleton content is too short to exercise the layout. An ESLint boundary rule makes the React Bits isolation from spec §3.2 a CI failure rather than a matter of memory.
 
-**Tech Stack:** Vite 8.2.1, React 19.2.8, TypeScript 7.0.2, Tailwind CSS 4.3.3, Vitest 4.1.10, Testing Library 16.3.2, Fontsource variable fonts 5.3.0. Every version below was resolved from the registry on 2026-08-17; if `npm i` reports a newer one, prefer the newer and note it.
+**Tech Stack:** Vite 8.2.1, React 19.2.8, TypeScript 6.0.3, Tailwind CSS 4.3.3, Vitest 4.1.10, Testing Library 16.3.2, Fontsource variable fonts 5.3.0. Every version below was resolved from the registry on 2026-08-17; if `npm i` reports a newer one, prefer the newer and note it.
 
 **Covers:** Spec phases 0–1. Navigation, motion primitives, and WebGL are out of scope here — they arrive in plans 2 and 3.
 
@@ -70,7 +70,7 @@ The repository already contains `.git`, `.gitignore`, and `docs/`. `npm create v
 - [ ] **Step 2: Install runtime and build dependencies**
 
 ```bash
-npm i react@19.2.8 react-dom@19.2.8 && npm i -D vite@8.2.1 @vitejs/plugin-react@6.0.5 typescript@7.0.2 @types/react@19.2.18 @types/react-dom@19.2.4 @types/node@22.20.1
+npm i react@19.2.8 react-dom@19.2.8 && npm i -D vite@8.2.1 @vitejs/plugin-react@6.0.5 typescript@6.0.3 @types/react@19.2.18 @types/react-dom@19.2.4 @types/node@22.20.1
 ```
 
 - [ ] **Step 3: Write `tsconfig.json`**
@@ -100,7 +100,9 @@ npm i react@19.2.8 react-dom@19.2.8 && npm i -D vite@8.2.1 @vitejs/plugin-react@
 }
 ```
 
-`baseUrl` is absent on purpose. TypeScript 7 removed it (`TS5102`), and without it `paths` values must be relative — hence `./src/*` rather than `src/*`.
+**TypeScript is pinned to 6.0.3, not the 7.0.2 that `npm view` reports as `latest`.** typescript-eslint 8.67.0 refuses to load under TS 7 — it carries an explicit guard and a peer range of `>=4.8.4 <6.1.0` — and ESLint alone cannot parse TypeScript, so under TS 7 the import boundary in Task 3 would match nothing at all while still exiting 0. TS 7 buys a static portfolio site nothing that would justify that. Revisit when typescript-eslint ships TS 7 support.
+
+`baseUrl` is absent on purpose. TS 7 removes it outright (`TS5102`) and 6.x already deprecates it; omitting it works in both, at the cost of `paths` values needing to be relative — hence `./src/*` rather than `src/*`.
 
 `@types/node` is in the dev dependencies above because `vite.config.ts` sits in `include` and imports `node:url`. Nothing else provides those types, not even transitively through Vite.
 
@@ -339,7 +341,14 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ['**/components/reactbits/**', '@/components/reactbits/**'],
+              // The bare forms (no trailing segment) cover a barrel import such
+              // as `@/components/reactbits`, which the `/**` globs alone miss.
+              group: [
+                '**/components/reactbits',
+                '**/components/reactbits/**',
+                '@/components/reactbits',
+                '@/components/reactbits/**',
+              ],
               message:
                 'Sections must not import React Bits directly. Use a primitive from src/motion/ instead (spec §3.2).',
             },
