@@ -40,6 +40,26 @@ describe('Experience', () => {
       expect(screen.getAllByText(e.startDate.slice(0, 4)).length).toBeGreaterThan(0);
     }
   });
+
+  it('never lets the pulse dot decide where a year starts', () => {
+    const { container } = render(<Experience />);
+
+    // The year cell used to be `justify-end` inside a 7rem column. Measured at
+    // 1280: the year renders 120–123px wide, so it did not fit and the
+    // overflow went leftwards, putting every year past the section's own left
+    // edge — and because the dot shares this flex row, the one current entry
+    // lost a further 18px to it and sat 19px left of its neighbours.
+    //
+    // jsdom computes no layout, so this guards the two mechanisms rather than
+    // the pixels: left-aligned, so only the year's own box sets its start, and
+    // a column wide enough that it fits.
+    for (const cell of container.querySelectorAll('ol > li > div:first-child')) {
+      expect(cell.className).not.toMatch(/justify-end/);
+    }
+    for (const item of container.querySelectorAll('ol > li')) {
+      expect(item.className).toContain('md:grid-cols-[10rem_1fr]');
+    }
+  });
 });
 
 describe('Projects', () => {

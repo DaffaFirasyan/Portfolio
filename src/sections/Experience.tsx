@@ -82,13 +82,24 @@ export default function Experience() {
           const current = e.endDate === 'present';
 
           return (
-            <li key={e.id} className="grid gap-3 md:grid-cols-[7rem_1fr] md:gap-8">
+            <li key={e.id} className="grid gap-3 md:grid-cols-[10rem_1fr] md:gap-8">
               {/* At md and up this sits in the margin; below it stacks above the
                   role, because a phone has no margin to put a number in. */}
               {/* items-start, not items-center: the grid cell stretches to the
                   height of the whole entry, so centring floated the year to the
-                  middle of a tall block instead of beside the role it labels. */}
-              <div className="flex items-start gap-2 md:justify-end">
+                  middle of a tall block instead of beside the role it labels.
+
+                  Left-aligned, and the column is 10rem rather than 7rem. Both
+                  were measured: at 1280 the year renders 120–123px wide inside
+                  a 112px column, so it did not fit, and `justify-end` sent the
+                  overflow leftwards — every year hung past the section's left
+                  edge, 29px left of the heading it sits under. Worse, the pulse
+                  dot shares this flex row, so on the current entry it claimed
+                  18px of the right side (10px dot plus a gap-2) and pushed that
+                  year 19px further left again than its neighbours. Aligning
+                  left removes both at once: the dot now grows rightwards into
+                  space the column has, and cannot move the number. */}
+              <div className="flex items-start gap-2">
                 <p
                   className={`font-display text-3xl font-extrabold leading-none md:text-display-sm ${
                     current ? 'text-accent' : 'text-edge'
