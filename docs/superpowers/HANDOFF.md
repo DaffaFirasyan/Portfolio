@@ -10,7 +10,7 @@ This file exists so a session that remembers nothing can pick the work up withou
 
 **Branch:** `feat/foundation-and-content-layer`, ~115 commits ahead of `main`. Nothing is merged; `main` still sits at the first plan document.
 
-**State:** 334 tests pass across 46 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean. Initial payload is 204 KB JS plus 11 KB CSS gzip against a 250 KB budget, with the WebGL backdrop split into a further 16 KB chunk that only loads when the capability check passes.
+**State:** 329 tests pass across 45 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean. Initial payload is 204 KB JS plus 11 KB CSS gzip against a 250 KB budget, with the WebGL backdrop split into a further 16 KB chunk that only loads when the capability check passes.
 
 | Plan | Covers | Status |
 |---|---|---|
@@ -64,11 +64,11 @@ Enough of a map to orient without reading everything.
 | `types/` | Every content interface, plus `SectionMeta`, `SectionNavProps`, `Site`, `Technology` |
 | `lib/` | All pure and tested directly: `scroll`, `filter`, `cycle`, `rail` (node geometry), `group` (`groupByCategory`, `CATEGORY_ORDER`), `validate` (contact fields), `web3forms` (the submit call), `token` (`cssToken` — canvas cannot read `var()`), `skillIcon` (kebab-case data key → lucide component, explicit table not a derived lookup) |
 | `hooks/` | `useActiveSection`, `useScrolledPast`, `useMotionAllowed`, `useOnScreen`, `useLenis` — the last is a **module singleton**, see the traps |
-| `motion/` | The wrapper layer, and the only place React Bits is touched: `Reveal` (takes `fill`), `Heading`, `Surface` (the one hover language), `Backdrop`, `Chip`, `Dialog` (takes `wide`), `Counter`, `BlurIn`, `Shine`, `RotatingRole`, `Grain`, `StarButton`, `Typed`, `Marquee`, `Sparks`, `CircularBadge`, `PulseDot`, `AvatarCard`, `LogoMarquee`, `ProjectFlow`, `SplashCursor` |
+| `motion/` | The wrapper layer, and the only place React Bits is touched: `Reveal` (takes `fill`), `Heading`, `Surface` (the one hover language), `Backdrop`, `Chip`, `Dialog` (takes `wide`), `Counter`, `BlurIn`, `Shine`, `RotatingRole`, `Grain`, `StarButton`, `Typed`, `Marquee`, `Sparks`, `CircularBadge`, `PulseDot`, `AvatarCard`, `LogoMarquee`, `ProjectFlow`, `SplashCursor`, `SplineRobot` |
 | `highlight/` | `SkillHighlightProvider` and `useSkillHighlight` — the skill-to-project cross-highlight |
 | `nav/` | `NodeRailNav` (in use), `PillNavAdapter` (kept unimported as the second implementation that proves the seam), `Navbar` (owns the hooks) |
 | `sections/` | The seven sections. Governed: no React Bits imports |
-| `components/reactbits/` | Seventeen vendored components, owned and edited by this project |
+| `components/reactbits/` | Eighteen vendored components, owned and edited by this project |
 | `components/ui/` | `ContactForm`, `FeaturedProject` |
 | `components/layout/` | `SectionShell` |
 | `test/` | `setup.ts`, and `stubs.ts` with the seven APIs jsdom lacks plus the drivable `observers` registry |
@@ -102,6 +102,30 @@ Everything below was decided in conversation, not in a plan document, after the 
 **The featured project row went through a second pass**, because shrinking the margins wasn't the actual complaint — "itu sebatas card besar dengan penjelasan" (it's just a big card with an explanation) was about the row duplicating the dialog. `problem` used to print in full beside `outcome`, when the dialog already shows problem, solution and outcome together; nothing on the row earned a click. `problem` now lives in the dialog only, the row leads with `outcome` alone as the hook, and the image is a second labelled button opening the same dialog as the title — a third, always-visible "View case study" control covers the rest, since nothing on this row gets a hover cue on a touch device. The three rows went from 433/433/373px to a uniform 373px, no longer duplicated dialog content, and are no longer different heights from each other, because a fixed-height teaser stopped depending on copy length at all.
 
 **Skills got two additions with no reactbits component at all.** `Skill.icon` had been in the data and the type since the first plan, unread by any component — the same shape of gap `EXPERIENCE_TYPE_LABEL` closed earlier. `lucide-react@1.32.0` renders it now (16 icons, ~2.4 KB gzip; two of the sixteen data values, `chart` and `flask`, have no bare-word icon in the set and map to `ChartColumn`/`FlaskConical` through `src/lib/skillIcon.ts` rather than a derived lookup). Separately, the skill chip that drives the Projects cross-highlight gave no feedback of its own — the dimming lands on Projects, which can be a scroll away — so the active chip now gets `bg-accent/15`, added rather than a border or text-colour override because both of those already exist on `Chip`'s base classes and a second utility for the same property is a coin flip on which one wins in the generated stylesheet. This is also what surfaced that the pane never gives the document real focus (see the environment facts below) — a `cross-highlight.test.tsx` assertion that had looked fine for months turned out to pass whether or not focus did anything at all, and only failed to catch that because it never needed to.
+
+## The Spline robot, and what it costs
+
+Added 2026-08-19 in the slot the rotating `CircularText` badge held, at the owner's explicit request and with the measurements below in front of them. `CircularText` and its `CircularBadge` wrapper were deleted, following what already happened to `ElectricBorder` and `CurvedLoop` when they were replaced.
+
+**It breaks the 250 KB budget in spec §12.3, by a lot, and the numbers turned out worse than the estimate the decision was made on.** Measured from `npm run build` rather than guessed:
+
+| Chunk | Raw | gzip |
+|---|---|---|
+| `react-spline` | 2,034.90 KB | **571.18 KB** |
+| `physics` | 1,987.83 KB | **733.92 KB** |
+| `opentype` | 169.90 KB | 50.62 KB |
+| `ui`, `gaussian-splat-compression`, `process`, `boolean`, `navmesh`, `howler` | — | 107 KB combined |
+| The scene itself, from `prod.spline.design` | — | 1,349,622 bytes |
+
+Spline splits its runtime by feature and pulls only what a scene uses, so the per-visit total depends on the scene; `react-spline` at 571 KB gzip is the floor, and `physics` alone would more than triple it. The estimate quoted when the owner chose was "≈1.35 MB scene plus runtime" — the runtime is four times larger than that implied, and they should be told before this ships.
+
+**The initial payload is untouched at 204 KB gzip**, which is the one good number here: everything above is behind a lazy import, a `webgl && hover` gate, and `useOnScreen`, so nothing is requested until a desktop reader with a real pointer actually reaches Contact. `renderOnDemand` is set so Spline redraws on interaction instead of holding a third permanent animation frame loop next to the starfield and the splash cursor.
+
+**Two things are unverified and cannot be verified here.** `useOnScreen` is driven by `IntersectionObserver`, which never fires in the pane, so the robot never mounts in this environment at all — not once, not in any check. And the scene is fetched from `prod.spline.design`: a third-party host in this page's critical path, with no error hook to catch a failure, since `SplineProps` extends the div's HTML attributes and its `onError` is the DOM media handler. The reserved box means a failure is an empty space rather than a collapsed layout.
+
+**The scene is Spline's own sample asset**, the same robot the 21st.dev demo points at, not the owner's work. Worth replacing with a scene made in Spline's free editor before this is shown to anyone hiring, because a recognisable template asset on a portfolio argues against the portfolio.
+
+**Re-measure Lighthouse before deploying.** Performance was 85 against a threshold of 85 before any of this.
 
 ## Decisions that changed after the spec was approved
 

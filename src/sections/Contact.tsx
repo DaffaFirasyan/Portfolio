@@ -2,8 +2,8 @@ import SectionShell from '@/components/layout/SectionShell';
 import ContactForm from '@/components/ui/ContactForm';
 import { shellProps } from '@/data/sections';
 import { profile } from '@/data/profile';
-import CircularBadge from '@/motion/CircularBadge';
 import Reveal from '@/motion/Reveal';
+import SplineRobot from '@/motion/SplineRobot';
 import Sparks from '@/motion/Sparks';
 import Typed from '@/motion/Typed';
 
@@ -56,11 +56,15 @@ export default function Contact() {
                 ))}
               </ul>
 
-              {/* lg and up only. Below that it sits between the social links
-                  and the form, pushing the thing people came to use further
-                  down a screen that is already tall. */}
+              {/* lg and up only, as the rotating badge was. Below that it would
+                  sit between the social links and the form, pushing the thing
+                  people came to use further down a screen that is already tall
+                  — and it is 1.4 MB, which is the last thing to put in front of
+                  a phone. The `hidden` here and the `hover` gate inside the
+                  component overlap on purpose: this one keeps it out of the
+                  layout, that one keeps it off the network. */}
               <div className="mt-10 hidden lg:block">
-                <CircularBadge text={`${profile.location} · Open to work · `} />
+                <SplineRobot />
               </div>
             </div>
           </Reveal>
