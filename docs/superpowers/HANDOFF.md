@@ -64,7 +64,7 @@ Enough of a map to orient without reading everything.
 | `types/` | Every content interface, plus `SectionMeta`, `SectionNavProps`, `Site`, `Technology` |
 | `lib/` | All pure and tested directly: `scroll`, `filter`, `cycle`, `rail` (node geometry), `group` (`groupByCategory`, `CATEGORY_ORDER`), `validate` (contact fields), `web3forms` (the submit call), `token` (`cssToken` — canvas cannot read `var()`), `skillIcon` (kebab-case data key → lucide component, explicit table not a derived lookup) |
 | `hooks/` | `useActiveSection`, `useScrolledPast`, `useMotionAllowed`, `useOnScreen`, `useLenis` — the last is a **module singleton**, see the traps |
-| `motion/` | The wrapper layer, and the only place React Bits is touched: `Reveal` (takes `fill`), `Heading`, `Surface` (the one hover language), `Backdrop`, `Chip`, `Dialog` (takes `wide`), `Counter`, `BlurIn`, `Shine`, `RotatingRole`, `Grain`, `StarButton`, `Typed`, `Marquee`, `Sparks`, `PulseDot`, `AvatarCard`, `LogoMarquee`, `ProjectFlow`, `SplashCursor`, `SplineRobot` (an iframe, the one wrapper here with no React Bits or npm component behind it) |
+| `motion/` | The wrapper layer, and the only place React Bits is touched: `Reveal` (takes `fill`), `Heading`, `Surface` (the one hover language), `Backdrop`, `Chip`, `Dialog` (takes `wide`), `Counter`, `BlurIn`, `Shine`, `RotatingRole`, `Grain`, `StarButton`, `Typed`, `Marquee`, `Sparks`, `PulseDot`, `AvatarCard`, `LogoMarquee`, `ProjectFlow`, `SplashCursor`, `SplineRobot` (`@splinetool/react-spline`, the only npm-backed wrapper here and by far the most expensive — see its own section) |
 | `highlight/` | `SkillHighlightProvider` and `useSkillHighlight` — the skill-to-project cross-highlight |
 | `nav/` | `NodeRailNav` (in use), `PillNavAdapter` (kept unimported as the second implementation that proves the seam), `Navbar` (owns the hooks) |
 | `sections/` | The seven sections. Governed: no React Bits imports |
@@ -103,21 +103,37 @@ Everything below was decided in conversation, not in a plan document, after the 
 
 **Skills got two additions with no reactbits component at all.** `Skill.icon` had been in the data and the type since the first plan, unread by any component — the same shape of gap `EXPERIENCE_TYPE_LABEL` closed earlier. `lucide-react@1.32.0` renders it now (16 icons, ~2.4 KB gzip; two of the sixteen data values, `chart` and `flask`, have no bare-word icon in the set and map to `ChartColumn`/`FlaskConical` through `src/lib/skillIcon.ts` rather than a derived lookup). Separately, the skill chip that drives the Projects cross-highlight gave no feedback of its own — the dimming lands on Projects, which can be a scroll away — so the active chip now gets `bg-accent/15`, added rather than a border or text-colour override because both of those already exist on `Chip`'s base classes and a second utility for the same property is a coin flip on which one wins in the generated stylesheet. This is also what surfaced that the pane never gives the document real focus (see the environment facts below) — a `cross-highlight.test.tsx` assertion that had looked fine for months turned out to pass whether or not focus did anything at all, and only failed to catch that because it never needed to.
 
-## The Spline scene at the foot of Contact
+## The Spline robot at the foot of Contact
 
-Added 2026-08-19 in the slot the rotating `CircularText` badge held, at the owner's request. `CircularText` and its `CircularBadge` wrapper were deleted, following what already happened to `ElectricBorder` and `CurvedLoop` when they were replaced.
+Added 2026-08-19 in the slot the rotating `CircularText` badge held. `CircularText` and its `CircularBadge` wrapper were deleted, following what already happened to `ElectricBorder` and `CurvedLoop` when they were replaced.
 
-**It is an iframe, not `@splinetool/react-spline`, and that distinction saved the budget.** The first attempt installed the npm runtime, which built into chunks of **571 KB** and **734 KB gzip** — against a page that is otherwise 204 KB in total, and a spec 12.3 budget of 250 KB. Then the owner supplied a Spline *public-view* URL rather than a `.splinecode` asset: a self-contained 1 MB HTML document with the scene compiled into it, confirmed by fetching it and finding zero occurrences of `splinecode`. That cannot be fed to `react-spline` at all — but it can be embedded directly, so both `@splinetool` packages were uninstalled and every one of those chunks disappeared. The build is back to `index` 204.15 KB, `Galaxy` 15.95 KB, `SplashCursor` 6.00 KB.
+**Both embedding routes were built, and which one you need is decided by the URL you have.** A `.splinecode` asset can only be driven by `@splinetool/react-spline`; a `my.spline.design/...` public-view link is a self-contained HTML document and is embedded as an iframe, needing no npm dependency at all. Deriving one from the other does not work — the id in a share URL is not the asset id, and asking `prod.spline.design` for it returns **403**. The owner's public-view URL was fetched and searched: 1 MB of HTML, zero occurrences of `splinecode`.
 
-The scene still costs what it costs; it is now downloaded and executed by the iframe's own document instead of by this page's main thread and bundle graph. Deriving the `.splinecode` URL from the share link was tried first and returns **403** — the id in a `my.spline.design` URL is not the asset id.
+The iframe route was tried and reverted. It cost **zero JavaScript** — both `@splinetool` packages were uninstalled and the build dropped to `index` 204.15, `Galaxy` 15.95, `SplashCursor` 6.00 and nothing else — but the scene published behind that URL does not follow the pointer, and following the pointer is the entire reason this element is on the page. A 3D object that ignores the reader is a picture.
 
-**Layout.** No border and no background: framing it made it read as a picture of a robot hung on the page rather than something standing in it. It bleeds into the section's bottom padding so its base meets the footer border, and the offset is not a tuned number — `-mb-20 md:-mb-32` is exactly the `py-20 md:py-32` that `SectionShell` applies. Measured at 1280: the grid sits 128px above the footer and the margin is -128px, so the two cancel and the box lands on the footer line. `overflow-hidden` cuts anything reaching past it rather than pushing into the footer.
+**So the runtime is back, and this is the most expensive thing in the project by a wide margin:**
+
+| Chunk | Raw | gzip |
+|---|---|---|
+| `react-spline` | 2,034.90 KB | **571.18 KB** |
+| `physics` | 1,987.83 KB | **733.92 KB** |
+| `opentype` | 169.90 KB | 50.62 KB |
+| `ui`, `gaussian-splat-compression`, `process`, `boolean`, `navmesh`, `howler` | — | 107 KB combined |
+| The scene, from `prod.spline.design` | — | 1,349,622 bytes |
+
+Spline splits by feature and pulls what a scene uses, so `react-spline` at 571 KB is the floor rather than the total. Spec 12.3 sets a 250 KB budget and the rest of the page fits in 204 KB; this breaks that budget several times over, knowingly, on the owner's decision with these numbers in front of them.
+
+**The initial payload is still 204 KB.** Everything above is behind a lazy import and the `webgl && hover` gate, which does double duty: a phone spends nothing, and a cursor-tracking robot has nothing to track without a hovering pointer.
+
+**`renderOnDemand` is deliberately not set.** It suits a scene that redraws only on interaction; this one follows the pointer continuously, and on-demand rendering is what would make it stutter.
 
 **Mounted on the capability gate, not on arrival.** `useOnScreen` was tried and removed: it saved little and tore the scene down when the reader scrolled away, so returning to Contact rebuilt a WebGL context and re-ran scene setup every time.
 
-**Still gated on `webgl && hover`**, so a phone spends nothing, and reduced motion, low memory, few cores and Save-Data are all honoured through that one flag.
+**Layout: no frame, standing on the footer border.** A border and surface background made it read as a picture of a robot hung on the page rather than something standing in it. It bleeds into the section's bottom padding instead, and the offset is not a tuned number — `-mb-20 md:-mb-32` is exactly the `py-20 md:py-32` that `SectionShell` applies, so the two cancel. `overflow-hidden` cuts anything past that line rather than pushing it into the footer, which is what makes standing the robot on the border safe: its feet are allowed to be cut.
 
-**Three things to know before deploy.** A Spline watermark links out of the frame. The scene is a third-party document in the page — if `my.spline.design` is unreachable the frame is empty, and the box holds its size so that reads as a gap rather than a collapsed column. And re-measure Lighthouse: Performance was 85 against a threshold of 85 before any of this.
+Verifying that flush landing needed the pane's own limitation worked around, and the technique generalises. The box measured 40px *past* the footer, which looked like a layout bug and was not: `Reveal` wraps its children in a transform that this pane never animates away, so the wrapper sits frozen at `translateY(40px), opacity: 0`. Setting `transform: none` on that one ancestor by hand and re-measuring gave a gap of exactly **0**. Anything measured inside a `Reveal` here carries that 40px until it is settled by hand.
+
+**Three things to know before deploy.** The scene is Spline's own sample robot, the same one the 21st.dev demo points at — worth replacing with a scene made in Spline's free editor, because a recognisable template asset on a portfolio argues against the portfolio. `prod.spline.design` is a third party in this page's critical path, with no error hook to catch a failure: `SplineProps` extends the div's HTML attributes, so its `onError` is the DOM media handler and never fires for a failed scene fetch. And re-measure Lighthouse — Performance was 85 against a threshold of 85 before any of this.
 
 ## Decisions that changed after the spec was approved
 

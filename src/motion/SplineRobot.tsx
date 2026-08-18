@@ -1,50 +1,58 @@
+import { lazy, Suspense } from 'react';
+
 import { useMotionAllowed } from '@/hooks/useMotionAllowed';
 
-/**
- * A Spline public-view URL, embedded directly.
- *
- * Not `@splinetool/react-spline`, and that is the point. That component needs a
- * `.splinecode` asset, which is what Spline's "Code / React" export produces;
- * this URL is the "Public URL" export instead — a self-contained 1 MB HTML
- * document with the scene compiled into it, containing no `.splinecode`
- * reference at all. Fetching it and searching confirmed that: zero occurrences.
- *
- * Embedding it as a document rather than importing a runtime deleted both
- * `@splinetool/react-spline` and `@splinetool/runtime` from this project.
- * Their chunks were 571 KB and 734 KB gzip. The scene still costs what it
- * costs, but it is now downloaded and executed by the iframe's own document
- * instead of by this page's main thread and bundle graph.
- *
- * What comes with that trade: a Spline watermark links out of the frame, and
- * the scene is a third-party document in the page. Its own background is
- * rgb(9.5, 10.7, 20) against this site's rgb(10, 12, 16), which is close
- * enough that the frame edge does not read as a seam.
- *
- * Swapping scenes is still one line: publish from Spline and paste the URL.
- */
-const SCENE = 'https://my.spline.design/darkspideycopy-P1lVDG8ytTTrQA0n72QOQIcb/';
+const Spline = lazy(() => import('@splinetool/react-spline'));
 
 /**
- * The interactive scene at the foot of the contact column.
+ * The robot that tracks the cursor.
  *
- * No border and no background. It had both, and framing it made it read as a
- * picture of a robot hung on the page rather than something standing in it.
+ * This is back after a detour through an owner-supplied `my.spline.design`
+ * public-view URL, which was embedded as an iframe and cost nothing in
+ * JavaScript — that route let both `@splinetool` packages be uninstalled
+ * entirely. It was reverted because the scene behind that URL does not follow
+ * the pointer, and following the pointer is the whole reason this element is
+ * on the page: a 3D object that ignores you is a picture.
  *
- * It bleeds into the section's bottom padding instead, so its base meets the
- * footer's border exactly. The offset is not a tuned number: `-mb-20 md:-mb-32`
- * is precisely the `py-20 md:py-32` that `SectionShell` applies, so the two
- * cancel and the frame lands on the section's own bottom edge — measured at
- * 1280, the grid sits exactly 128px above the footer, which is that padding.
- * `overflow-hidden` means anything reaching past that line is cut at it rather
- * than pushing into the footer, which the owner asked for explicitly.
+ * The trade is explicit and was made knowingly. A `.splinecode` asset can only
+ * be driven by `@splinetool/react-spline`, so the runtime is reinstalled and
+ * its chunk — 571 KB gzip, with feature chunks like `physics` at 734 KB loaded
+ * on top if a scene calls for them — is back in the graph. A public-view URL
+ * costs zero JavaScript here but can only ever be as interactive as whatever
+ * was published into it.
+ *
+ * Swapping scenes stays one line, and which route it takes follows the URL:
+ * a `.splinecode` asset goes here; a `my.spline.design/...` link is an iframe
+ * instead and needs neither of these imports.
+ */
+const SCENE = 'https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode';
+
+/**
+ * The interactive robot at the foot of the contact column.
+ *
+ * No frame. It had a border and a surface background, and framing it made it
+ * read as a picture of a robot hung on the page rather than something standing
+ * in it.
+ *
+ * It bleeds into the section's bottom padding so the robot's base meets the
+ * footer border, and the offset is not a tuned number: `-mb-20 md:-mb-32` is
+ * exactly the `py-20 md:py-32` that `SectionShell` applies, so the two cancel
+ * and the box lands on the section's own bottom edge. `overflow-hidden` cuts
+ * anything reaching past that line rather than pushing it into the footer,
+ * which is what makes standing the robot on the border safe: its feet are
+ * allowed to be cut.
  *
  * Mounted as soon as the capability gate passes rather than on arrival, so it
  * is ready before the reader scrolls and is never torn down and rebuilt by
  * scrolling away and back.
  *
- * `webgl && hover` still gates it: a phone spends nothing on a scene it cannot
- * rotate, and reduced motion, low memory, few cores and Save-Data are honoured
- * through the same flag.
+ * `webgl && hover` gates it, which is doing double duty here: it keeps a phone
+ * from spending 1.4 MB on a decoration, and a cursor-tracking robot has
+ * nothing to track without a pointer that hovers.
+ *
+ * `renderOnDemand` is deliberately **not** set. It is right for a scene that
+ * only redraws on interaction; this one follows the pointer continuously, and
+ * on-demand rendering is what would make it stutter.
  */
 export default function SplineRobot() {
   const { webgl, hover } = useMotionAllowed();
@@ -52,19 +60,10 @@ export default function SplineRobot() {
   if (!webgl || !hover) return null;
 
   return (
-    <div
-      aria-hidden="true"
-      className="-mb-20 h-[32rem] w-full overflow-hidden md:-mb-32"
-    >
-      <iframe
-        src={SCENE}
-        title="Interactive 3D scene"
-        loading="eager"
-        // The scene's own document is what needs to be reachable; nothing is
-        // sent to it and no referrer is leaked to a third party.
-        referrerPolicy="no-referrer"
-        className="h-full w-full border-0"
-      />
+    <div aria-hidden="true" className="-mb-20 h-[34rem] w-full overflow-hidden md:-mb-32">
+      <Suspense fallback={null}>
+        <Spline scene={SCENE} className="!h-full !w-full" />
+      </Suspense>
     </div>
   );
 }
