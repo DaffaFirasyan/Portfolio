@@ -140,7 +140,12 @@ describe('Sparks', () => {
     expect(clock.pending()).toBe(1);
 
     // Past the 400ms duration every spark is filtered out, so it idles again.
-    clock.flush(10_000);
+    //
+    // Relative to performance.now(), not an absolute 10_000: ClickSpark stamps
+    // each spark with performance.now(), so a fixed timestamp stops being "in
+    // the future" once the test process has been alive that long. That made
+    // this fail intermittently, and only in full-suite runs.
+    clock.flush(performance.now() + 10_000);
     expect(clock.pending()).toBe(0);
   });
 });

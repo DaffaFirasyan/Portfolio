@@ -90,26 +90,23 @@ export default function Education() {
           <Reveal key={c.id} delay={STEP * within} fill>
             <Surface className="h-full p-4">
             <article>
-              <button
-                type="button"
-                onClick={() => {
-                  setImageBroken(false);
-                  setOpenAt(index);
-                }}
-                aria-label={`Enlarge ${c.title}`}
-                className="block w-full"
-              >
-                <img
-                  src={c.thumbnailUrl}
-                  alt={`${c.title} certificate issued by ${c.issuer}`}
-                  width={600}
-                  height={420}
-                  loading="lazy"
-                  decoding="async"
-                  className="mb-3 w-full rounded-lg border border-edge"
-                />
-              </button>
-              <p className="text-sm font-semibold break-words text-primary">{c.title}</p>
+              {/* No thumbnail here any more. It was 225px of a 309px tile —
+                  ninety percent of a section that ran to 3484px — showing a
+                  scan nobody can read at 380px wide. The scan lives in the
+                  lightbox, where it is legible and where a reader has chosen
+                  to look. What is left is the credential itself. */}
+              <p className="text-sm font-semibold break-words text-primary">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImageBroken(false);
+                    setOpenAt(index);
+                  }}
+                  className="text-left hover:text-accent"
+                >
+                  {c.title}
+                </button>
+              </p>
               <p className="mt-1 font-mono text-xs uppercase tracking-[0.12em] text-muted">
                 {`${c.issuer} · ${c.issueDate}`}
               </p>

@@ -92,18 +92,24 @@ export default function Projects() {
               isDimmed(p.id) ? 'opacity-40' : 'opacity-100'
             }`}
           >
-            <img
-              src={p.thumbnail}
-              alt={`${p.title} preview`}
-              width={800}
-              height={500}
-              loading="lazy"
-              decoding="async"
-              className="mb-4 w-full rounded-lg border border-edge"
-            />
-            <p className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
-              {`${p.category} · ${p.year}`}
-            </p>
+            {/* Beside the text, not above it. A project thumbnail earns its
+                place — it shows the interface — but at full column width it
+                made a 451px tile out of an entry worth a paragraph. The three
+                featured rows are where an image gets room. */}
+            <div className="flex items-start gap-4">
+              <img
+                src={p.thumbnail}
+                alt={`${p.title} preview`}
+                width={800}
+                height={500}
+                loading="lazy"
+                decoding="async"
+                className="w-24 shrink-0 rounded-lg border border-edge"
+              />
+              <p className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
+                {`${p.category} · ${p.year}`}
+              </p>
+            </div>
             {/* The title is both the heading and the control. Making the whole
                 card a button is not an option — it contains links, and a button
                 containing links is invalid. */}
