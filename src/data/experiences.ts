@@ -1,4 +1,4 @@
-import type { Experience } from '@/types';
+import type { Experience, ExperienceType } from '@/types';
 
 export const experiences: Experience[] = [
   {
@@ -83,3 +83,19 @@ export const experiences: Experience[] = [
     stack: ['React', 'Tailwind CSS'],
   },
 ];
+
+/**
+ * Display labels for the closed set of experience types.
+ *
+ * Here rather than in the section because copy lives in src/data/ — and
+ * because adding a member to ExperienceType should fail the type check in one
+ * obvious place rather than render an empty label on the page.
+ */
+export const EXPERIENCE_TYPE_LABEL: Record<ExperienceType, string> = {
+  work: 'Work',
+  internship: 'Internship',
+  organization: 'Organisation',
+  freelance: 'Freelance',
+  volunteer: 'Volunteer',
+  research: 'Research',
+};

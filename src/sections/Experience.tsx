@@ -1,11 +1,11 @@
 import SectionShell from '@/components/layout/SectionShell';
 import { shellProps } from '@/data/sections';
-import { experiences } from '@/data/experiences';
+import { EXPERIENCE_TYPE_LABEL, experiences } from '@/data/experiences';
 import Chip from '@/motion/Chip';
 import PulseDot from '@/motion/PulseDot';
 import Reveal from '@/motion/Reveal';
 
-/** Seconds between one timeline entry arriving and the next. */
+/** Seconds between one entry arriving and the next. */
 const STEP = 0.06;
 
 function formatMonth(value: string): string {
@@ -19,16 +19,20 @@ function formatMonth(value: string): string {
 function Body({ entry, current }: { entry: (typeof experiences)[number]; current: boolean }) {
   const content = (
     <>
-      <p className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
-        {`${formatMonth(entry.startDate)} — ${
-          current ? 'Present' : formatMonth(entry.endDate)
-        }`}
+      <h3 className="font-display text-lg font-bold break-words text-primary">{entry.role}</h3>
+
+      <p className="mt-1">
+        <span className="text-accent-2">{entry.organization}</span>
+        <span className="ml-2 font-mono text-xs uppercase tracking-[0.12em] text-muted">
+          {EXPERIENCE_TYPE_LABEL[entry.type]}
+        </span>
       </p>
-      <h3 className="mt-2 font-display text-lg font-bold break-words text-primary">
-        {entry.role}
-      </h3>
-      <p className="text-accent-2">{entry.organization}</p>
-      <p className="mt-2 max-w-[68ch] text-muted">{entry.summary}</p>
+
+      <p className="mt-2 font-mono text-xs uppercase tracking-[0.12em] text-muted">
+        {`${formatMonth(entry.startDate)} — ${current ? 'Present' : formatMonth(entry.endDate)}`}
+      </p>
+
+      <p className="mt-3 max-w-[68ch] text-muted">{entry.summary}</p>
 
       <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-muted">
         {entry.highlights.map((h) => (
@@ -50,39 +54,52 @@ function Body({ entry, current }: { entry: (typeof experiences)[number]; current
 
   if (!current) return content;
 
-  // Quiet on purpose. A tinted border and a slightly lifted background are
-  // enough to say "read this one first"; the only thing that moves is the
-  // 10px dot on the rule, which is peripheral rather than drawn around the
-  // text. This replaced a canvas border that was both distracting to read
-  // past and a render loop for as long as the section was on screen.
-  return (
-    <div className="rounded-xl border border-accent-2/30 bg-elevated/50 p-5">{content}</div>
-  );
+  // Quiet on purpose. A tinted border and a lifted background are enough to say
+  // "read this one first"; the only thing that moves is the dot beside the
+  // year, which is peripheral rather than drawn around the text.
+  return <div className="rounded-xl border border-accent-2/30 bg-elevated/50 p-5">{content}</div>;
 }
 
 export default function Experience() {
   return (
     <SectionShell {...shellProps('experience')}>
-      {/* One-sided at every width. The alternating two-sided pattern reliably
-          breaks at tablet widths and does not pay for its complexity. */}
-      <ol className="relative border-l border-edge pl-6">
+      {/* No rule and no dots down the left. With five entries in reverse order
+          the sequence is already obvious from the dates, so the rule spent
+          horizontal space restating it — and a ruled timeline is the layout
+          almost every portfolio template ships.
+
+          The year leads instead. It gives the section a rhythm the rest of the
+          page does not have: every other section opens with prose, this one
+          opens with a number.
+
+          Losing the rule also retires the containing-block trap. The dots had
+          to sit outside their Reveal because AnimatedContent transforms its
+          wrapper, and a transformed ancestor becomes the containing block for
+          absolutely positioned descendants. Nothing here is positioned against
+          the section any more. */}
+      <ol className="space-y-12">
         {experiences.map((e, index) => {
           const current = e.endDate === 'present';
 
           return (
-            <li key={e.id} className="mb-10 last:mb-0">
-              {/* Outside the Reveal on purpose. AnimatedContent sets a
-                  transform on its wrapper, and a transformed ancestor becomes
-                  the containing block for absolutely positioned descendants —
-                  which would move this dot off the line it marks. */}
-              <PulseDot active={current} className="absolute -left-[5px] mt-2" />
+            <li key={e.id} className="grid gap-3 md:grid-cols-[7rem_1fr] md:gap-8">
+              {/* At md and up this sits in the margin; below it stacks above the
+                  role, because a phone has no margin to put a number in. */}
+              {/* items-start, not items-center: the grid cell stretches to the
+                  height of the whole entry, so centring floated the year to the
+                  middle of a tall block instead of beside the role it labels. */}
+              <div className="flex items-start gap-2 md:justify-end">
+                <p
+                  className={`font-display text-3xl font-extrabold leading-none md:text-display-sm ${
+                    current ? 'text-accent' : 'text-edge'
+                  }`}
+                >
+                  {e.startDate.slice(0, 4)}
+                </p>
+                {current && <PulseDot active className="relative shrink-0" />}
+              </div>
 
               <Reveal delay={STEP * index}>
-                {/* The current role is the one a recruiter should read first,
-                    so it becomes a card while the rest stay bare against the
-                    rule. The card is not conditional on motion — under reduced
-                    motion the border remains and only the electricity goes, so
-                    the entry stays marked either way. */}
                 <Body entry={e} current={current} />
               </Reveal>
             </li>

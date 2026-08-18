@@ -3,7 +3,7 @@ import Experience from './Experience';
 import Projects from './Projects';
 import Education from './Education';
 import Contact from './Contact';
-import { experiences } from '@/data/experiences';
+import { EXPERIENCE_TYPE_LABEL, experiences } from '@/data/experiences';
 import { projects } from '@/data/projects';
 import { certificates } from '@/data/certificates';
 import { profile } from '@/data/profile';
@@ -20,6 +20,25 @@ describe('Experience', () => {
     expect(screen.getAllByText(/— Present$/).length).toBe(
       experiences.filter((e) => e.endDate === 'present').length,
     );
+  });
+
+  it('says what kind of engagement each one was', () => {
+    render(<Experience />);
+
+    // experience.type was in the data, covered by a type, and rendered nowhere.
+    // "Internship" and "Volunteer" are the difference between five entries that
+    // look identical and five a reader can weigh.
+    for (const e of experiences) {
+      expect(screen.getAllByText(EXPERIENCE_TYPE_LABEL[e.type]).length).toBeGreaterThan(0);
+    }
+  });
+
+  it('leads each entry with its start year', () => {
+    render(<Experience />);
+
+    for (const e of experiences) {
+      expect(screen.getAllByText(e.startDate.slice(0, 4)).length).toBeGreaterThan(0);
+    }
   });
 });
 
