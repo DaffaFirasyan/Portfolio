@@ -14,6 +14,9 @@
   --color-muted: #8a97a6;
   --color-accent: #f0a32e;
   --color-accent-2: #5ec8d8;
+  /* Errors need a colour that is not also the link and active-nav colour.
+     #ff6b6b on --color-void is about 6.5:1, above the 4.5:1 AA asks of text. */
+  --color-danger: #ff6b6b;
 
   --font-display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
   --font-sans: 'Geist Variable', system-ui, sans-serif;
