@@ -10,7 +10,7 @@ This file exists so a session that remembers nothing can pick the work up withou
 
 **Branch:** `feat/foundation-and-content-layer`, ~115 commits ahead of `main`. Nothing is merged; `main` still sits at the first plan document.
 
-**State:** 333 tests pass across 46 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean. Initial payload is 205 KB JS plus 11 KB CSS gzip against a 250 KB budget, with the WebGL backdrop split into a further 16 KB chunk that only loads when the capability check passes.
+**State:** 327 tests pass across 45 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean. Initial payload is 204 KB JS plus 11 KB CSS gzip against a 250 KB budget, with the WebGL backdrop split into a further 16 KB chunk that only loads when the capability check passes.
 
 | Plan | Covers | Status |
 |---|---|---|
@@ -38,8 +38,6 @@ Expect the page to look different from what the plans describe. After the hierar
 
 Before vendoring any further React Bits component, read its source. **Seven have now been rejected on inspection**, all for the same reason — they are finished widgets rather than pieces:
 
-`SplashCursor` was accepted on 2026-08-19 and needed **six** edits, more than any other vendored component — worth knowing before trusting its siblings. Upstream returns **no cleanup at all**: the rAF handle is discarded so the loop cannot be stopped, and all five `window` listeners are inline arrows, which `removeEventListener` cannot match by reference. Since its dependency array includes `BACK_COLOR`, an *object*, a parent re-rendering with a fresh literal starts a second simulation on top of the first — so the wrapper freezes that object at module scope. It also **throws** `Unable to initialize WebGL` from inside its effect, which made its own `if (!gl || !ext) return;` unreachable and would blank the page on a browser with WebGL disabled or blocklisted; both throws return null now, and the guard that already existed does its job. Its `z-50` would have painted over the focused skip link, and fixing the null return made TypeScript flag `gl` correctly, because the helpers are hoisted function declarations that no narrowing reaches.
-
 | Rejected | Why |
 |---|---|
 | `PillNav` | 15KB importing `react-router-dom` into a site with no routes |
@@ -66,11 +64,11 @@ Enough of a map to orient without reading everything.
 | `types/` | Every content interface, plus `SectionMeta`, `SectionNavProps`, `Site`, `Technology` |
 | `lib/` | All pure and tested directly: `scroll`, `filter`, `cycle`, `rail` (node geometry), `group` (`groupByCategory`, `CATEGORY_ORDER`), `validate` (contact fields), `web3forms` (the submit call), `token` (`cssToken` — canvas cannot read `var()`), `skillIcon` (kebab-case data key → lucide component, explicit table not a derived lookup) |
 | `hooks/` | `useActiveSection`, `useScrolledPast`, `useMotionAllowed`, `useOnScreen`, `useLenis` — the last is a **module singleton**, see the traps |
-| `motion/` | The wrapper layer, and the only place React Bits is touched: `Reveal` (takes `fill`), `Heading`, `Surface` (the one hover language), `Backdrop`, `Chip`, `Dialog` (takes `wide`), `Counter`, `BlurIn`, `Shine`, `RotatingRole`, `Grain`, `StarButton`, `Typed`, `Marquee`, `Sparks`, `CircularBadge`, `PulseDot`, `AvatarCard`, `LogoMarquee`, `ProjectFlow`, `SplashCursor` |
+| `motion/` | The wrapper layer, and the only place React Bits is touched: `Reveal` (takes `fill`), `Heading`, `Surface` (the one hover language), `Backdrop`, `Chip`, `Dialog` (takes `wide`), `Counter`, `BlurIn`, `Shine`, `RotatingRole`, `Grain`, `StarButton`, `Typed`, `Marquee`, `Sparks`, `CircularBadge`, `PulseDot`, `AvatarCard`, `LogoMarquee`, `ProjectFlow` |
 | `highlight/` | `SkillHighlightProvider` and `useSkillHighlight` — the skill-to-project cross-highlight |
 | `nav/` | `NodeRailNav` (in use), `PillNavAdapter` (kept unimported as the second implementation that proves the seam), `Navbar` (owns the hooks) |
 | `sections/` | The seven sections. Governed: no React Bits imports |
-| `components/reactbits/` | Seventeen vendored components, owned and edited by this project |
+| `components/reactbits/` | Sixteen vendored components, owned and edited by this project |
 | `components/ui/` | `ContactForm`, `FeaturedProject` |
 | `components/layout/` | `SectionShell` |
 | `test/` | `setup.ts`, and `stubs.ts` with the seven APIs jsdom lacks plus the drivable `observers` registry |
@@ -206,10 +204,6 @@ Every one of these produced a wrong turn before it was understood. They are not 
 - **GSAP-driven animation cannot be measured in the pane at all**, and the failure mode is silent. GSAP runs entirely on `requestAnimationFrame`, which never fires there, so it never applies its `from` state — every element reads `opacity: 1, transform: none` whether the animation already finished or never started. A reading like that looks like evidence and is not. Anything scheduled with `setInterval` or `setTimeout` **is** measurable there; that is why the `TextType` check worked and the `SplitText` one did not. The owner confirmed in a real browser that section headings animate per character on arrival and that the contact line types on arrival.
 
   What **was** measured on the production build, at 320, 375, 753, 985, 1085, 1265 and 1425: `documentElement.scrollWidth` never exceeds `clientWidth`, and the header's inner container never exceeds its own client width either — checked separately because a fixed element does not grow the document's scroll width. On a fresh load at 320 the grain canvas matches the viewport exactly.
-
-- **Raising `testTimeout` does not raise the hook timeout, and the failure says so in a number you never configured.** Vitest times `beforeEach`/`afterEach` separately, at a 10s default, and Testing Library registers its cleanup — which unmounts the whole App tree — as an `afterEach`. So App.test.tsx failed with `Hook timed out in 10000ms` while `testTimeout` sat at 45s looking innocent, and the test that "failed" had already finished its assertions. Unmounting this page costs about what mounting it does. `hookTimeout` is set alongside `testTimeout` now; keep them together.
-
-- **A `:focus` style cannot be verified in the pane at all**, which is the focus gap below showing up in CSS rather than in JavaScript. `:focus` only matches while the document itself is focused, and `document.hasFocus()` is permanently false there — so a `focus:z-50` utility computes as `z-index: auto` no matter what `.focus()` did to `document.activeElement`. To check what a focus variant resolves to, apply the same utilities to a throwaway element and read *that*: `document.createElement('a')` with `className = 'absolute z-50'` reports 50, which is the fact the assertion actually needed.
 
 - **The pane never gives the document real focus, so `.focus()` is exactly as unreliable there as `requestAnimationFrame` — same root cause, one more symptom.** Measured: `element.focus()` moves `document.activeElement` (that part is real bookkeeping, not faked), but `document.hasFocus()` reads `false` and neither a native `focus` nor `focusin` listener — attached directly, bypassing React entirely — ever fires. A React `onFocus` handler that depends on that event therefore never runs, which looked exactly like a bug in a freshly-added active-chip style before a plain `addEventListener('focusin', …)` check showed the event itself never arrives. Mouse events dispatched for real (`userEvent.hover`) still work fine in a real browser; this is specific to focus. Trust jsdom via `@testing-library/react`'s `act()` for anything focus-triggered — it has no such gap — and treat the pane the way this file already treats GSAP: fine for layout and DOM shape, blind to anything that starts with an event the pane cannot actually deliver.
 - **`main` has nothing on it.** Over a hundred commits sit on one branch with no merge. Nothing is broken by that, but the longer it runs the more there is to unpick if something needs reverting. The deploy task merges it.

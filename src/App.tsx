@@ -8,7 +8,6 @@ import Contact from '@/sections/Contact';
 import { profile } from '@/data/profile';
 import { SkillHighlightProvider } from '@/highlight/SkillHighlight';
 import Marquee from '@/motion/Marquee';
-import SplashCursor from '@/motion/SplashCursor';
 import Navbar from '@/nav/Navbar';
 
 export default function App() {
@@ -20,11 +19,6 @@ export default function App() {
       >
         Skip to content
       </a>
-
-      {/* Page-wide decoration, so it sits outside main rather than inside any
-          one section. It renders nothing at all unless the device has a real
-          pointer and the capability check passes. */}
-      <SplashCursor />
 
       <Navbar />
 
