@@ -2,6 +2,7 @@ import SectionShell from '@/components/layout/SectionShell';
 import { shellProps } from '@/data/sections';
 import { experiences } from '@/data/experiences';
 import Chip from '@/motion/Chip';
+import LiveBorder from '@/motion/LiveBorder';
 import Reveal from '@/motion/Reveal';
 
 /** Seconds between one timeline entry arriving and the next. */
@@ -13,6 +14,47 @@ function formatMonth(value: string): string {
     month: 'short',
   });
   return `${name} ${year}`;
+}
+
+function Body({ entry, current }: { entry: (typeof experiences)[number]; current: boolean }) {
+  const content = (
+    <>
+      <p className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
+        {`${formatMonth(entry.startDate)} — ${
+          current ? 'Present' : formatMonth(entry.endDate)
+        }`}
+      </p>
+      <h3 className="mt-2 font-display text-lg font-bold break-words text-primary">
+        {entry.role}
+      </h3>
+      <p className="text-accent-2">{entry.organization}</p>
+      <p className="mt-2 max-w-[68ch] text-muted">{entry.summary}</p>
+
+      <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-muted">
+        {entry.highlights.map((h) => (
+          <li key={h.slice(0, 32)}>{h}</li>
+        ))}
+      </ul>
+
+      {entry.stack && (
+        <ul className="mt-3 flex flex-wrap gap-2">
+          {entry.stack.map((s) => (
+            <li key={s}>
+              <Chip size="sm">{s}</Chip>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  );
+
+  if (!current) return content;
+
+  return (
+    <LiveBorder className="rounded-xl">
+      <div className="rounded-xl border border-edge p-5">{content}</div>
+    </LiveBorder>
+  );
 }
 
 export default function Experience() {
@@ -38,30 +80,12 @@ export default function Experience() {
               />
 
               <Reveal delay={STEP * index}>
-                <p className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
-                  {`${formatMonth(e.startDate)} — ${current ? 'Present' : formatMonth(e.endDate)}`}
-                </p>
-                <h3 className="mt-2 font-display text-lg font-bold break-words text-primary">
-                  {e.role}
-                </h3>
-                <p className="text-accent-2">{e.organization}</p>
-                <p className="mt-2 max-w-[68ch] text-muted">{e.summary}</p>
-
-                <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-muted">
-                  {e.highlights.map((h) => (
-                    <li key={h.slice(0, 32)}>{h}</li>
-                  ))}
-                </ul>
-
-                {e.stack && (
-                  <ul className="mt-3 flex flex-wrap gap-2">
-                    {e.stack.map((s) => (
-                      <li key={s}>
-                        <Chip size="sm">{s}</Chip>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                {/* The current role is the one a recruiter should read first,
+                    so it becomes a card while the rest stay bare against the
+                    rule. The card is not conditional on motion — under reduced
+                    motion the border remains and only the electricity goes, so
+                    the entry stays marked either way. */}
+                <Body entry={e} current={current} />
               </Reveal>
             </li>
           );

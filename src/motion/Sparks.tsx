@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 
 import ClickSpark from '@/components/reactbits/ClickSpark/ClickSpark';
 import { useMotionAllowed } from '@/hooks/useMotionAllowed';
+import { cssToken } from '@/lib/token';
 
 interface SparksProps {
   children: ReactNode;
@@ -23,7 +24,11 @@ export default function Sparks({ children }: SparksProps) {
 
   return (
     <ClickSpark
-      sparkColor="var(--color-accent)"
+      // The resolved value, not the reference. ClickSpark assigns this to
+      // ctx.strokeStyle, and canvas silently ignores var(): measured in a
+      // browser, strokeStyle stays #000000, so the sparks were drawing black
+      // on a near-black page and were invisible.
+      sparkColor={cssToken('--color-accent')}
       sparkSize={8}
       sparkRadius={18}
       sparkCount={8}

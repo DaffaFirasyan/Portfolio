@@ -144,3 +144,52 @@ describe('Sparks', () => {
     expect(clock.pending()).toBe(0);
   });
 });
+
+describe('the colour handed to the canvas', () => {
+  it('is a resolved value, never a var() reference', () => {
+    setMotion(true);
+
+    let received: string | undefined;
+
+    // Records what the component actually assigns, rather than trusting the
+    // prop — the prop can look fine while the canvas discards it.
+    const ctx: Record<string, unknown> = {
+      clearRect: () => {},
+      beginPath: () => {},
+      moveTo: () => {},
+      lineTo: () => {},
+      stroke: () => {},
+      lineWidth: 0,
+    };
+    Object.defineProperty(ctx, 'strokeStyle', {
+      set(value: string) {
+        received = value;
+      },
+      get() {
+        return received ?? '';
+      },
+    });
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
+      ctx as unknown as CanvasRenderingContext2D,
+    );
+
+    const clock = frameClock();
+    render(
+      <Sparks>
+        <button type="button">Send message</button>
+      </Sparks>,
+    );
+    clock.flush(0);
+
+    act(() => {
+      screen.getByRole('button', { name: 'Send message' }).click();
+    });
+    clock.flush(1);
+
+    expect(received).toBeDefined();
+    // Canvas ignores var() silently and keeps the previous value, which is
+    // black — invisible against this palette.
+    expect(received).not.toMatch(/^var\(/);
+    expect(received).toMatch(/^#|^rgb/);
+  });
+});
