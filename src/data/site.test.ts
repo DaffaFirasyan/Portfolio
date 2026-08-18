@@ -1,7 +1,10 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { profile } from './profile';
 import { site } from './site';
+
+const read = (...parts: string[]) => readFileSync(join(process.cwd(), ...parts), 'utf8');
 
 describe('site', () => {
   it('has an https origin with no trailing slash', () => {
@@ -27,5 +30,45 @@ describe('site', () => {
 
   it('describes the og image for a reader who cannot see it', () => {
     expect(site.ogImageAlt.trim().length).toBeGreaterThan(20);
+  });
+});
+
+describe('published metadata', () => {
+  const html = read('index.html');
+
+  it('gives index.html the title and description from site.ts', () => {
+    expect(html).toContain(`<title>${site.title}</title>`);
+    expect(html).toContain(site.description);
+  });
+
+  it('points canonical, og:url and og:image at the site url', () => {
+    expect(html).toContain(`<link rel="canonical" href="${site.url}/" />`);
+    expect(html).toContain(`content="${site.url}/"`);
+    expect(html).toContain(`content="${site.url}${site.ogImage}"`);
+    expect(html).toContain(`content="${site.ogImageAlt}"`);
+  });
+
+  it('declares the og image dimensions, so the preview reserves the right box', () => {
+    expect(html).toContain('property="og:image:width" content="1200"');
+    expect(html).toContain('property="og:image:height" content="630"');
+  });
+
+  it('describes the same person the profile data describes', () => {
+    const match = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+    if (!match) throw new Error('index.html carries no JSON-LD block');
+
+    const data = JSON.parse(match[1]);
+    expect(data['@type']).toBe('Person');
+    expect(data.name).toBe(profile.name);
+    expect(data.jobTitle).toBe(profile.roles[0]);
+    expect(data.url).toBe(`${site.url}/`);
+    expect(data.email).toBe(`mailto:${profile.email}`);
+    expect(data.image).toBe(`${site.url}${profile.avatarUrl}`);
+    expect(data.sameAs).toEqual(profile.socials.map((social) => social.url));
+  });
+
+  it('gives crawlers a robots.txt and a sitemap that agree on the origin', () => {
+    expect(read('public', 'robots.txt')).toContain(`Sitemap: ${site.url}/sitemap.xml`);
+    expect(read('public', 'sitemap.xml')).toContain(`<loc>${site.url}/</loc>`);
   });
 });
