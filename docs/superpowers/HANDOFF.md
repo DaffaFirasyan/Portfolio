@@ -1,6 +1,6 @@
 # Handoff — read this first
 
-Written 2026-08-18, at the point where plans 1, 2 and 3 are built and verified in a browser.
+Written 2026-08-18, with all five written plans built and browser-verified. Kept current as work lands — if it disagrees with the code, the code is right and this needs fixing.
 
 This file exists so a session that remembers nothing can pick the work up without asking. Everything below is either recorded here or in a committed document — nothing important lives only in a conversation.
 
@@ -29,7 +29,49 @@ Write and execute the last plan: the contact form, the node-rail navigation upgr
 
 **Two checks are still open from the interactive-surfaces plan** and need a real browser, because the in-app pane holds no document focus: that Tab cannot escape an open dialog, and that Escape closes it. Everything else there was measured — focus moves into the dialog on open and returns to the trigger on close, the body locks and Lenis genuinely stops, and the filter changes card count without resizing the cards that remain.
 
-Before vendoring any further React Bits component, read its source. Four have now been rejected on inspection — `PillNav`, `MagicBento`, `ScrollReveal` and `GlareHover` — because they are finished widgets rather than pieces, and three already in the tree needed edits: `SplitText` renders its own heading via a `tag` prop, `BlurText` renders its own `<p>`, and `SpotlightCard` hardcoded a palette that collided with the design tokens.
+Before vendoring any further React Bits component, read its source. **Seven have now been rejected on inspection**, all for the same reason — they are finished widgets rather than pieces:
+
+| Rejected | Why |
+|---|---|
+| `PillNav` | 15KB importing `react-router-dom` into a site with no routes |
+| `StaggeredMenu` | 25KB more, for a seven-item disclosure |
+| `MagicBento` | 26KB of particles, tilt, magnetism and hardcoded demo content; its spotlight duplicates `Surface` |
+| `ScrollReveal` | One span and one ScrollTrigger per word, on prose |
+| `GlareHover` | A showcase tile that imposes width, height, background and `cursor-pointer` |
+| `Masonry` | Packs items of differing heights; every thumbnail is 800×500 in an equal-height grid |
+| `PixelTransition` | A second hover effect on cards that already carry the spotlight |
+
+`LogoLoop` was vendored and then dropped: it needs logo image files the data does not have, and carried 21 of 25 lint failures alone.
+
+Four of the eleven vendored components needed edits. `SplitText` renders its own heading via a `tag` prop and `BlurText` its own `<p>`, so wrapping either naively nests a heading in a heading or a paragraph in a paragraph. `SpotlightCard` hardcoded `bg-neutral-900`, which collided with the design tokens. `Magnet` and `SplitText` both set state synchronously inside an effect.
+
+## What exists in `src/`
+
+Enough of a map to orient without reading everything.
+
+| Path | What is there |
+|---|---|
+| `data/` | `profile`, `projects` (8), `skills` (4 categories), `experiences` (5), `education`, `certificates` (14), `sections` (`SECTIONS` + `shellProps`), `constraints` (`LIMITS`, `longest`, `STRESS_RATIO`), and `invariants.test.ts` — eleven data rules including asset existence |
+| `types/` | Every content interface, plus `SectionMeta` and `SectionNavProps` |
+| `lib/` | `scroll` (`pickActiveSection`, `scrollProgress`), `filter` (`ALL`, `categoriesOf`, `filterByCategory`), `cycle` (`cycleIndex`) — all pure, all tested directly |
+| `hooks/` | `useActiveSection`, `useScrolledPast`, `useMotionAllowed`, `useOnScreen`, `useLenis` (`scrollTo`, `stop`, `start`) |
+| `motion/` | `Reveal` (takes `fill`), `Heading`, `Surface`, `Backdrop`, `Chip` (takes `size`), `Dialog` (takes `wide`), `Counter`, `BlurIn`, `Shine`, `RotatingRole`, `TiltImage`, `Grain` |
+| `highlight/` | `SkillHighlightProvider` and `useSkillHighlight` — the skill-to-project cross-highlight |
+| `nav/` | `PillNavAdapter` (implements `SectionNavProps`), `Navbar` (owns the hooks) |
+| `sections/` | The seven sections. Governed: no React Bits imports |
+| `components/reactbits/` | Eleven vendored components, owned and edited by this project |
+| `components/layout/` | `SectionShell` |
+| `test/` | `setup.ts`, and `stubs.ts` with the six APIs jsdom lacks plus the drivable `observers` registry |
+
+Anything positioned absolutely against a section — the timeline dots — must sit outside its `Reveal`; see the layout traps below.
+
+## Working practices this project arrived at the hard way
+
+- **Read a component's source before planning around it.** Seven React Bits components were rejected on inspection and four of the eleven vendored ones needed edits. Assuming an API cost a wrong plan every time it was tried.
+- **Query the registry for versions.** Every version pinned from memory in the first plan was wrong.
+- **Open the browser before calling visual work done.** The project modal shipped pinned to a corner with 177 tests green; it was caught from a screenshot, not a test. Verification scheduled for a later task is verification that arrives too late.
+- **Prove a guard fails.** Several tests here were checked by deliberately breaking the thing they watch — the import boundary, the asset invariant, the focus return, the cross-highlight wiring. A guard nobody has seen fail is a guess.
+- **Commit after each task.** Two sessions were cut off mid-task by usage limits, each time stranding finished work uncommitted. Per-task commits cap the loss at one task.
 
 ## Decisions that changed after the spec was approved
 
@@ -52,6 +94,14 @@ Every one of these produced a wrong turn before it was understood. They are not 
 **`.gitattributes` is load-bearing.** The placeholder CV is mostly ASCII, so git misdetected the PDF as text and line-ending conversion corrupted it — valid in the working tree at 570 bytes, broken in a fresh clone at 602. Binary types are marked explicitly.
 
 **Verify package versions against the registry rather than recalling them.** Every version pinned from memory in the first plan was wrong, including three majors. `npm view <pkg> version` before writing a plan.
+
+**Shell and tooling traps on this machine**, each of which cost a wrong turn:
+
+- `/tmp` is a Git Bash path that Node and PowerShell do not share. A `cp` to `/tmp` fails or lands somewhere the next command cannot read. Use the session scratchpad directory instead.
+- `git checkout <file>` on a file with uncommitted changes discards them. Backing a file up before deliberately breaking it needs a real copy, not git.
+- A literal non-breaking space in source trips `no-irregular-whitespace`, and it is invisible in an editor and in `JSON.stringify`. Write ` `.
+- A `{/* comment */}` cannot sit beside a JSX element inside a `return (…)` — that is two expressions. Between attributes in an opening tag, `//` is fine.
+- Writing a ref during render trips `react-hooks/refs`, correctly: it breaks under concurrent rendering. Depend on the value in a callback instead.
 
 **Two layout traps this project has already hit.** `AnimatedContent` sets a transform on its wrapper, and a transformed ancestor becomes the containing block for absolutely positioned descendants — so anything positioned against a section must stay outside its `Reveal`, as the timeline dots do. And `Reveal` adds one or two divs, which breaks a `h-full` chain: it takes `fill` for the grid-item case and must not take it anywhere else, because stacked Reveals each claim the full height of their column.
 
@@ -79,4 +129,15 @@ Every one of these produced a wrong turn before it was understood. They are not 
 
   **Still unverified:** that the hero entrance reads as a staggered sequence finishing inside ~1.2s. Needs a compositing browser; the in-app pane advances no transitions and delivers no IntersectionObserver callbacks.
 - **Active-section tracking has never been watched in a real browser.** Its logic is covered by unit tests driving the observer directly, including fast scroll and document-order tie-breaks, but nobody has seen the indicator follow a real scroll. Worth a look in `npm run dev`.
-- **All content is placeholder.** Names, projects, certificates and the CV are realistic fixtures written at the maximum lengths the layout contract permits, so the layout is stress-tested before real content arrives.
+- **All content is placeholder.** Names, projects, certificates and the CV are realistic fixtures written at the maximum lengths the layout contract permits, so the layout is stress-tested before real content arrives. The owner intends to paste real content once every plan is built. It touches only `src/data/` and `public/`; `npm run placeholders` regenerates the images from whatever the data says.
+- **Two dialog behaviours are unverified.** That Tab cannot escape an open dialog, and that Escape closes it. Both are browser behaviour the jsdom stub cannot imitate, and the in-app pane holds no document focus so keypresses never arrive. Everything else about the dialogs was measured: focus moves in on open, returns to the trigger on close, the body locks, and Lenis genuinely stops.
+- **`main` has nothing on it.** Seventy-plus commits sit on one branch with no merge. Nothing is broken by that, but the longer it runs the more there is to unpick if something needs reverting.
+
+## What the last plan still has to cover
+
+Spec phases 8 through 10, none of it written yet:
+
+- **The contact form.** Web3Forms was chosen in spec §6 but nothing is installed. Three states — loading, success, error — with a `mailto:` fallback, a honeypot, inline validation on blur, and `aria-live` on errors.
+- **The node-rail navigation.** Spec D6 always intended `PillNavAdapter` to be replaced by the section-node rail from spec §3.4. `SectionNavProps` exists for exactly this, and `Navbar.tsx` is the only file that names the adapter.
+- **Polish.** Reduced-motion sweep, keyboard pass, contrast check, Lighthouse against spec §12.3, `<title>`/OG/JSON-LD, `robots.txt` and `sitemap.xml`.
+- **Deploy.** Vercel, custom domain, analytics.
