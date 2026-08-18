@@ -19,7 +19,8 @@ This file exists so a session that remembers nothing can pick the work up withou
 | [Motion & hero](plans/2026-08-17-motion-and-hero.md) | Spec phases 3–4 | **Built.** 7 tasks |
 | [Sections & cross-highlight](plans/2026-08-18-sections-and-cross-highlight.md) | Spec phase 5 + phase 7 animation | **Built.** 7 tasks |
 | [Interactive surfaces](plans/2026-08-18-interactive-surfaces.md) | Project filter, modal, certificate lightbox | **Built.** 6 tasks |
-| [Contact & launch](plans/2026-08-18-contact-and-launch.md) | Spec phases 8–10 | **Written, not started.** 10 tasks |
+| [Contact & launch](plans/2026-08-18-contact-and-launch.md) | Spec phases 8–10 | **Tasks 1–9 built.** Task 10, deploy, held until real content lands |
+| [Motion enrichment](plans/2026-08-18-motion-enrichment.md) | The seven spec §6 effects never built, plus `ScrollFloat` | **Written, not started.** 9 tasks |
 
 The authority on decisions is [the design spec](specs/2026-08-17-portfolio-onepage-design.md). Each plan records the decisions it changed and why.
 
