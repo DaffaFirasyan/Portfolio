@@ -149,7 +149,7 @@ Every one of these produced a wrong turn before it was understood. They are not 
 
 - **The reduced-motion pass is confirmed too.** With Windows animation effects off, the owner verified no canvas remains on the page. The keyboard pass through the whole page is likewise done.
 
-- **One check remains open:** that the `Galaxy` backdrop resizes with the window. It cannot be proved in the pane — `resize_window` dispatches no `resize` event, see the environment note above — and it is not known to be broken, only unmeasured.
+- **The `Galaxy` resize is confirmed** in the owner's browser. Nothing from the Task 9 sweep is outstanding.
 
   What **was** measured on the production build, at 320, 375, 753, 985, 1085, 1265 and 1425: `documentElement.scrollWidth` never exceeds `clientWidth`, and the header's inner container never exceeds its own client width either — checked separately because a fixed element does not grow the document's scroll width. On a fresh load at 320 the grain canvas matches the viewport exactly.
 - **`main` has nothing on it.** Seventy-plus commits sit on one branch with no merge. Nothing is broken by that, but the longer it runs the more there is to unpick if something needs reverting.
