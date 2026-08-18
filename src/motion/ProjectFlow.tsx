@@ -27,6 +27,21 @@ const ROW = 76;
  * Colours are passed as tokens rather than resolved values: these land in CSS,
  * not on a canvas, so `var()` works. The canvas components in this project need
  * `cssToken` for exactly the opposite reason.
+ *
+ * The revealed panel is neutral, with the accent on the text rather than behind
+ * it. It was a full-bleed `--color-accent` field, and the problem was not the
+ * hue but the area: everywhere else on this page amber is a dot, a border, or a
+ * few words, so a 76px band of it stops reading as an accent and starts reading
+ * as a warning — for the routine act of pointing at a project. Amber is also
+ * the most luminous hue there is, which on a near-black page makes it the
+ * loudest available move.
+ *
+ * The functional half matters more. This panel carries the project's
+ * screenshot, and that image is the entire reason the row reveals anything; a
+ * saturated field behind it fights every colour in it. On `--color-elevated`
+ * the screenshot is simply itself, and the sweep still announces itself
+ * through the panel's step up from the page, the images arriving, and the
+ * accent-coloured type.
  */
 export default function ProjectFlow({ items }: { items: FlowItem[] }) {
   const { animate, hover } = useMotionAllowed();
@@ -71,8 +86,8 @@ export default function ProjectFlow({ items }: { items: FlowItem[] }) {
         speed={18}
         bgColor="transparent"
         textColor="var(--color-primary)"
-        marqueeBgColor="var(--color-accent)"
-        marqueeTextColor="var(--color-void)"
+        marqueeBgColor="var(--color-elevated)"
+        marqueeTextColor="var(--color-accent)"
         borderColor="var(--color-edge)"
       />
     </div>
