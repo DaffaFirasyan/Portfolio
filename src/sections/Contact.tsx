@@ -23,8 +23,14 @@ export default function Contact() {
           hero in the motion plan. */}
       <Sparks>
         <div className="grid gap-12 lg:grid-cols-2">
-          <Reveal>
-            <div>
+          {/* `fill` here, where the note above says neither Reveal takes it.
+              That note held while both columns were plain stacks of content;
+              this one now anchors the robot to its own bottom edge, which
+              needs the column to actually reach the row's full height rather
+              than stopping at its text. It is the case the prop documents — a
+              grid item whose child must match its sibling. */}
+          <Reveal fill>
+            <div className="relative flex h-full flex-col">
               <Typed
                 text="The fastest way to reach me is email. I read everything and reply to anything specific."
                 className="max-w-[48ch] text-muted"
@@ -56,18 +62,35 @@ export default function Contact() {
                 ))}
               </ul>
 
-              {/* lg and up only, as the rotating badge was. Below that it would
+              {/* Absolutely positioned, and that is the whole point: in normal
+                  flow the robot was the tallest thing in this column and set
+                  the section's height itself, running roughly 300px past the
+                  Send button for no reason a reader could name. Out of flow it
+                  contributes nothing, so the section ends where the form ends
+                  and the robot fills the space that was already there.
+
+                  `-bottom-32` against `SectionShell`'s `py-32` puts its base on
+                  the footer border, and `overflow-hidden` cuts anything past
+                  that line instead of pushing into the footer — which is what
+                  makes standing it on the border safe: its feet may be clipped.
+                  Only the lg variant is needed since the whole thing is lg-only,
+                  and `md:py-32` is already in force by then.
+
+                  lg and up only, as the rotating badge was. Below that it would
                   sit between the social links and the form, pushing the thing
                   people came to use further down a screen that is already tall
                   — and it is 1.4 MB, which is the last thing to put in front of
                   a phone. The `hidden` here and the `hover` gate inside the
                   component overlap on purpose: this one keeps it out of the
-                  layout, that one keeps it off the network.
-
-                  Full column width. It was capped at 26rem inside a column
-                  wider than that, which is what made it read as an object
-                  floating in the space rather than part of the page. */}
-              <div className="mt-10 hidden lg:block">
+                  layout, that one keeps it off the network. */}
+              {/* 25rem is the largest this can be before it reaches the social
+                  links: measured with the entrance transforms settled, the gap
+                  between them and the footer line is 415px, and this is 400px.
+                  pointer-events-none because it is absolutely positioned across
+                  the column and must never intercept a click meant for the
+                  links or the address above it — the robot does not need real
+                  pointer events, since the component forwards window ones. */}
+              <div className="pointer-events-none absolute inset-x-0 -bottom-32 hidden h-[25rem] overflow-hidden lg:block">
                 <SplineRobot />
               </div>
             </div>
