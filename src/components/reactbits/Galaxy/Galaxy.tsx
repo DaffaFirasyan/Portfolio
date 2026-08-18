@@ -309,6 +309,14 @@ export default function Galaxy({
       const rect = ctn.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width;
       const y = 1.0 - (e.clientY - rect.top) / rect.height;
+
+      // Outside the backdrop's own box, fade the effect out rather than
+      // clamping the pointer to an edge it is nowhere near.
+      if (x < 0 || x > 1 || y < 0 || y > 1) {
+        targetMouseActive.current = 0.0;
+        return;
+      }
+
       targetMousePos.current = { x, y };
       targetMouseActive.current = 1.0;
     }
@@ -317,17 +325,24 @@ export default function Galaxy({
       targetMouseActive.current = 0.0;
     }
 
+    // On the window, not on the container — changed from the upstream version.
+    // The backdrop sits at a negative z-index behind the page content, and hit
+    // testing follows paint order, so the section always paints above it and
+    // the container never receives a pointer event of its own. Measured on the
+    // built page: no point anywhere in the hero resolves to this element, so
+    // the parallax was wired up and could never fire. Reading the rect by hand
+    // is what makes it reachable regardless of stacking.
     if (mouseInteraction) {
-      ctn.addEventListener('mousemove', handleMouseMove);
-      ctn.addEventListener('mouseleave', handleMouseLeave);
+      window.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseleave', handleMouseLeave);
     }
 
     return () => {
       cancelAnimationFrame(animateId);
       window.removeEventListener('resize', resize);
       if (mouseInteraction) {
-        ctn.removeEventListener('mousemove', handleMouseMove);
-        ctn.removeEventListener('mouseleave', handleMouseLeave);
+        window.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseleave', handleMouseLeave);
       }
       ctn.removeChild(gl.canvas);
       gl.getExtension('WEBGL_lose_context')?.loseContext();

@@ -18,7 +18,7 @@ const Galaxy = lazy(() => import('@/components/reactbits/Galaxy/Galaxy'));
  * settings or device rule it out.
  */
 export default function Backdrop() {
-  const { webgl } = useMotionAllowed();
+  const { webgl, hover } = useMotionAllowed();
   const host = useRef<HTMLDivElement>(null);
   const onScreen = useOnScreen(host);
 
@@ -40,7 +40,11 @@ export default function Backdrop() {
             saturation={0.2}
             hueShift={200}
             twinkleIntensity={0.4}
-            mouseInteraction
+            // The starfield drifts with the pointer. That is a hover-only
+            // affordance, so it goes through the same capability gate as
+            // everything else rather than attaching a window listener on a
+            // touch device that can never use it.
+            mouseInteraction={hover}
             mouseRepulsion={false}
             transparent
           />

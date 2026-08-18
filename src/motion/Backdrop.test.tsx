@@ -3,14 +3,35 @@ import { observers } from '@/test/stubs';
 import Backdrop from './Backdrop';
 
 // The real Galaxy builds a WebGL context, which jsdom does not provide. Mocking
-// it keeps these tests about the gating decision rather than about ogl.
-vi.mock('@/components/reactbits/Galaxy/Galaxy', () => ({
-  default: () => <canvas data-testid="galaxy" />,
+// it keeps these tests about the gating decision rather than about ogl. The
+// props are recorded because the decisions this component makes are expressed
+// as props, and that is the only part of Galaxy testable without a GPU.
+const { galaxyProps } = vi.hoisted(() => ({
+  galaxyProps: [] as Record<string, unknown>[],
 }));
 
-function setCapability({ reduced, memory }: { reduced: boolean; memory: number }) {
+vi.mock('@/components/reactbits/Galaxy/Galaxy', () => ({
+  default: (props: Record<string, unknown>) => {
+    galaxyProps.push(props);
+    return <canvas data-testid="galaxy" />;
+  },
+}));
+
+function setCapability({
+  reduced,
+  memory,
+  hover = true,
+}: {
+  reduced: boolean;
+  memory: number;
+  hover?: boolean;
+}) {
   window.matchMedia = ((query: string) => ({
-    matches: query.includes('prefers-reduced-motion') ? reduced : true,
+    matches: query.includes('prefers-reduced-motion')
+      ? reduced
+      : query.includes('hover')
+        ? hover
+        : true,
     media: query,
     onchange: null,
     addEventListener: () => {},
@@ -37,6 +58,25 @@ function reportVisibility(isIntersecting: boolean) {
 describe('Backdrop', () => {
   beforeEach(() => {
     observers.length = 0;
+    galaxyProps.length = 0;
+  });
+
+  it('lets the starfield follow the pointer where a pointer can hover', async () => {
+    setCapability({ reduced: false, memory: 16 });
+    render(<Backdrop />);
+    await screen.findByTestId('galaxy');
+
+    expect(galaxyProps.at(-1)?.mouseInteraction).toBe(true);
+  });
+
+  it('leaves the pointer parallax off on a device that cannot hover', async () => {
+    // Otherwise a touch device attaches a window mousemove listener for an
+    // effect it can never show.
+    setCapability({ reduced: false, memory: 16, hover: false });
+    render(<Backdrop />);
+    await screen.findByTestId('galaxy');
+
+    expect(galaxyProps.at(-1)?.mouseInteraction).toBe(false);
   });
 
   it('renders the starfield when the device is capable', async () => {
