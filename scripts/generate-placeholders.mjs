@@ -92,6 +92,30 @@ const publicPath = (url) => join(publicDir, url.replace(/^\//, ''));
 
 const defined = (values) => values.filter((value) => Boolean(value));
 
+/**
+ * The avatar is the one placeholder that cannot be a filled rectangle.
+ *
+ * ProfileCard anchors it to the bottom of the card and lets the holographic
+ * gradient show around it, so it expects a portrait with the background
+ * removed. An opaque square renders as a pasted block with a hard seam across
+ * the card — which is exactly how it looked before this existed.
+ *
+ * A head-and-shoulders silhouette on transparency is the cheapest thing that
+ * has the right shape, so the layout is honest during development instead of
+ * only once a real cut-out is dropped in.
+ */
+const silhouette = (w, h) =>
+  Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+       <circle cx="${w / 2}" cy="${h * 0.34}" r="${w * 0.17}" fill="${FOREGROUND}"/>
+       <path d="M ${w / 2} ${h * 0.58}
+                C ${w * 0.24} ${h * 0.58} ${w * 0.15} ${h * 0.78} ${w * 0.13} ${h}
+                L ${w * 0.87} ${h}
+                C ${w * 0.85} ${h * 0.78} ${w * 0.76} ${h * 0.58} ${w / 2} ${h * 0.58} Z"
+             fill="${FOREGROUND}"/>
+     </svg>`,
+  );
+
 /** OG images are JPEG; everything else is WebP. Chosen by extension, not by group. */
 const encode = (pipeline, url) =>
   extname(url) === '.jpg' ? pipeline.jpeg({ quality: QUALITY }) : pipeline.webp({ quality: QUALITY });
@@ -108,7 +132,7 @@ async function main() {
     ]);
 
   const groups = [
-    { name: 'avatar', width: 800, height: 800, urls: [profile.avatarUrl] },
+    { name: 'avatar', width: 800, height: 800, urls: [profile.avatarUrl], cutout: true },
     {
       name: 'project thumbnail',
       width: 800,
@@ -164,9 +188,10 @@ async function main() {
       seen.add(out);
 
       await mkdir(dirname(out), { recursive: true });
-      await encode(sharp(svg(group.width, group.height, group.label ?? slugOf(url))), url).toFile(
-        out,
-      );
+      const source = group.cutout
+        ? silhouette(group.width, group.height)
+        : svg(group.width, group.height, group.label ?? slugOf(url));
+      await encode(sharp(source), url).toFile(out);
       written += 1;
       const { size } = await stat(out);
       console.log(`${group.width}x${group.height}  ${String(size).padStart(7)}b  ${url}`);

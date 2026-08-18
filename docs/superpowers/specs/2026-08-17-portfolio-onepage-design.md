@@ -210,6 +210,7 @@ Mengikuti PRD §6, dengan D7 menggantikan aturan rasio sertifikat.
 
 | Aset | Dimensi | Target ukuran |
 |---|---|---|
+| Foto profil | 800×800, **latar dihapus, PNG/WebP beralfa** | < 150 KB |
 | Thumbnail projek | 800×500 (16:10), tetap | < 120 KB |
 | Thumbnail sertifikat | 600×420 (10:7), letterbox | < 60 KB |
 | Sertifikat penuh | rasio asli, sisi terpanjang ≤ 1600px | < 250 KB |
@@ -219,6 +220,8 @@ Mengikuti PRD §6, dengan D7 menggantikan aturan rasio sertifikat.
 Semua WebP dengan fallback JPG, `loading="lazy"` kecuali elemen LCP, `decoding="async"`, `width`/`height` eksplisit di JSX.
 
 Skeleton memakai gambar placeholder pada dimensi persis di atas, supaya perilaku CLS yang terukur sekarang adalah perilaku yang asli nanti.
+
+**Foto profil harus dipotong dari latarnya.** `ProfileCard` di hero menambatkan foto ke dasar kartu dan membiarkan gradiennya terlihat di sekeliling — foto persegi berlatar utuh terbaca sebagai kotak yang ditempel, dengan garis sambung melintang di tengah kartu. Ditemukan 2026-08-18 dari tangkapan layar pemilik. Placeholder-nya kini siluet transparan supaya bentuk yang salah ketahuan saat pengembangan, bukan setelah deploy.
 
 **Privasi:** nomor induk, tanggal lahir, tanda tangan basah, dan QR yang memuat data pribadi ditutup sebelum sertifikat diunggah (PRD §6.1). Ini diperiksa manual sebelum Fase 10, bukan oleh tes.
 

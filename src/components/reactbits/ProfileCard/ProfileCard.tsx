@@ -513,7 +513,11 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
             <div
               className="overflow-visible"
               style={{
-                mixBlendMode: 'luminosity',
+                // mixBlendMode: 'luminosity' removed. It desaturates the
+                // photograph into the card's hue, which renders a real face in
+                // blue-violet rather than in its own colour. The holographic
+                // sheen behind and in front of the portrait still reads; the
+                // person no longer has to be tinted for it to.
                 transform: 'translateZ(2px)',
                 gridArea: '1 / -1',
                 borderRadius: cardRadius,
