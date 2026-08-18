@@ -28,20 +28,27 @@ const ROW = 76;
  * not on a canvas, so `var()` works. The canvas components in this project need
  * `cssToken` for exactly the opposite reason.
  *
- * The revealed panel is neutral, with the accent on the text rather than behind
- * it. It was a full-bleed `--color-accent` field, and the problem was not the
- * hue but the area: everywhere else on this page amber is a dot, a border, or a
- * few words, so a 76px band of it stops reading as an accent and starts reading
- * as a warning — for the routine act of pointing at a project. Amber is also
- * the most luminous hue there is, which on a near-black page makes it the
- * loudest available move.
+ * The revealed panel inverts the page: near-white field, near-black type.
  *
- * The functional half matters more. This panel carries the project's
- * screenshot, and that image is the entire reason the row reveals anything; a
- * saturated field behind it fights every colour in it. On `--color-elevated`
- * the screenshot is simply itself, and the sweep still announces itself
- * through the panel's step up from the page, the images arriving, and the
- * accent-coloured type.
+ * It was a full-bleed `--color-accent` field first, and the problem there was
+ * never the hue but the area — everywhere else on this page amber is a dot, a
+ * border, or a few words, so a 76px band of it stopped reading as an accent and
+ * started reading as a warning. Inverting is the other way out of that, and the
+ * better one for what this panel actually carries: the project's screenshot.
+ * An image on a saturated field fights every colour in it; on a neutral one it
+ * is simply itself, the way a gallery mat works.
+ *
+ * `--color-primary` rather than `#ffffff`, and `--color-void` rather than
+ * `#000000`. Both are the palette's existing ends, and this page deliberately
+ * has no pure white anywhere — introducing one would put a value on screen that
+ * exists in no other component. It costs almost nothing in drama: the panel
+ * still lands 16.5:1 against the page it slides over.
+ *
+ * This is the loudest of the three settings tried, brighter than the amber it
+ * replaced, and that is the deliberate choice — a hover reveal is brief, asked
+ * for by the reader, and confined to one row. If it ever reads as a flash
+ * rather than a reveal, `--color-elevated` here is the quiet version and needs
+ * no other change.
  */
 export default function ProjectFlow({ items }: { items: FlowItem[] }) {
   const { animate, hover } = useMotionAllowed();
@@ -86,8 +93,8 @@ export default function ProjectFlow({ items }: { items: FlowItem[] }) {
         speed={18}
         bgColor="transparent"
         textColor="var(--color-primary)"
-        marqueeBgColor="var(--color-elevated)"
-        marqueeTextColor="var(--color-accent)"
+        marqueeBgColor="var(--color-primary)"
+        marqueeTextColor="var(--color-void)"
         borderColor="var(--color-edge)"
       />
     </div>
