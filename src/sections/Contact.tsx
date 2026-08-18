@@ -62,7 +62,11 @@ export default function Contact() {
                   — and it is 1.4 MB, which is the last thing to put in front of
                   a phone. The `hidden` here and the `hover` gate inside the
                   component overlap on purpose: this one keeps it out of the
-                  layout, that one keeps it off the network. */}
+                  layout, that one keeps it off the network.
+
+                  Full column width. It was capped at 26rem inside a column
+                  wider than that, which is what made it read as an object
+                  floating in the space rather than part of the page. */}
               <div className="mt-10 hidden lg:block">
                 <SplineRobot />
               </div>
