@@ -116,6 +116,22 @@ describe('Skills', () => {
     }
   });
 
+  it('lays the skills out one per row, so no name can wrap beside another', () => {
+    const { container } = render(<Skills />);
+
+    // The reason the pills went: flex-wrap gave a ragged right edge, and the
+    // longest name the limit permits (24 chars) wrapped inside its own pill,
+    // leaving one item in the set two lines tall. jsdom computes no layout,
+    // so this asserts the mechanism that makes wrapping impossible rather
+    // than measuring the result — the browser check is in the commit.
+    for (const list of container.querySelectorAll('.grid ul')) {
+      expect(list.className).not.toMatch(/flex-wrap/);
+    }
+    for (const button of container.querySelectorAll('.grid ul button')) {
+      expect(button.className).toContain('w-full');
+    }
+  });
+
   it('marks the hovered chip itself, not just the projects it lights elsewhere', async () => {
     // The dimming this drives lands on Projects, which can be a scroll away.
     // Skills.tsx must not go inert for want of a provider — highlight/
@@ -128,15 +144,14 @@ describe('Skills', () => {
     );
     const [{ name }] = skillCategories.flatMap((c) => c.skills);
     const button = screen.getByRole('button', { name });
-    const chip = button.firstElementChild!;
 
-    expect(chip).not.toHaveClass('bg-accent/15');
+    expect(button).not.toHaveClass('bg-accent/10');
 
     await userEvent.hover(button);
-    expect(chip).toHaveClass('bg-accent/15');
+    expect(button).toHaveClass('bg-accent/10');
 
     await userEvent.unhover(button);
-    expect(chip).not.toHaveClass('bg-accent/15');
+    expect(button).not.toHaveClass('bg-accent/10');
 
     // Plain button.focus() moves document.activeElement without going
     // through React's act() batching, so the state update this handler
@@ -144,9 +159,9 @@ describe('Skills', () => {
     // fireEvent.focus would flush it but skips the real focus() call
     // entirely, which is the part act() lets us keep.
     act(() => button.focus());
-    expect(chip).toHaveClass('bg-accent/15');
+    expect(button).toHaveClass('bg-accent/10');
 
     act(() => button.blur());
-    expect(chip).not.toHaveClass('bg-accent/15');
+    expect(button).not.toHaveClass('bg-accent/10');
   });
 });

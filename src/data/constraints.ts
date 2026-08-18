@@ -6,7 +6,12 @@ export const LIMITS = {
   experience: { role: 48, organization: 40, summary: 140, highlight: 160, highlights: 4 },
   certificate: { title: 72, issuer: 40, skills: 4 },
   education: { highlight: 160, highlights: 3 },
-  skill: { name: 24 },
+  // 22, not the 24 this used to say: measured in a browser, a skill row in a
+  // four-across card at 1280 has 162px for its name, which fits 22 characters.
+  // The section is capped at max-w-[1200px], so that column never gets wider —
+  // 22 is the ceiling at every viewport above lg, not just at 1280. The old 24
+  // let two characters through that the layout could not render on one line.
+  skill: { name: 22 },
   counts: { projectsMin: 4, projectsMax: 9, featuredMax: 3 },
 } as const;
 

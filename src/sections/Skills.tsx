@@ -3,7 +3,6 @@ import { shellProps } from '@/data/sections';
 import { skillCategories } from '@/data/skills';
 import { useSkillHighlight } from '@/highlight/SkillHighlight';
 import { skillIcon } from '@/lib/skillIcon';
-import Chip from '@/motion/Chip';
 import LogoMarquee from '@/motion/LogoMarquee';
 import Reveal from '@/motion/Reveal';
 import Surface from '@/motion/Surface';
@@ -33,10 +32,21 @@ export default function Skills() {
             <Surface className="h-full p-6">
               <h3 className="font-display text-lg font-bold text-primary">{category.name}</h3>
 
-              {/* Still no percentage bars. Levels stay qualitative in the data
-                  and unrendered — a made-up "Python 85%" is the kind of thing
-                  an engineer reading this page discounts the section for. */}
-              <ul className="mt-4 flex flex-wrap gap-2">
+              {/* Rows, not wrapped pills. Pills of differing widths flowing
+                  across a narrow column give a ragged right edge no amount of
+                  spacing can tidy, and the longest name the data permits — 24
+                  characters, which `Retrieval-Augmented LLMs` hits exactly —
+                  wrapped *inside* its own pill, so one item in the set was two
+                  lines tall and broke the rhythm outright. A single column
+                  aligns every icon and every name, makes each row the same
+                  height by construction, and hands the whole row width to the
+                  hover target that drives the cross-highlight.
+
+                  Still no percentage bars, and `level` stays unrendered: a
+                  self-declared "Python — Advanced" invites exactly the
+                  scepticism this section can least afford, and the projects
+                  lighting up in the grid below are the evidence instead. */}
+              <ul className="mt-4 space-y-0.5">
                 {category.skills.map((skill) => {
                   const Icon = skillIcon(skill.icon);
                   // The cross-highlight this drives lands on Projects, which
@@ -57,25 +67,19 @@ export default function Skills() {
                         onFocus={() => setActive(skill.name, skill.relatedProjectIds ?? [])}
                         onMouseLeave={clear}
                         onBlur={clear}
-                        className="rounded-full"
+                        className={`flex w-full items-start gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm leading-snug transition-colors duration-150 ${
+                          isActive ? 'bg-accent/10 text-primary' : 'text-muted'
+                        }`}
                       >
-                        {/* bg-accent/15 rather than a border or text-colour
-                            override: Chip's base classes already set
-                            border-edge and text-muted, and a second utility
-                            for the same property is a coin flip on which one
-                            wins — Tailwind resolves same-specificity classes
-                            by their order in the generated stylesheet, not by
-                            position in this string. Background has no such
-                            competitor, so it is the one property that is safe
-                            to add from outside. */}
-                        <Chip
-                          className={`transition-colors duration-150 ${isActive ? 'bg-accent/15' : ''}`}
-                        >
-                          <span className="inline-flex items-center gap-1.5">
-                            {Icon && <Icon aria-hidden="true" className="h-3.5 w-3.5" />}
-                            {skill.name}
-                          </span>
-                        </Chip>
+                        {/* items-start, not items-center, so a name too long
+                            for one line keeps its icon beside the *first* line
+                            instead of drifting to the vertical middle and
+                            breaking the icon column. mt-px optically centres it
+                            on that line. shrink-0 so a long name squeezes the
+                            text, never the icon — a half-width icon would undo
+                            the alignment this layout exists for. */}
+                        {Icon && <Icon aria-hidden="true" className="mt-px h-4 w-4 shrink-0" />}
+                        {skill.name}
                       </button>
                     </li>
                   );
