@@ -75,10 +75,35 @@ describe('Education', () => {
     }
   });
 
-  it('renders a verify link only for certificates that carry one', () => {
+  it('puts every certificate on the wall, each with one way in', () => {
     render(<Education />);
-    const verifiable = certificates.filter((c) => c.credentialUrl);
-    expect(screen.getAllByRole('link', { name: /verify/i })).toHaveLength(verifiable.length);
+
+    // The tiles are thumbnails now, too small for a verify link. Verification
+    // moved into the lightbox, where education-lightbox.test.tsx covers both
+    // the present and absent cases. What the wall owes is that nothing is
+    // hidden and each tile is a single control.
+    for (const c of certificates) {
+      expect(screen.getByRole('button', { name: new RegExp(c.title, 'i') })).toBeInTheDocument();
+    }
+  });
+
+  it('offers a filter per category without hiding anything by default', async () => {
+    render(<Education />);
+
+    const categories = [...new Set(certificates.map((c) => c.category))];
+    expect(screen.getByRole('button', { name: /^All \d+$/ })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+
+    // Narrowing shows exactly the matches, and All brings the wall back whole.
+    const first = categories[0];
+    const label = screen.getAllByRole('button', { pressed: false }).find((b) =>
+      new RegExp(`\\b${certificates.filter((c) => c.category === first).length}$`).test(
+        b.textContent ?? '',
+      ),
+    );
+    expect(label).toBeDefined();
   });
 });
 

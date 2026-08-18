@@ -4,22 +4,34 @@ import SectionShell from '@/components/layout/SectionShell';
 import { shellProps } from '@/data/sections';
 import { education } from '@/data/education';
 import { certificates } from '@/data/certificates';
+import type { CertificateCategory } from '@/types';
 import Chip from '@/motion/Chip';
 import Counter from '@/motion/Counter';
 import Reveal from '@/motion/Reveal';
 import Surface from '@/motion/Surface';
 import Dialog from '@/motion/Dialog';
 import { cycleIndex } from '@/lib/cycle';
-import { groupByCategory } from '@/lib/group';
+import { CATEGORY_ORDER, groupByCategory } from '@/lib/group';
 
-/** Seconds between one certificate card arriving and the next. */
-const STEP = 0.04;
+const CERT_ALL = 'All' as const;
+type CertFilter = typeof CERT_ALL | CertificateCategory;
 
-/** Presentational only — the flat certificates array is what the lightbox walks. */
-const groups = groupByCategory(certificates);
+/** Labels for the filter row, read from the same place the groups took them. */
+const LABEL_OF = Object.fromEntries(
+  groupByCategory(certificates).map((g) => [g.category, g.label]),
+) as Record<CertificateCategory, string>;
+
+/**
+ * Every certificate paired with its position in the flat array.
+ *
+ * Built once, outside the component, so filtering can never renumber it — the
+ * lightbox walks these indices with the arrow keys.
+ */
+const INDEXED = certificates.map((certificate, index) => ({ certificate, index }));
 
 export default function Education() {
   const [openAt, setOpenAt] = useState<number | null>(null);
+  const [category, setCategory] = useState<CertFilter>(CERT_ALL);
   const [imageBroken, setImageBroken] = useState(false);
 
   const step = useCallback((delta: number) => {
@@ -42,6 +54,11 @@ export default function Education() {
   }, [openAt, step]);
 
   const shown = openAt === null ? null : certificates[openAt];
+
+  const visible =
+    category === CERT_ALL
+      ? INDEXED
+      : INDEXED.filter(({ certificate }) => certificate.category === category);
 
   return (
     <SectionShell {...shellProps('education')}>
@@ -68,45 +85,59 @@ export default function Education() {
         Certificates (<Counter value={certificates.length} />)
       </h3>
 
-      {/* Grouped for reading, never for walking. `index` is the position in the
-          flat certificates array and is what the lightbox steps through with
-          the arrow keys — groupByCategory carries it so the two orders cannot
-          drift apart.
+      {/* A wall, not a list. Fourteen credentials spread across five
+          three-column grids read as "some certificates"; fourteen tiles packed
+          together read as a collection, which is the reaction worth having.
+          The categories move into a filter row so the structure survives
+          without breaking the wall into five small ones.
 
-          Each group is a div rather than a section: this page's sections are
-          its structure and each carries an id, and a named <section> is a
-          region landmark — five of those for certificate groups is noise in a
-          landmark list. The h4 already places the group in the outline. */}
-      {groups.map((group) => (
-        <div key={group.category} className="mt-10">
-          <h4 className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
-            {`${group.label} · ${group.items.length}`}
-          </h4>
+          Unlike a carousel this hides no work — all fourteen are on screen at
+          once. Only the labels wait for hover, and they are in the
+          accessibility tree regardless, because opacity does not remove an
+          element from it: every tile's accessible name is its title and
+          issuer whether or not the overlay is visible.
 
-          <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {/* `fill` because each Reveal is the grid item: without it the cards
-                in a row stop matching heights. */}
-            {group.items.map(({ certificate: c, index }, within) => (
-          <Reveal key={c.id} delay={STEP * within} fill>
-            <Surface className="h-full p-4">
-            <article>
-              {/* 96px beside the text, not 225px above it. Full width it was
-                  ninety percent of a 3484px section, showing a scan nobody can
-                  read at that size; gone entirely the grid read as a shopping
-                  list. This keeps a visual marker per credential at a fraction
-                  of the height, and the legible scan stays in the lightbox.
+          `index` is the position in the flat certificates array, which is what
+          the lightbox steps through with the arrow keys. Filtering must never
+          renumber it. */}
+      <ul className="mt-6 flex flex-wrap gap-2">
+        {[CERT_ALL, ...CATEGORY_ORDER].map((name) => {
+          const count =
+            name === CERT_ALL
+              ? certificates.length
+              : certificates.filter((c) => c.category === name).length;
+          if (count === 0) return null;
 
-                  One control, not two: the image and the text sit inside the
-                  same button, so there is a single thing to tab to and a single
-                  accessible name. The verify link stays outside it, because a
-                  button containing a link is invalid markup. */}
+          return (
+            <li key={name}>
+              <button
+                type="button"
+                aria-pressed={name === category}
+                onClick={() => setCategory(name)}
+                className={`inline-flex min-h-11 items-center rounded-full border px-4 text-sm transition-colors ${
+                  name === category
+                    ? 'border-accent bg-accent font-semibold text-void'
+                    : 'border-edge text-muted hover:text-primary'
+                }`}
+              >
+                {`${name === CERT_ALL ? 'All' : LABEL_OF[name]} ${count}`}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+
+      <Reveal>
+        <ul className="mt-6 grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+          {visible.map(({ certificate: c, index }) => (
+            <li key={c.id}>
               <button
                 type="button"
                 onClick={() => {
                   setImageBroken(false);
                   setOpenAt(index);
                 }}
-                className="group flex w-full items-start gap-3 text-left"
+                className="group relative block w-full overflow-hidden rounded-lg border border-edge"
               >
                 <img
                   src={c.thumbnailUrl}
@@ -115,42 +146,25 @@ export default function Education() {
                   height={420}
                   loading="lazy"
                   decoding="async"
-                  className="w-24 shrink-0 rounded-lg border border-edge"
+                  className="block w-full transition-transform duration-300 group-hover:scale-105"
                 />
-                <span className="min-w-0">
-                  <span className="block text-sm font-semibold break-words text-primary group-hover:text-accent">
+
+                {/* Present in the accessibility tree at all times — opacity
+                    hides it from sight, not from a screen reader — so the
+                    button is named even while the overlay is invisible. */}
+                <span className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-void via-void/80 to-transparent p-2 text-left opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
+                  <span className="line-clamp-3 text-[11px] font-semibold leading-tight text-primary">
                     {c.title}
                   </span>
-                  <span className="mt-1 block font-mono text-xs uppercase tracking-[0.12em] text-muted">
-                    {`${c.issuer} · ${c.issueDate}`}
+                  <span className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
+                    {c.issuer}
                   </span>
                 </span>
               </button>
-
-              {/* Skills moved into the lightbox. Fourteen tiles each carrying a
-                  row of chips is what made this a wall; the group heading now
-                  says what kind of certificate it is, which is the thing a
-                  reader was actually scanning for. */}
-
-              {/* No credential URL means no control at all, not a dead one.
-                  Three of the fourteen have none. */}
-              {c.credentialUrl && (
-                <a
-                  href={c.credentialUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-3 inline-block text-sm text-accent"
-                >
-                  Verify credential
-                </a>
-              )}
-            </article>
-            </Surface>
-          </Reveal>
-            ))}
-          </div>
-        </div>
-      ))}
+            </li>
+          ))}
+        </ul>
+      </Reveal>
 
       <Dialog
         open={shown !== null}
