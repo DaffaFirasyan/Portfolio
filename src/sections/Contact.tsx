@@ -3,6 +3,7 @@ import ContactForm from '@/components/ui/ContactForm';
 import { shellProps } from '@/data/sections';
 import { profile } from '@/data/profile';
 import Reveal from '@/motion/Reveal';
+import Typed from '@/motion/Typed';
 
 /**
  * Public by design — a Web3Forms access key identifies a form, not an account,
@@ -21,9 +22,13 @@ export default function Contact() {
       <div className="grid gap-12 lg:grid-cols-2">
         <Reveal>
           <div>
-            <p className="max-w-[48ch] text-muted">
-              The fastest way to reach me is email. I read everything and reply to anything
-              specific. If you would rather not use the form, the address is right here.
+            <Typed
+              text="The fastest way to reach me is email. I read everything and reply to anything specific."
+              className="max-w-[48ch] text-muted"
+            />
+
+            <p className="mt-3 max-w-[48ch] text-muted">
+              If you would rather not use the form, the address is right here.
             </p>
 
             <a
