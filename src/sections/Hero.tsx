@@ -7,7 +7,7 @@ import Heading from '@/motion/Heading';
 import Reveal from '@/motion/Reveal';
 import RotatingRole from '@/motion/RotatingRole';
 import Shine from '@/motion/Shine';
-import TiltImage from '@/motion/TiltImage';
+import AvatarCard from '@/motion/AvatarCard';
 
 /**
  * Entrance timing: 80ms between elements, so the eye is led down the column
@@ -91,12 +91,12 @@ export default function Hero() {
           </div>
 
           <div className="md:col-span-5">
-            <TiltImage
+            <AvatarCard
               src={profile.avatarUrl}
-              alt={`${profile.name}, ${profile.roles[0]}`}
+              name={profile.name}
               width={800}
               height={800}
-              className="w-full max-w-sm rounded-xl border border-edge"
+              className="w-full max-w-xs"
             />
           </div>
         </div>
