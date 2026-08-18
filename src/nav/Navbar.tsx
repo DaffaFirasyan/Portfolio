@@ -5,6 +5,7 @@ import { SECTIONS } from '@/data/sections';
 import { useActiveSection } from '@/hooks/useActiveSection';
 import { useLenis } from '@/hooks/useLenis';
 import { useScrolledPast } from '@/hooks/useScrolledPast';
+import StarButton from '@/motion/StarButton';
 import NodeRailNav from './NodeRailNav';
 
 /**
@@ -83,13 +84,14 @@ export default function Navbar() {
           </p>
 
           <div className="flex items-center gap-3">
-            <a
+            <StarButton
+              as="a"
               href={profile.cvUrl}
               download
               className="inline-flex min-h-11 items-center rounded-full border border-accent px-4 text-sm font-semibold text-accent"
             >
               CV
-            </a>
+            </StarButton>
 
             {/* lg, not md. At 768 the seven pills that used to live here
                 measured 687px inside a 753px container, which pushed the CV

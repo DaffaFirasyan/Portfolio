@@ -3,6 +3,7 @@ import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } fr
 import { profile } from '@/data/profile';
 import { validateContact, type ContactErrors, type ContactValues } from '@/lib/validate';
 import { sendContact } from '@/lib/web3forms';
+import StarButton from '@/motion/StarButton';
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 type FieldName = keyof ContactValues;
@@ -230,13 +231,27 @@ export default function ContactForm({ accessKey }: { accessKey: string }) {
             className="hidden"
           />
 
-          <button
-            type="submit"
-            disabled={status === 'sending'}
-            className="inline-flex min-h-11 items-center rounded-full bg-accent px-6 text-sm font-semibold text-void disabled:opacity-60"
-          >
-            {status === 'sending' ? 'Sending…' : 'Send message'}
-          </button>
+          {/* StarButton forwards no `disabled`, and a submit that stays live
+              while a send is in flight would queue a second one. The plain
+              button carries the sending state; the decorated one carries the
+              idle state. */}
+          {status === 'sending' ? (
+            <button
+              type="submit"
+              disabled
+              className="inline-flex min-h-11 items-center rounded-full bg-accent px-6 text-sm font-semibold text-void opacity-60"
+            >
+              Sending…
+            </button>
+          ) : (
+            <StarButton
+              as="button"
+              type="submit"
+              className="inline-flex min-h-11 items-center rounded-full bg-accent px-6 text-sm font-semibold text-void"
+            >
+              Send message
+            </StarButton>
+          )}
         </form>
       )}
     </div>

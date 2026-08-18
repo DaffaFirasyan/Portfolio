@@ -26,6 +26,34 @@
   --text-display-sm: 3rem;
   --text-display: 4.5rem;
   --text-display-lg: 7rem;
+
+  /* StarBorder renders animate-star-movement-{top,bottom} and shipped its
+     config as Tailwind v3 JavaScript, which v4 does not read. No duration
+     here on purpose: the component writes animationDuration inline. */
+  --animate-star-movement-bottom: star-movement-bottom linear infinite alternate;
+  --animate-star-movement-top: star-movement-top linear infinite alternate;
+}
+
+@keyframes star-movement-bottom {
+  0% {
+    transform: translate(0%, 0%);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-100%, 0%);
+    opacity: 0;
+  }
+}
+
+@keyframes star-movement-top {
+  0% {
+    transform: translate(0%, 0%);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(100%, 0%);
+    opacity: 0;
+  }
 }
 
 @layer base {
