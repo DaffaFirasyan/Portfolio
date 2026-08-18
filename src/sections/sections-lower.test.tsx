@@ -43,17 +43,29 @@ describe('Experience', () => {
 });
 
 describe('Projects', () => {
-  it('renders every project title and problem statement', () => {
+  it('gives every project a heading, in both tiers', () => {
     render(<Projects />);
+
+    // The quiet tier is rows now: name on the surface, everything else a click
+    // away. So the heading is what every project owes — it is how a screen
+    // reader moves between them — while the problem sentence belongs to the
+    // featured rows and the dialog.
     for (const p of projects) {
       expect(screen.getByRole('heading', { level: 3, name: p.title })).toBeInTheDocument();
+    }
+
+    const featured = projects.filter((p) => p.featured);
+    for (const p of featured) {
       expect(screen.getByText(p.problem)).toBeInTheDocument();
     }
   });
 
-  it('renders a repo link only for projects that have one', () => {
+  it('renders a repo link only for featured projects that have one', () => {
     render(<Projects />);
-    const withRepo = projects.filter((p) => p.links.repo);
+
+    // Links live where there is room for them: the featured rows and the
+    // dialog. A 76px row carrying three controls would be a worse row.
+    const withRepo = projects.filter((p) => p.featured && p.links.repo);
     expect(screen.getAllByRole('link', { name: /repository/i })).toHaveLength(withRepo.length);
   });
 

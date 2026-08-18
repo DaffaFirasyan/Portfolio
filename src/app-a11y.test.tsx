@@ -70,7 +70,9 @@ describe('accessible names', () => {
   });
 
   it('gives every navigation landmark a distinct name', async () => {
-    setCapability({ animate: false, hover: false });
+    // Hover on, so the decorated branch renders. With it off, a vendored
+    // FlowingMenu shipped an unnamed <nav> that no test could see.
+    setCapability({ animate: true, hover: true });
     const user = userEvent.setup();
     render(<App />);
 

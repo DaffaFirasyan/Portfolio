@@ -9,8 +9,8 @@ import type { Project } from '@/types';
 import { ALL, categoriesOf, filterByCategory } from '@/lib/filter';
 import Chip from '@/motion/Chip';
 import Dialog from '@/motion/Dialog';
+import ProjectFlow from '@/motion/ProjectFlow';
 import Reveal from '@/motion/Reveal';
-import Surface from '@/motion/Surface';
 
 export default function Projects() {
   const { isDimmed } = useSkillHighlight();
@@ -80,81 +80,26 @@ export default function Projects() {
         </div>
       )}
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {rest.map((p) => (
-          // Only opacity changes while a skill is active. Anything touching
-          // size, margin or position would shift the grid under the reader's
-          // cursor, which the design forbids outright.
-          <Surface key={p.id} className="h-full p-5">
-          <article
-            data-dimmed={isDimmed(p.id) ? 'true' : undefined}
-            className={`transition-opacity duration-150 ${
-              isDimmed(p.id) ? 'opacity-40' : 'opacity-100'
-            }`}
-          >
-            {/* Beside the text, not above it. A project thumbnail earns its
-                place — it shows the interface — but at full column width it
-                made a 451px tile out of an entry worth a paragraph. The three
-                featured rows are where an image gets room. */}
-            <div className="flex items-start gap-4">
-              <img
-                src={p.thumbnail}
-                alt={`${p.title} preview`}
-                width={800}
-                height={500}
-                loading="lazy"
-                decoding="async"
-                className="w-24 shrink-0 rounded-lg border border-edge"
-              />
-              <p className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
-                {`${p.category} · ${p.year}`}
-              </p>
-            </div>
-            {/* The title is both the heading and the control. Making the whole
-                card a button is not an option — it contains links, and a button
-                containing links is invalid. */}
-            <h3 className="mt-2 font-display text-lg font-bold break-words text-primary">
-              <button type="button" onClick={() => setSelected(p)} className="text-left">
-                {p.title}
-              </button>
-            </h3>
-            <p className="mt-2 text-sm text-muted">{p.problem}</p>
-            {p.outcome && <p className="mt-2 text-sm text-accent-2">{p.outcome}</p>}
+      {/* The quieter projects, as rows that show their screenshot on hover.
+          They were tiles: five of them at 285px each took 1425px, 57% of the
+          section, for the tier that is meant to be the quiet one. Rows put
+          every name on screen at once and hold the image back until a reader
+          reaches for it, which is the curiosity the tiles never created.
 
-            <ul className="mt-3 flex flex-wrap gap-2">
-              {p.stack.map((s) => (
-                <li key={s}>
-                  <Chip size="sm">{s}</Chip>
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-4 flex gap-4 text-sm">
-              {p.links.repo && (
-                <a
-                  href={p.links.repo}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-accent"
-                >
-                  Repository
-                </a>
-              )}
-              {p.links.demo && (
-                <a
-                  href={p.links.demo}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-accent"
-                >
-                  Live demo
-                </a>
-              )}
-            </div>
-          </article>
-          </Surface>
-        ))}
-      </div>
+          Each row is an article with an h3 inside, so the cross-highlight can
+          dim them one by one and a screen reader can still navigate the
+          projects by heading. The vendored component was edited for both;
+          without that, five of eight projects lost their heading and the
+          highlight could only dim the whole block. */}
+      <ProjectFlow
+        items={rest.map((p) => ({
+          id: p.id,
+          title: p.title,
+          image: p.thumbnail,
+          dimmed: isDimmed(p.id),
+          onSelect: () => setSelected(p),
+        }))}
+      />
       </>
       )}
 
