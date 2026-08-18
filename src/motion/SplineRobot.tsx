@@ -1,75 +1,70 @@
-import { lazy, Suspense } from 'react';
-
 import { useMotionAllowed } from '@/hooks/useMotionAllowed';
 
-const Spline = lazy(() => import('@splinetool/react-spline'));
-
 /**
- * The scene the 21st.dev component points at — Spline's own sample robot.
+ * A Spline public-view URL, embedded directly.
  *
- * Swapping it is a one-line change: publish a scene from Spline's editor, take
- * the `.splinecode` URL it gives you, and put it here. Nothing else in this
- * file cares which scene it is. Editing a scene is not something that can be
- * done from the code side at all: `.splinecode` is a compiled binary the
- * editor emits, not a format to hand-author.
+ * Not `@splinetool/react-spline`, and that is the point. That component needs a
+ * `.splinecode` asset, which is what Spline's "Code / React" export produces;
+ * this URL is the "Public URL" export instead — a self-contained 1 MB HTML
+ * document with the scene compiled into it, containing no `.splinecode`
+ * reference at all. Fetching it and searching confirmed that: zero occurrences.
  *
- * The consequence of a remote scene is a third-party host in this page's
- * critical path. If `prod.spline.design` is unreachable the robot never
- * arrives, and there is no error hook to catch that with — `SplineProps`
- * extends the div's HTML attributes, so its `onError` is the DOM media handler
- * and never fires for a failed scene fetch. The frame below is sized
- * independently of its contents, so that failure is an empty panel rather than
- * a collapsed layout.
+ * Embedding it as a document rather than importing a runtime deleted both
+ * `@splinetool/react-spline` and `@splinetool/runtime` from this project.
+ * Their chunks were 571 KB and 734 KB gzip. The scene still costs what it
+ * costs, but it is now downloaded and executed by the iframe's own document
+ * instead of by this page's main thread and bundle graph.
+ *
+ * What comes with that trade: a Spline watermark links out of the frame, and
+ * the scene is a third-party document in the page. Its own background is
+ * rgb(9.5, 10.7, 20) against this site's rgb(10, 12, 16), which is close
+ * enough that the frame edge does not read as a seam.
+ *
+ * Swapping scenes is still one line: publish from Spline and paste the URL.
  */
-const SCENE = 'https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode';
+const SCENE = 'https://my.spline.design/darkspideycopy-P1lVDG8ytTTrQA0n72QOQIcb/';
 
 /**
- * The interactive robot, in the slot the rotating badge used to hold.
+ * The interactive scene at the foot of the contact column.
  *
- * **Mounted as soon as the capability gate passes, not on arrival.** It was
- * behind `useOnScreen`, which cost nothing until a reader reached Contact but
- * tore the scene down again on the way out — so scrolling up and back rebuilt
- * a WebGL context and re-ran the whole scene setup every time. The owner asked
- * for it ready before they scroll and stable once it is there, and those are
- * the same requirement: mount once, never unmount.
+ * No border and no background. It had both, and framing it made it read as a
+ * picture of a robot hung on the page rather than something standing in it.
  *
- * That moves the cost from "readers who reach Contact" to "every desktop
- * reader", which is the trade being made knowingly. What still contains it:
+ * It bleeds into the section's bottom padding instead, so its base meets the
+ * footer's border exactly. The offset is not a tuned number: `-mb-20 md:-mb-32`
+ * is precisely the `py-20 md:py-32` that `SectionShell` applies, so the two
+ * cancel and the frame lands on the section's own bottom edge — measured at
+ * 1280, the grid sits exactly 128px above the footer, which is that padding.
+ * `overflow-hidden` means anything reaching past that line is cut at it rather
+ * than pushing into the footer, which the owner asked for explicitly.
  *
- * `webgl && hover` — the same gate the starfield and the splash cursor use. A
- * phone spends nothing on a decoration it cannot rotate, and reduced motion,
- * low memory, few cores and Save-Data are all honoured through it.
+ * Mounted as soon as the capability gate passes rather than on arrival, so it
+ * is ready before the reader scrolls and is never torn down and rebuilt by
+ * scrolling away and back.
  *
- * `lazy` — still a separate chunk, so it never blocks the initial render, and
- * the 204 KB initial payload is unchanged.
- *
- * `renderOnDemand` — Spline redraws on interaction rather than holding a
- * permanent animation frame loop. With the scene now resident for the whole
- * session rather than only while Contact is on screen, this stopped being an
- * optimisation and became the thing that keeps a third render loop from
- * running behind every section for the entire visit.
+ * `webgl && hover` still gates it: a phone spends nothing on a scene it cannot
+ * rotate, and reduced motion, low memory, few cores and Save-Data are honoured
+ * through the same flag.
  */
 export default function SplineRobot() {
   const { webgl, hover } = useMotionAllowed();
 
+  if (!webgl || !hover) return null;
+
   return (
-    // The frame, not the scene, owns the size. It carries the same
-    // rounded-xl/border-edge/bg-surface language as every card on this page, so
-    // the robot reads as a panel that belongs to the layout rather than an
-    // object floating in the column — and it holds its box whether the scene
-    // is loading, failed, or gated off entirely.
     <div
       aria-hidden="true"
-      className="pointer-events-none h-[28rem] w-full overflow-hidden rounded-xl border border-edge bg-surface"
+      className="-mb-20 h-[32rem] w-full overflow-hidden md:-mb-32"
     >
-      {webgl && hover && (
-        <Suspense fallback={null}>
-          {/* pointer-events-auto on the scene itself, not on the frame: the
-              robot is worth turning, but the frame is decoration and must not
-              swallow clicks aimed at anything beside it. */}
-          <Spline scene={SCENE} renderOnDemand className="pointer-events-auto !h-full !w-full" />
-        </Suspense>
-      )}
+      <iframe
+        src={SCENE}
+        title="Interactive 3D scene"
+        loading="eager"
+        // The scene's own document is what needs to be reachable; nothing is
+        // sent to it and no referrer is leaked to a third party.
+        referrerPolicy="no-referrer"
+        className="h-full w-full border-0"
+      />
     </div>
   );
 }
