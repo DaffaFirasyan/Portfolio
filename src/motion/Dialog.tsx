@@ -72,7 +72,14 @@ export default function Dialog({ open, onClose, label, children }: DialogProps) 
     <dialog
       ref={ref}
       aria-label={label}
-      className="max-h-[90vh] w-full max-w-3xl rounded-xl border border-edge bg-surface p-0 text-primary backdrop:bg-void/80 backdrop:backdrop-blur-sm"
+      // `m-auto` is load-bearing. The UA stylesheet centres a modal dialog with
+      // `margin: auto`, and Tailwind's preflight resets margin to 0 on every
+      // element — which pins the dialog to the top-left corner of the viewport.
+      //
+      // One scroll container, on the dialog itself. Nesting a second one inside
+      // gives two scrollbars that fight each other. The scrollbar is coloured
+      // because the browser default is a pale bar on a near-black surface.
+      className="m-auto max-h-[85vh] w-[min(48rem,92vw)] overflow-y-auto rounded-xl border border-edge bg-surface p-0 text-primary [scrollbar-color:var(--color-edge)_transparent] [scrollbar-width:thin] backdrop:bg-void/80 backdrop:backdrop-blur-sm"
     >
       {/* Children only exist while open. Keeping them mounted would leave
           fourteen full-size certificate images in the document waiting for a

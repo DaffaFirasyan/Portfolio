@@ -127,7 +127,7 @@ export default function Projects() {
         label={selected?.title ?? ""}
       >
         {selected && (
-          <div className="max-h-[85vh] overflow-y-auto p-6">
+          <div className="p-6">
             <p className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
               {`${selected.category} · ${selected.year} · ${selected.role}`}
             </p>
