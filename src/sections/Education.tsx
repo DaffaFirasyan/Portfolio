@@ -10,9 +10,13 @@ import Reveal from '@/motion/Reveal';
 import Surface from '@/motion/Surface';
 import Dialog from '@/motion/Dialog';
 import { cycleIndex } from '@/lib/cycle';
+import { groupByCategory } from '@/lib/group';
 
 /** Seconds between one certificate card arriving and the next. */
 const STEP = 0.04;
+
+/** Presentational only — the flat certificates array is what the lightbox walks. */
+const groups = groupByCategory(certificates);
 
 export default function Education() {
   const [openAt, setOpenAt] = useState<number | null>(null);
@@ -64,11 +68,26 @@ export default function Education() {
         Certificates (<Counter value={certificates.length} />)
       </h3>
 
-      <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {/* `fill` because each Reveal is the grid item: without it the cards in
-            a row stop matching heights. */}
-        {certificates.map((c, index) => (
-          <Reveal key={c.id} delay={STEP * index} fill>
+      {/* Grouped for reading, never for walking. `index` is the position in the
+          flat certificates array and is what the lightbox steps through with
+          the arrow keys — groupByCategory carries it so the two orders cannot
+          drift apart.
+
+          Each group is a div rather than a section: this page's sections are
+          its structure and each carries an id, and a named <section> is a
+          region landmark — five of those for certificate groups is noise in a
+          landmark list. The h4 already places the group in the outline. */}
+      {groups.map((group) => (
+        <div key={group.category} className="mt-10">
+          <h4 className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
+            {`${group.label} · ${group.items.length}`}
+          </h4>
+
+          <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {/* `fill` because each Reveal is the grid item: without it the cards
+                in a row stop matching heights. */}
+            {group.items.map(({ certificate: c, index }, within) => (
+          <Reveal key={c.id} delay={STEP * within} fill>
             <Surface className="h-full p-4">
             <article>
               <button
@@ -95,13 +114,10 @@ export default function Education() {
                 {`${c.issuer} · ${c.issueDate}`}
               </p>
 
-              <ul className="mt-2 flex flex-wrap gap-1.5">
-                {c.skills.map((s) => (
-                  <li key={s}>
-                    <Chip size="sm">{s}</Chip>
-                  </li>
-                ))}
-              </ul>
+              {/* Skills moved into the lightbox. Fourteen tiles each carrying a
+                  row of chips is what made this a wall; the group heading now
+                  says what kind of certificate it is, which is the thing a
+                  reader was actually scanning for. */}
 
               {/* No credential URL means no control at all, not a dead one.
                   Three of the fourteen have none. */}
@@ -118,8 +134,10 @@ export default function Education() {
             </article>
             </Surface>
           </Reveal>
-        ))}
-      </div>
+            ))}
+          </div>
+        </div>
+      ))}
 
       <Dialog
         open={shown !== null}
@@ -135,6 +153,17 @@ export default function Education() {
             <h2 className="mt-2 font-display text-h2 font-bold break-words text-primary">
               {shown.title}
             </h2>
+
+            {/* Moved here from the tiles. Fourteen tiles each carrying a row of
+                chips is what made that grid a wall; here there is room for them
+                and a reader has already chosen to look closely. */}
+            <ul className="mt-3 flex flex-wrap gap-1.5">
+              {shown.skills.map((s) => (
+                <li key={s}>
+                  <Chip size="sm">{s}</Chip>
+                </li>
+              ))}
+            </ul>
 
             {imageBroken ? (
               // No intrinsic dimensions are stored per certificate, so a failed
