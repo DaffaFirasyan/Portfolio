@@ -1647,7 +1647,8 @@ Append inside the existing `describe('Navbar')` in `src/nav/Navbar.test.tsx`:
 
     // The component names itself; nothing else may, or swapping the navigation
     // stops being a one-line change.
-    expect(naming).toEqual(['nav/NodeRailNav.tsx', 'nav/Navbar.tsx']);
+    // Navbar sorts before NodeRailNav: 'a' < 'o' at the fifth character.
+    expect(naming).toEqual(['nav/Navbar.tsx', 'nav/NodeRailNav.tsx']);
   });
 ```
 

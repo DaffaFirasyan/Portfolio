@@ -1,3 +1,6 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Navbar from './Navbar';
@@ -42,5 +45,23 @@ describe('Navbar', () => {
     await userEvent.click(within(menu).getByRole('link', { name: 'Projects' }));
 
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('is the only file that names the navigation implementation', () => {
+    const walk = (dir: string): string[] =>
+      readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+        const full = join(dir, entry.name);
+        return entry.isDirectory() ? walk(full) : [full];
+      });
+
+    const naming = walk(join(process.cwd(), 'src'))
+      .filter((file) => /\.tsx?$/.test(file) && !file.includes('.test.'))
+      .filter((file) => readFileSync(file, 'utf8').includes('NodeRailNav'))
+      .map((file) => file.replace(/\\/g, '/').split('/src/')[1])
+      .sort();
+
+    // The component names itself; nothing else may, or swapping the navigation
+    // stops being a one-line change.
+    expect(naming).toEqual(['nav/Navbar.tsx', 'nav/NodeRailNav.tsx']);
   });
 });
