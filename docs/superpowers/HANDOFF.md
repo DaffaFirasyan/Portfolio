@@ -20,7 +20,7 @@ This file exists so a session that remembers nothing can pick the work up withou
 | [Sections & cross-highlight](plans/2026-08-18-sections-and-cross-highlight.md) | Spec phase 5 + phase 7 animation | **Built.** 7 tasks |
 | [Interactive surfaces](plans/2026-08-18-interactive-surfaces.md) | Project filter, modal, certificate lightbox | **Built.** 6 tasks |
 | [Contact & launch](plans/2026-08-18-contact-and-launch.md) | Spec phases 8–10 | **Tasks 1–9 built.** Task 10, deploy, held until real content lands |
-| [Motion enrichment](plans/2026-08-18-motion-enrichment.md) | The seven spec §6 effects never built, plus `ScrollFloat` | **Written, not started.** 9 tasks |
+| [Motion enrichment](plans/2026-08-18-motion-enrichment.md) | The spec §6 effects never built, plus `ScrollFloat` | **Built.** 7 of 8 effects; Task 8 skipped by choice |
 
 The authority on decisions is [the design spec](specs/2026-08-17-portfolio-onepage-design.md). Each plan records the decisions it changed and why.
 
@@ -112,6 +112,10 @@ Every one of these produced a wrong turn before it was understood. They are not 
 
 **Two layout traps this project has already hit.** `AnimatedContent` sets a transform on its wrapper, and a transformed ancestor becomes the containing block for absolutely positioned descendants — so anything positioned against a section must stay outside its `Reveal`, as the timeline dots do. And `Reveal` adds one or two divs, which breaks a `h-full` chain: it takes `fill` for the grid-item case and must not take it anywhere else, because stacked Reveals each claim the full height of their column.
 
+**Canvas 2D silently ignores a CSS variable.** `ctx.strokeStyle = 'var(--color-accent)'` does not throw and does not resolve — it keeps whatever was there, which is `#000000` by default. Measured in a browser. `ClickSpark` shipped that way for one task and drew black sparks on a near-black page, invisible, with the whole suite green. Anything that paints to a canvas needs the resolved value: `src/lib/token.ts` reads it, so CSS keeps the single source of truth. The same applies to `ElectricBorder`, which additionally parses its colour as hex.
+
+**Measuring layout after `resize_window` without reloading gives false results.** The pane fires no `resize` event and no `ResizeObserver` callback, so anything that sizes itself from either keeps its old dimensions and drags the layout with it. Measured: resizing 1265 → 320 left `ClickSpark`'s canvas at its old width and reported **808px of page overflow**, with `<header>` — a `fixed` element — claiming to be 1128px wide inside a 320px viewport. That impossible header width is the tell. On a fresh load at 320 the overflow was 0. **Always reload after resizing before believing a measurement.**
+
 **An element at a negative z-index never receives a pointer event.** Hit testing follows paint order, and a child with `z-index: -1` or lower paints behind its parent's own background — so the parent wins every hit test over it. `Backdrop` sits at `-z-10`, which meant `Galaxy`'s `mousemove` listener was correctly attached to a container that could not receive a single event: measured on the built page, **no point anywhere in the hero resolved to it**. The pointer parallax was wired up and silently dead from the day it shipped. Raising the z-index does not fix it either, because the hero's `max-w-[1200px]` content wrapper legitimately covers most of the section and must stay hittable for text selection. `Galaxy` now listens on the window and normalises against its own `getBoundingClientRect()`, which works regardless of stacking; outside that box it fades the effect out rather than clamping to an edge. Anything decorative behind the content that wants pointer input has to do the same.
 
 **Tailwind preflight un-centres native dialogs.** A modal dialog is centred by the UA stylesheet through `margin: auto`, and preflight resets margin to 0 on every element, so it pins itself to the top-left corner. `Dialog` carries `m-auto` for exactly that reason. Nothing in jsdom can catch it, because every rect there is zero — it shipped looking broken and was only found from a screenshot.
@@ -150,7 +154,17 @@ Every one of these produced a wrong turn before it was understood. They are not 
 
 - **The reduced-motion pass is confirmed too.** With Windows animation effects off, the owner verified no canvas remains on the page. The keyboard pass through the whole page is likewise done.
 
-- **The `Galaxy` resize is confirmed** in the owner's browser. Nothing from the Task 9 sweep is outstanding.
+- **The `Galaxy` resize is confirmed** in the owner's browser. Nothing from the contact-and-launch sweep is outstanding.
+
+- **Seven motion effects landed; one was declined and one was replaced after being built.** `StarBorder` on the CV and Send buttons, `TextType` on the contact opening line, `CurvedLoop` in the footer, `ClickSpark` in Contact, `CircularText` as a badge, and `PulseDot` marking the current role. `ScrollFloat` was deleted rather than wired, because `SplitText` already carries `scrollTrigger: { once: true }` and running both would put two heading languages on one page.
+
+  `ElectricBorder` was built and then removed: the owner found it too loud beside prose, and it cost a render loop for as long as Experience was on screen. What replaced it is cheaper in every direction — a tinted card plus a three-second ring on the 10px timeline dot, animating only transform and opacity so it composites.
+
+  `GlassIcons` was declined. It imposes its own grid and a six-colour 90%-saturation palette, needs `React.ReactElement` icons the data does not have and no installed library provides, and on Skills it would have cost the working skill-to-project cross-highlight. Same objection that rejected `MagicBento` and `GlareHover`.
+
+  **Cost: about 10 KB gzip.** Initial payload went from 179 KB to 189 KB (179.62 JS + 9.42 CSS) against a 250 KB budget. Width sweep on the production build at 320, 753 and 1425, each on a fresh load: no page overflow and no header overflow at any of them.
+
+  **Not yet measured: Lighthouse after these effects.** The last recorded run is 85/100/100/100, taken before any of them. Three render loops now exist — the starfield, the footer marquee and the click sparks — all gated on visibility, and the sparks idle when no spark is alive.
 
 - **GSAP-driven animation cannot be measured in the pane at all**, and the failure mode is silent. GSAP runs entirely on `requestAnimationFrame`, which never fires there, so it never applies its `from` state — every element reads `opacity: 1, transform: none` whether the animation already finished or never started. A reading like that looks like evidence and is not. Anything scheduled with `setInterval` or `setTimeout` **is** measurable there; that is why the `TextType` check worked and the `SplitText` one did not. The owner confirmed in a real browser that section headings animate per character on arrival and that the contact line types on arrival.
 
