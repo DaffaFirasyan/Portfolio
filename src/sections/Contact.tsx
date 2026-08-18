@@ -2,6 +2,7 @@ import SectionShell from '@/components/layout/SectionShell';
 import ContactForm from '@/components/ui/ContactForm';
 import { shellProps } from '@/data/sections';
 import { profile } from '@/data/profile';
+import CircularBadge from '@/motion/CircularBadge';
 import Reveal from '@/motion/Reveal';
 import Sparks from '@/motion/Sparks';
 import Typed from '@/motion/Typed';
@@ -54,6 +55,13 @@ export default function Contact() {
                   </li>
                 ))}
               </ul>
+
+              {/* lg and up only. Below that it sits between the social links
+                  and the form, pushing the thing people came to use further
+                  down a screen that is already tall. */}
+              <div className="mt-10 hidden lg:block">
+                <CircularBadge text={`${profile.location} · Open to work · `} />
+              </div>
             </div>
           </Reveal>
 
