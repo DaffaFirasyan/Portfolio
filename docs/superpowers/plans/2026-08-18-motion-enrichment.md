@@ -1187,6 +1187,16 @@ git commit -m "feat: add a rotating badge to the contact section"
 
 ## Task 7: An electric border on the current role
 
+> **Outcome, 2026-08-18: built, then replaced.** `ElectricBorder` shipped and the
+> owner found it too loud — it drew the eye away from the text rather than
+> toward the entry. It was removed entirely, along with its wrapper and its 339
+> lines of vendored source. The current role is now marked by a quiet card
+> (`border-accent-2/30`, `bg-elevated/50`) plus a three-second breathing ring on
+> the 10px timeline dot, in `src/motion/PulseDot.tsx`. That animates only
+> transform and opacity, so it composites and costs no main-thread work, and it
+> removed a render loop rather than adding one. The steps below are kept as the
+> record of what was tried and why it went.
+
 Spec §6 assigns `ElectricBorder` to the most recent Experience item. It earns its place by pointing at the one entry a recruiter should read first.
 
 **This is the heaviest of the seven** — 339 lines, and a `requestAnimationFrame` loop plus a `ResizeObserver`. Exactly one item on the page gets it, and the wrapper unmounts it off screen.

@@ -2,7 +2,7 @@ import SectionShell from '@/components/layout/SectionShell';
 import { shellProps } from '@/data/sections';
 import { experiences } from '@/data/experiences';
 import Chip from '@/motion/Chip';
-import LiveBorder from '@/motion/LiveBorder';
+import PulseDot from '@/motion/PulseDot';
 import Reveal from '@/motion/Reveal';
 
 /** Seconds between one timeline entry arriving and the next. */
@@ -50,10 +50,13 @@ function Body({ entry, current }: { entry: (typeof experiences)[number]; current
 
   if (!current) return content;
 
+  // Quiet on purpose. A tinted border and a slightly lifted background are
+  // enough to say "read this one first"; the only thing that moves is the
+  // 10px dot on the rule, which is peripheral rather than drawn around the
+  // text. This replaced a canvas border that was both distracting to read
+  // past and a render loop for as long as the section was on screen.
   return (
-    <LiveBorder className="rounded-xl">
-      <div className="rounded-xl border border-edge p-5">{content}</div>
-    </LiveBorder>
+    <div className="rounded-xl border border-accent-2/30 bg-elevated/50 p-5">{content}</div>
   );
 }
 
@@ -72,12 +75,7 @@ export default function Experience() {
                   transform on its wrapper, and a transformed ancestor becomes
                   the containing block for absolutely positioned descendants —
                   which would move this dot off the line it marks. */}
-              <span
-                aria-hidden="true"
-                className={`absolute -left-[5px] mt-2 block h-2.5 w-2.5 rounded-full ${
-                  current ? 'bg-accent' : 'bg-edge'
-                }`}
-              />
+              <PulseDot active={current} className="absolute -left-[5px] mt-2" />
 
               <Reveal delay={STEP * index}>
                 {/* The current role is the one a recruiter should read first,

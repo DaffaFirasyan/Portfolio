@@ -32,6 +32,26 @@
      here on purpose: the component writes animationDuration inline. */
   --animate-star-movement-bottom: star-movement-bottom linear infinite alternate;
   --animate-star-movement-top: star-movement-top linear infinite alternate;
+
+  /* Marks the current role on the timeline. Deliberately slow, and only
+     transform and opacity so it composites — it costs no main-thread work,
+     unlike the canvas border it replaced. */
+  --animate-pulse-ring: pulse-ring 3s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  70% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
 }
 
 @keyframes star-movement-bottom {
