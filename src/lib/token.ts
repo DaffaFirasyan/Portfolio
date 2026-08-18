@@ -4,6 +4,7 @@ const FALLBACKS: Record<string, string> = {
   '--color-accent-2': '#5ec8d8',
   '--color-edge': '#232c38',
   '--color-muted': '#8a97a6',
+  '--color-void': '#0a0c10',
 };
 
 /**

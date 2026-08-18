@@ -44,7 +44,9 @@ Before vendoring any further React Bits component, read its source. **Seven have
 | `Masonry` | Packs items of differing heights; every thumbnail is 800×500 in an equal-height grid |
 | `PixelTransition` | A second hover effect on cards that already carry the spotlight |
 
-`LogoLoop` was vendored and then dropped: it needs logo image files the data does not have, and carried 21 of 25 lint failures alone.
+`LogoLoop` was dropped once and then brought back on 2026-08-18, when the owner named the seventeen logos they wanted. Both original objections were answerable rather than fatal. It takes `{ node }` items as well as `{ src }`, so it needs no image files — the logos are SVG path data in `src/data/technologies.ts`. And its 21 lint problems reduced to zero: sixteen were `no-explicit-any` from a union the code never narrowed, which `'node' in item` already narrows, so deleting the casts type-checked untouched. Of the remainder, three were genuine (a ref missing from a dependency list, and two generic hooks whose dependency array arrives as a parameter and cannot be verified statically).
+
+Two of the seventeen are not from simple-icons: **Java and C# were removed from that set**, so they come from devicon's monochrome variants. Both sets draw single paths, but on different grids — 24 units versus 128 — which is why `viewBox` is stored per logo rather than assumed, and why a test asserts more than one distinct viewBox exists.
 
 Four of the eleven vendored components needed edits. `SplitText` renders its own heading via a `tag` prop and `BlurText` its own `<p>`, so wrapping either naively nests a heading in a heading or a paragraph in a paragraph. `SpotlightCard` hardcoded `bg-neutral-900`, which collided with the design tokens. `Magnet` and `SplitText` both set state synchronously inside an effect.
 

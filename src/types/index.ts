@@ -145,3 +145,12 @@ export interface Site {
   ogImage: string;
   ogImageAlt: string;
 }
+
+export interface Technology {
+  /** Shown as the accessible name of the logo. */
+  name: string;
+  /** Stored per logo: simple-icons draws on 24 units, devicon on 128. */
+  viewBox: string;
+  /** A single SVG path. Filled with currentColor so the strip stays one colour. */
+  path: string;
+}
