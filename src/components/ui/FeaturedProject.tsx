@@ -35,10 +35,10 @@ export default function FeaturedProject({
   const imageFirst = index % 2 === 0;
 
   return (
-    <Surface className="p-6 md:p-8">
+    <Surface className="p-6">
       <article
         data-dimmed={dimmed ? 'true' : undefined}
-        className={`grid items-center gap-8 transition-opacity duration-150 lg:grid-cols-2 ${
+        className={`grid items-center gap-6 transition-opacity duration-150 lg:grid-cols-2 ${
           dimmed ? 'opacity-40' : 'opacity-100'
         }`}
       >
@@ -55,32 +55,48 @@ export default function FeaturedProject({
         />
 
         <div className={imageFirst ? 'lg:order-2' : 'lg:order-1'}>
-          <p className="font-mono text-xs uppercase tracking-[0.12em] text-accent">
-            {`${String(index + 1).padStart(2, '0')} — Featured`}
+          {/* The oversized numeral is the accent that used to be missing: three
+              identically-shaped rows read as one thing repeated, and a large,
+              low-opacity ordinal gives each row an identity a reader can key on
+              before reading a word — the editorial "case study" convention,
+              done in CSS alone so it costs nothing and cannot become a fourth
+              hover treatment competing with Surface's. The dash stays on the
+              tag span, not the numeral, because projects-filter.test.tsx counts
+              rows by an element whose own text ends in "— Featured". */}
+          <p className="flex items-baseline gap-2">
+            <span className="font-display text-3xl font-extrabold text-accent/30 md:text-4xl">
+              {String(index + 1).padStart(2, '0')}
+            </span>
+            <span className="font-mono text-xs uppercase tracking-[0.12em] text-accent">
+              — Featured
+            </span>
           </p>
 
           {/* The title is both the heading and the control. The whole row cannot
               be a button: it contains links, and a button containing links is
               invalid markup. */}
-          <h3 className="mt-3 font-display text-2xl font-extrabold leading-tight break-words text-primary md:text-3xl">
+          <h3 className="mt-2 font-display text-2xl font-extrabold leading-tight break-words text-primary md:text-3xl">
             <button type="button" onClick={() => onOpen(project)} className="text-left">
               {project.title}
             </button>
           </h3>
 
-          <p className="mt-2 font-mono text-xs uppercase tracking-[0.12em] text-muted">
+          <p className="mt-1 font-mono text-xs uppercase tracking-[0.12em] text-muted">
             {`${project.category} · ${project.year} · ${project.role}`}
           </p>
 
-          {/* At reading size, not caption size. This sentence is the reason to
-              care about the project. */}
-          <p className="mt-4 max-w-[52ch] text-muted">{project.problem}</p>
+          {/* No character cap: the grid column is already narrower than 52ch
+              ever was (roughly 500px against the column's own ~504px cap at
+              this section's own max-width), so the cap never protected
+              readability — it only forced an extra wrapped line per paragraph
+              for no reason a reader could see. */}
+          <p className="mt-3 text-muted">{project.problem}</p>
 
           {project.outcome && (
-            <p className="mt-3 max-w-[52ch] font-semibold text-accent-2">{project.outcome}</p>
+            <p className="mt-2 font-semibold text-accent-2">{project.outcome}</p>
           )}
 
-          <ul className="mt-5 flex flex-wrap gap-2">
+          <ul className="mt-4 flex flex-wrap gap-2">
             {project.stack.map((s) => (
               <li key={s}>
                 <Chip size="sm">{s}</Chip>
@@ -88,7 +104,7 @@ export default function FeaturedProject({
             ))}
           </ul>
 
-          <div className="mt-5 flex flex-wrap gap-4 text-sm">
+          <div className="mt-4 flex flex-wrap gap-4 text-sm">
             {project.links.repo && (
               <a
                 href={project.links.repo}

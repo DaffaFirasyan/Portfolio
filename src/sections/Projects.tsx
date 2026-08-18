@@ -66,7 +66,7 @@ export default function Projects() {
       ) : (
       <>
       {featured.length > 0 && (
-        <div className="mb-10 space-y-6">
+        <div className="mb-10 space-y-4">
           {featured.map((p, index) => (
             <Reveal key={p.id} delay={0.06 * index}>
               <FeaturedProject
