@@ -464,7 +464,11 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
         />
       )}
       <div ref={shellRef} className="relative z-[1] group">
-        <section
+        {/* A div, not a section. This page's sections are its structure and
+            each carries an id; an id-less one from a decorative card puts a
+            phantom entry in the document outline. Found in a browser, because
+            jsdom reports no hover so this branch never renders in tests. */}
+        <div
           className="grid relative overflow-hidden"
           style={{
             height: '80svh',
@@ -654,7 +658,7 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
               )}
             </div>
           </div>
-        </section>
+        </div>
       </div>
     </div>
   );
