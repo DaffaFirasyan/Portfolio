@@ -27,5 +27,13 @@ export default defineConfig({
     // pays for five separate full renders to make five cheap assertions,
     // so merging them would cut the file's cost outright.
     testTimeout: 45000,
+    // Raising testTimeout alone is not enough, and the failure it leaves
+    // behind names a number you never configured. Vitest times hooks
+    // separately at a 10s default, and Testing Library registers its cleanup
+    // — which unmounts the entire App tree — as an afterEach hook. So a heavy
+    // page fails with "Hook timed out in 10000ms" while testTimeout sits at
+    // 45s looking innocent. Unmounting costs roughly what mounting does; keep
+    // the two limits together.
+    hookTimeout: 45000,
   },
 });
