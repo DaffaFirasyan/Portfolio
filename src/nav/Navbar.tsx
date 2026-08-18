@@ -28,6 +28,13 @@ export default function Navbar() {
   const scrolled = useScrolledPast(80);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // The rail says where the reader is; this says what it is called. The rail's
+  // labels only appear on hover, and hover is not something a reader does while
+  // reading — so without this the section name is never on screen. Built from
+  // the same metadata SectionShell uses, so the two can never disagree.
+  const active = SECTIONS.find((section) => section.id === activeId);
+  const activeLabel = active ? `${String(active.index).padStart(2, '0')} / ${active.label}` : '';
+
   const navigate = useCallback(
     (id: string) => {
       setMenuOpen(false);
@@ -54,7 +61,7 @@ export default function Navbar() {
           scrolled ? 'border-b border-edge bg-void/80 backdrop-blur' : 'bg-transparent'
         }`}
       >
-        <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between px-6 md:h-18 md:px-12">
+        <div className="relative mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between px-6 md:h-18 md:px-12">
           <a
             href="#home"
             onClick={(event) => {
@@ -66,6 +73,14 @@ export default function Navbar() {
           >
             {profile.shortName}
           </a>
+
+          {/* Absolutely centred rather than a third flex child, so it stays on
+              the page's centre line regardless of how wide the name or the CV
+              button turn out to be. pointer-events-none so it can never sit in
+              front of either of them. */}
+          <p className="pointer-events-none absolute left-1/2 hidden -translate-x-1/2 font-mono text-xs uppercase tracking-[0.12em] text-primary md:block">
+            {activeLabel}
+          </p>
 
           <div className="flex items-center gap-3">
             <a

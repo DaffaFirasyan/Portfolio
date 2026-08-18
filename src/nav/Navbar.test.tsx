@@ -1,9 +1,10 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Navbar from './Navbar';
+import { observers } from '@/test/stubs';
 import { profile } from '@/data/profile';
 import { SECTIONS } from '@/data/sections';
 
@@ -45,6 +46,25 @@ describe('Navbar', () => {
     await userEvent.click(within(menu).getByRole('link', { name: 'Projects' }));
 
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('names the section the reader is in, without needing hover', () => {
+    render(<Navbar />);
+    expect(screen.getByText('00 / Home')).toBeInTheDocument();
+  });
+
+  it('follows the reader from one section to the next', () => {
+    render(<Navbar />);
+
+    act(() => {
+      observers.at(-1)!.emit([
+        { target: document.getElementById('home')!, intersectionRatio: 0.1 },
+        { target: document.getElementById('projects')!, intersectionRatio: 0.9 },
+      ]);
+    });
+
+    expect(screen.getByText('04 / Projects')).toBeInTheDocument();
+    expect(screen.queryByText('00 / Home')).not.toBeInTheDocument();
   });
 
   it('is the only file that names the navigation implementation', () => {
