@@ -471,8 +471,15 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
         <div
           className="grid relative overflow-hidden"
           style={{
-            height: '80svh',
-            maxHeight: '540px',
+            // Width-driven, not height-driven. Upstream sizes this from
+            // `height: 80svh` capped at 540px, and derives width from the
+            // aspect ratio — 540 * 0.718 = 388px — so the card never consults
+            // its container and overflowed it at every width. At a 753px
+            // viewport that put 388px of card in a 246px column and pushed the
+            // whole document 94px sideways. 388px is kept as the cap so the
+            // largest size is unchanged.
+            width: '100%',
+            maxWidth: '388px',
             aspectRatio: '0.718',
             borderRadius: cardRadius,
             backgroundBlendMode: 'color-dodge, normal, normal, normal',

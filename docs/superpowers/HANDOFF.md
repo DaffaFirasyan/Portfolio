@@ -21,6 +21,7 @@ This file exists so a session that remembers nothing can pick the work up withou
 | [Interactive surfaces](plans/2026-08-18-interactive-surfaces.md) | Project filter, modal, certificate lightbox | **Built.** 6 tasks |
 | [Contact & launch](plans/2026-08-18-contact-and-launch.md) | Spec phases 8–10 | **Tasks 1–9 built.** Task 10, deploy, held until real content lands |
 | [Motion enrichment](plans/2026-08-18-motion-enrichment.md) | The spec §6 effects never built, plus `ScrollFloat` | **Built.** 7 of 8 effects; Task 8 skipped by choice |
+| [Hierarchy & rhythm](plans/2026-08-18-hierarchy-and-rhythm.md) | Projects, Certificates, Experience — hierarchy from data already there | **Built.** 5 tasks |
 
 The authority on decisions is [the design spec](specs/2026-08-17-portfolio-onepage-design.md). Each plan records the decisions it changed and why.
 
@@ -117,6 +118,8 @@ Every one of these produced a wrong turn before it was understood. They are not 
 **A hook that constructs a page-wide engine gives every caller its own copy.** `useLenis` built `new Lenis()` inside its own effect, and both `Navbar` and `Dialog` called it — so two instances drove the same window. Opening a modal stopped the dialog's copy while the navbar's kept scrolling the page behind it, which is exactly what it looked like. Lenis is a module-level singleton now, acquired and released by reference count, and a test builds two callers and asserts one construction; it was proved by restoring the old shape, which reports `expected [ …(2) ] to have a length of 1 but got 2`.
 
 **Lenis also has to be told to keep out of a scroll container.** It reads wheel events on the window, so a modal's own `overflow-y-auto` never receives them even once Lenis is stopped. `data-lenis-prevent` on the dialog is what hands the subtree back to native scrolling; Lenis 1.3 reads the attribute itself.
+
+**A sweep that only tests the extremes misses the middle.** `ProfileCard` sizes itself from `height: 80svh` capped at 540px and derives its width from `aspect-ratio: 0.718` — 388px — so it never consults its container and overflowed it at every width. It went unnoticed through several sweeps because the two ends hide it: below 768 the pane emulates touch, so `AvatarCard` ships its plain `<img>` and the card never renders at all; at 1280 and above the hero column is wide enough that the overflow does not grow the document. Only at **753** did it push the page 94px sideways. Sweep 320, 375, **768**, 1440 — the tablet width is where hover exists and space does not.
 
 **Canvas 2D silently ignores a CSS variable.** `ctx.strokeStyle = 'var(--color-accent)'` does not throw and does not resolve — it keeps whatever was there, which is `#000000` by default. Measured in a browser. `ClickSpark` shipped that way for one task and drew black sparks on a near-black page, invisible, with the whole suite green. Anything that paints to a canvas needs the resolved value: `src/lib/token.ts` reads it, so CSS keeps the single source of truth. The same applies to `ElectricBorder`, which additionally parses its colour as hex.
 
