@@ -1,6 +1,32 @@
 import { renderHook } from '@testing-library/react';
 import { useLenis } from './useLenis';
 
+/** Records every Lenis the module builds, so "exactly one" is assertable. */
+const { built } = vi.hoisted(() => ({
+  built: [] as Array<{ stopped: boolean; destroyed: boolean }>,
+}));
+
+vi.mock('lenis', () => ({
+  default: class {
+    stopped = false;
+    destroyed = false;
+    constructor() {
+      built.push(this);
+    }
+    raf() {}
+    scrollTo() {}
+    stop() {
+      this.stopped = true;
+    }
+    start() {
+      this.stopped = false;
+    }
+    destroy() {
+      this.destroyed = true;
+    }
+  },
+}));
+
 function mockMedia(matcher: (query: string) => boolean) {
   window.matchMedia = ((query: string) => ({
     matches: matcher(query),
@@ -67,5 +93,54 @@ describe('useLenis', () => {
       result.current.stop();
       result.current.start();
     }).not.toThrow();
+  });
+});
+
+describe('the shared instance', () => {
+  it('builds one Lenis no matter how many callers there are', () => {
+    mockMedia(() => false);
+    built.length = 0;
+
+    // Navbar and Dialog both call the hook. Before this was shared they got an
+    // instance each, both bound to the same window — so a dialog stopped its
+    // own copy while the navbar's kept driving the page behind it.
+    const first = renderHook(() => useLenis());
+    const second = renderHook(() => useLenis());
+
+    expect(built).toHaveLength(1);
+
+    // Releasing one holder must not destroy the instance the other is using.
+    first.unmount();
+    expect(built[0].destroyed).toBe(false);
+
+    second.unmount();
+    expect(built[0].destroyed).toBe(true);
+  });
+
+  it('stops and starts the instance the page is actually using', () => {
+    mockMedia(() => false);
+    built.length = 0;
+
+    const navbar = renderHook(() => useLenis());
+    const dialog = renderHook(() => useLenis());
+
+    dialog.result.current.stop();
+    expect(built[0].stopped).toBe(true);
+
+    dialog.result.current.start();
+    expect(built[0].stopped).toBe(false);
+
+    dialog.unmount();
+    navbar.unmount();
+  });
+
+  it('builds a fresh one after every caller has gone', () => {
+    mockMedia(() => false);
+    built.length = 0;
+
+    renderHook(() => useLenis()).unmount();
+    renderHook(() => useLenis()).unmount();
+
+    expect(built).toHaveLength(2);
   });
 });

@@ -11,6 +11,17 @@ interface SurfaceProps {
 const BASE = 'rounded-xl border border-edge bg-surface';
 
 /**
+ * The whole hover treatment, beyond the spotlight: two pixels of lift and a
+ * warmer edge.
+ *
+ * Transform and border-colour only, so it composites and cannot reflow the
+ * grid under the reader's cursor. Two pixels is deliberate — the card should
+ * acknowledge the pointer, not jump at it.
+ */
+const LIFT =
+  'transition-[transform,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40';
+
+/**
  * The card surface used across the site.
  *
  * One component owning the whole hover language is what stops the page
@@ -25,7 +36,7 @@ export default function Surface({ children, className }: SurfaceProps) {
   if (!animate || !hover) return <div className={classes}>{children}</div>;
 
   return (
-    <SpotlightCard className={classes} spotlightColor="rgba(240, 163, 46, 0.12)">
+    <SpotlightCard className={`${classes} ${LIFT}`} spotlightColor="rgba(240, 163, 46, 0.12)">
       {children}
     </SpotlightCard>
   );

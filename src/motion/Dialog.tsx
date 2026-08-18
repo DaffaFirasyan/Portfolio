@@ -80,6 +80,11 @@ export default function Dialog({ open, onClose, label, wide = false, children }:
     <dialog
       ref={ref}
       aria-label={label}
+      // Lenis listens for wheel events on the window and drives the page from
+      // them, so without this the wheel never reaches the dialog's own scroll
+      // container — the page moved behind the modal instead. Lenis reads this
+      // attribute natively and leaves the subtree to scroll itself.
+      data-lenis-prevent
       // `m-auto` is load-bearing. The UA stylesheet centres a modal dialog with
       // `margin: auto`, and Tailwind's preflight resets margin to 0 on every
       // element — which pins the dialog to the top-left corner of the viewport.

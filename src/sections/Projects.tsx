@@ -8,6 +8,7 @@ import type { Project } from '@/types';
 import { ALL, categoriesOf, filterByCategory } from '@/lib/filter';
 import Chip from '@/motion/Chip';
 import Dialog from '@/motion/Dialog';
+import Surface from '@/motion/Surface';
 
 export default function Projects() {
   const { isDimmed } = useSkillHighlight();
@@ -55,10 +56,10 @@ export default function Projects() {
           // Only opacity changes while a skill is active. Anything touching
           // size, margin or position would shift the grid under the reader's
           // cursor, which the design forbids outright.
+          <Surface key={p.id} className="h-full p-5">
           <article
-            key={p.id}
             data-dimmed={isDimmed(p.id) ? 'true' : undefined}
-            className={`rounded-xl border border-edge bg-surface p-5 transition-opacity duration-150 ${
+            className={`transition-opacity duration-150 ${
               isDimmed(p.id) ? 'opacity-40' : 'opacity-100'
             }`}
           >
@@ -116,6 +117,7 @@ export default function Projects() {
               )}
             </div>
           </article>
+          </Surface>
         ))}
       </div>
       )}

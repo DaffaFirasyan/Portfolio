@@ -69,7 +69,8 @@ export default function Education() {
             a row stop matching heights. */}
         {certificates.map((c, index) => (
           <Reveal key={c.id} delay={STEP * index} fill>
-            <article className="h-full rounded-xl border border-edge bg-surface p-4">
+            <Surface className="h-full p-4">
+            <article>
               <button
                 type="button"
                 onClick={() => {
@@ -115,6 +116,7 @@ export default function Education() {
                 </a>
               )}
             </article>
+            </Surface>
           </Reveal>
         ))}
       </div>
