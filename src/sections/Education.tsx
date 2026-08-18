@@ -90,26 +90,42 @@ export default function Education() {
           <Reveal key={c.id} delay={STEP * within} fill>
             <Surface className="h-full p-4">
             <article>
-              {/* No thumbnail here any more. It was 225px of a 309px tile —
-                  ninety percent of a section that ran to 3484px — showing a
-                  scan nobody can read at 380px wide. The scan lives in the
-                  lightbox, where it is legible and where a reader has chosen
-                  to look. What is left is the credential itself. */}
-              <p className="text-sm font-semibold break-words text-primary">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setImageBroken(false);
-                    setOpenAt(index);
-                  }}
-                  className="text-left hover:text-accent"
-                >
-                  {c.title}
-                </button>
-              </p>
-              <p className="mt-1 font-mono text-xs uppercase tracking-[0.12em] text-muted">
-                {`${c.issuer} · ${c.issueDate}`}
-              </p>
+              {/* 96px beside the text, not 225px above it. Full width it was
+                  ninety percent of a 3484px section, showing a scan nobody can
+                  read at that size; gone entirely the grid read as a shopping
+                  list. This keeps a visual marker per credential at a fraction
+                  of the height, and the legible scan stays in the lightbox.
+
+                  One control, not two: the image and the text sit inside the
+                  same button, so there is a single thing to tab to and a single
+                  accessible name. The verify link stays outside it, because a
+                  button containing a link is invalid markup. */}
+              <button
+                type="button"
+                onClick={() => {
+                  setImageBroken(false);
+                  setOpenAt(index);
+                }}
+                className="group flex w-full items-start gap-3 text-left"
+              >
+                <img
+                  src={c.thumbnailUrl}
+                  alt=""
+                  width={600}
+                  height={420}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-24 shrink-0 rounded-lg border border-edge"
+                />
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold break-words text-primary group-hover:text-accent">
+                    {c.title}
+                  </span>
+                  <span className="mt-1 block font-mono text-xs uppercase tracking-[0.12em] text-muted">
+                    {`${c.issuer} · ${c.issueDate}`}
+                  </span>
+                </span>
+              </button>
 
               {/* Skills moved into the lightbox. Fourteen tiles each carrying a
                   row of chips is what made this a wall; the group heading now
