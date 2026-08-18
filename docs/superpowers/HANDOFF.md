@@ -19,13 +19,15 @@ This file exists so a session that remembers nothing can pick the work up withou
 | [Motion & hero](plans/2026-08-17-motion-and-hero.md) | Spec phases 3–4 | **Built.** 7 tasks |
 | [Sections & cross-highlight](plans/2026-08-18-sections-and-cross-highlight.md) | Spec phase 5 + phase 7 animation | **Built.** 7 tasks |
 | [Interactive surfaces](plans/2026-08-18-interactive-surfaces.md) | Project filter, modal, certificate lightbox | **Built.** 6 tasks |
-| Contact & launch | Spec phases 8–10 | Not written |
+| [Contact & launch](plans/2026-08-18-contact-and-launch.md) | Spec phases 8–10 | **Written, not started.** 10 tasks |
 
 The authority on decisions is [the design spec](specs/2026-08-17-portfolio-onepage-design.md). Each plan records the decisions it changed and why.
 
 ## What to do next
 
-Write and execute the last plan: the contact form, the node-rail navigation upgrade that spec D6 always intended, accessibility and performance polish, meta tags and structured data, and deployment.
+Execute [the contact and launch plan](plans/2026-08-18-contact-and-launch.md), one task at a time. It is the last one: the contact form, the node-rail navigation upgrade that spec D6 always intended, accessibility and performance polish, meta tags and structured data, and deployment.
+
+Three of its decisions are worth knowing before opening it. The rail is CSS rather than SVG plus ScrollTrigger, because `useActiveSection` already publishes the two numbers a ScrollTrigger would recompute. Playwright is deliberately not installed, so the keyboard flow and the reduced-motion pass stay manual — a stated cost, not an oversight. And `PillNavAdapter` stays in the tree unimported, as the second implementation that proves `SectionNavProps` is a real seam.
 
 **Two checks are still open from the interactive-surfaces plan** and need a real browser, because the in-app pane holds no document focus: that Tab cannot escape an open dialog, and that Escape closes it. Everything else there was measured — focus moves into the dialog on open and returns to the trigger on close, the body locks and Lenis genuinely stops, and the filter changes card count without resizing the cards that remain.
 
