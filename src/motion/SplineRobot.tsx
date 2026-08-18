@@ -37,16 +37,30 @@ export default function SplineRobot() {
   const host = useRef<HTMLDivElement>(null);
 
   /**
-   * Makes the robot watch the whole page instead of only its own corner.
+   * Makes the robot watch the whole page, without asking it to reach for
+   * places it cannot reach.
    *
    * Spline binds its pointer handling to the canvas it creates, so the scene
    * only ever saw the cursor while the cursor was inside a 528px box at the
-   * foot of one column — which reads as a robot that wakes up when you get
-   * close and ignores you otherwise. Window events are forwarded onto the
-   * canvas so it receives positions from anywhere on the page.
+   * foot of one column — a robot that wakes up when you get close and ignores
+   * you otherwise. Window events are forwarded onto the canvas to fix that.
    *
-   * The real event is left alone when the pointer is genuinely over the canvas;
-   * dispatching a duplicate on top of it is what would make the head jitter.
+   * Forwarding the raw coordinates is what broke the pose. The scene aims at
+   * wherever it is told the pointer is, and a pointer several thousand pixels
+   * outside its own box is an instruction to bend over backwards and throw
+   * both arms up — which is exactly what it did, permanently, because the
+   * cursor is almost always outside a box that size.
+   *
+   * So the viewport is *mapped* onto the canvas rather than passed through:
+   * the far left of the window becomes the canvas's left edge, the far right
+   * its right edge. The robot still turns to follow the cursor anywhere on the
+   * page, but the target it is given never leaves the range the scene was
+   * authored for, so the pose stays natural at every position.
+   *
+   * Every move is forwarded, with no branch for the pointer being over the
+   * canvas. That branch existed and was a bug: the wrapper is
+   * `pointer-events-none`, so real events never reach the canvas at all, and
+   * skipping the synthetic one left a dead patch exactly where the robot is.
    *
    * Both event names are sent because which one the runtime listens for is its
    * own business and not part of any contract this project can rely on.
@@ -60,20 +74,15 @@ export default function SplineRobot() {
       if (!canvas) return;
 
       const box = canvas.getBoundingClientRect();
-      const inside =
-        event.clientX >= box.left &&
-        event.clientX <= box.right &&
-        event.clientY >= box.top &&
-        event.clientY <= box.bottom;
-      if (inside) return;
+      if (!box.width || !box.height) return;
 
-      const init = {
-        clientX: event.clientX,
-        clientY: event.clientY,
-        bubbles: false,
-        cancelable: true,
-      };
-      canvas.dispatchEvent(new PointerEvent('pointermove', { ...init, pointerType: 'mouse', isPrimary: true }));
+      const x = box.left + (event.clientX / window.innerWidth) * box.width;
+      const y = box.top + (event.clientY / window.innerHeight) * box.height;
+
+      const init = { clientX: x, clientY: y, bubbles: false, cancelable: true };
+      canvas.dispatchEvent(
+        new PointerEvent('pointermove', { ...init, pointerType: 'mouse', isPrimary: true }),
+      );
       canvas.dispatchEvent(new MouseEvent('mousemove', init));
     };
 
