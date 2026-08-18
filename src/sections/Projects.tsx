@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import SectionShell from '@/components/layout/SectionShell';
+import FeaturedProject from '@/components/ui/FeaturedProject';
 import { shellProps } from '@/data/sections';
 import { projects } from '@/data/projects';
 import { useSkillHighlight } from '@/highlight/SkillHighlight';
@@ -8,6 +9,7 @@ import type { Project } from '@/types';
 import { ALL, categoriesOf, filterByCategory } from '@/lib/filter';
 import Chip from '@/motion/Chip';
 import Dialog from '@/motion/Dialog';
+import Reveal from '@/motion/Reveal';
 import Surface from '@/motion/Surface';
 
 export default function Projects() {
@@ -17,6 +19,17 @@ export default function Projects() {
 
   const categories = useMemo(() => categoriesOf(projects), []);
   const visible = useMemo(() => filterByCategory(projects, category), [category]);
+
+  // Featuring is a judgement about the whole body of work, so it is dropped the
+  // moment a filter narrows that body. Inside "3 of 8 match Web" a featured row
+  // would claim an importance it does not have, and with a single match the
+  // page would show one enormous row above an empty grid.
+  const split = category === ALL;
+  const featured = useMemo(() => (split ? visible.filter((p) => p.featured) : []), [visible, split]);
+  const rest = useMemo(
+    () => (split ? visible.filter((p) => !p.featured) : visible),
+    [visible, split],
+  );
 
   return (
     <SectionShell {...shellProps('projects')}>
@@ -51,8 +64,24 @@ export default function Projects() {
           </button>
         </div>
       ) : (
+      <>
+      {featured.length > 0 && (
+        <div className="mb-10 space-y-6">
+          {featured.map((p, index) => (
+            <Reveal key={p.id} delay={0.06 * index}>
+              <FeaturedProject
+                project={p}
+                index={index}
+                dimmed={isDimmed(p.id)}
+                onOpen={setSelected}
+              />
+            </Reveal>
+          ))}
+        </div>
+      )}
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {visible.map((p) => (
+        {rest.map((p) => (
           // Only opacity changes while a skill is active. Anything touching
           // size, margin or position would shift the grid under the reader's
           // cursor, which the design forbids outright.
@@ -120,6 +149,7 @@ export default function Projects() {
           </Surface>
         ))}
       </div>
+      </>
       )}
 
       {/* One dialog for the whole section rather than one per card. */}
