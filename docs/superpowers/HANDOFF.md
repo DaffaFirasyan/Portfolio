@@ -8,9 +8,9 @@ This file exists so a session that remembers nothing can pick the work up withou
 
 ## Where the work stands
 
-**Branch:** `feat/foundation-and-content-layer`, 74 commits ahead of `main`. Nothing is merged; `main` still sits at the first plan document.
+**Branch:** `feat/foundation-and-content-layer`, ~113 commits ahead of `main`. Nothing is merged; `main` still sits at the first plan document.
 
-**State:** 192 tests pass across 25 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean. Initial JS is 165 KB gzip against a 250 KB budget, with the WebGL backdrop split into a further 15 KB chunk that only loads when the capability check passes.
+**State:** 321 tests pass across 45 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean. Initial payload is 202 KB JS plus 10 KB CSS gzip against a 250 KB budget, with the WebGL backdrop split into a further 16 KB chunk that only loads when the capability check passes.
 
 | Plan | Covers | Status |
 |---|---|---|
@@ -27,11 +27,14 @@ The authority on decisions is [the design spec](specs/2026-08-17-portfolio-onepa
 
 ## What to do next
 
-Execute [the contact and launch plan](plans/2026-08-18-contact-and-launch.md), one task at a time. It is the last one: the contact form, the node-rail navigation upgrade that spec D6 always intended, accessibility and performance polish, meta tags and structured data, and deployment.
+**Every plan is built.** Two things remain, both the owner's:
 
-Three of its decisions are worth knowing before opening it. The rail is CSS rather than SVG plus ScrollTrigger, because `useActiveSection` already publishes the two numbers a ScrollTrigger would recompute. Playwright is deliberately not installed, so the keyboard flow and the reduced-motion pass stay manual — a stated cost, not an oversight. And `PillNavAdapter` stays in the tree unimported, as the second implementation that proves `SectionNavProps` is a real seam.
+1. **Paste the real content.** It touches only `src/data/` and `public/` — that is spec §11 criterion 3 and it still holds. `npm run placeholders` regenerates the images from whatever the data says. Read the asset requirements in spec §5 first: the profile photo must have its background removed, and the certificate scans need identity numbers, dates of birth, wet signatures and personal QR codes covered before upload.
+2. **Deploy.** [Contact & launch](plans/2026-08-18-contact-and-launch.md) Task 10 is written and unstarted, held at the owner's request until real content lands. It needs a Web3Forms key and a Vercel account, so it is theirs to run; the plan says exactly what to do.
 
-**Two checks are still open from the interactive-surfaces plan** and need a real browser, because the in-app pane holds no document focus: that Tab cannot escape an open dialog, and that Escape closes it. Everything else there was measured — focus moves into the dialog on open and returns to the trigger on close, the body locks and Lenis genuinely stops, and the filter changes card count without resizing the cards that remain.
+**Re-measure Lighthouse after the content paste.** The recorded 85/100/100/100 predates the motion and layout work, and Performance sat exactly on its threshold even then. Run it against `npm run preview` on port 4173, in incognito — a run against the dev server measures an artefact ten times heavier and scored 27.
+
+Expect the page to look different from what the plans describe. After the hierarchy plan the owner said four times that it still read as flat, and the sections were reworked conversationally rather than through a new plan document. What shipped is recorded under "The design pass that followed the plans" below.
 
 Before vendoring any further React Bits component, read its source. **Seven have now been rejected on inspection**, all for the same reason — they are finished widgets rather than pieces:
 
@@ -57,19 +60,20 @@ Enough of a map to orient without reading everything.
 
 | Path | What is there |
 |---|---|
-| `data/` | `profile`, `projects` (8), `skills` (4 categories), `experiences` (5), `education`, `certificates` (14), `sections` (`SECTIONS` + `shellProps`), `constraints` (`LIMITS`, `longest`, `STRESS_RATIO`), and `invariants.test.ts` — eleven data rules including asset existence |
-| `types/` | Every content interface, plus `SectionMeta` and `SectionNavProps` |
-| `lib/` | `scroll` (`pickActiveSection`, `scrollProgress`), `filter` (`ALL`, `categoriesOf`, `filterByCategory`), `cycle` (`cycleIndex`) — all pure, all tested directly |
-| `hooks/` | `useActiveSection`, `useScrolledPast`, `useMotionAllowed`, `useOnScreen`, `useLenis` (`scrollTo`, `stop`, `start`) |
-| `motion/` | `Reveal` (takes `fill`), `Heading`, `Surface`, `Backdrop`, `Chip` (takes `size`), `Dialog` (takes `wide`), `Counter`, `BlurIn`, `Shine`, `RotatingRole`, `TiltImage`, `Grain` |
+| `data/` | `profile`, `projects` (8), `skills` (4 categories), `experiences` (5) + `EXPERIENCE_TYPE_LABEL`, `education`, `certificates` (14), `technologies` (17 logo paths), `site` (canonical URL, title, OG), `sections` (`SECTIONS` + `shellProps`), `constraints` (`LIMITS`, `longest`, `STRESS_RATIO`), plus `invariants.test.ts` and `site.test.ts` — the data rules and the metadata drift guards |
+| `types/` | Every content interface, plus `SectionMeta`, `SectionNavProps`, `Site`, `Technology` |
+| `lib/` | All pure and tested directly: `scroll`, `filter`, `cycle`, `rail` (node geometry), `group` (`groupByCategory`, `CATEGORY_ORDER`), `validate` (contact fields), `web3forms` (the submit call), `token` (`cssToken` — canvas cannot read `var()`) |
+| `hooks/` | `useActiveSection`, `useScrolledPast`, `useMotionAllowed`, `useOnScreen`, `useLenis` — the last is a **module singleton**, see the traps |
+| `motion/` | The wrapper layer, and the only place React Bits is touched: `Reveal` (takes `fill`), `Heading`, `Surface` (the one hover language), `Backdrop`, `Chip`, `Dialog` (takes `wide`), `Counter`, `BlurIn`, `Shine`, `RotatingRole`, `Grain`, `StarButton`, `Typed`, `Marquee`, `Sparks`, `CircularBadge`, `PulseDot`, `AvatarCard`, `LogoMarquee`, `ProjectFlow` |
 | `highlight/` | `SkillHighlightProvider` and `useSkillHighlight` — the skill-to-project cross-highlight |
-| `nav/` | `PillNavAdapter` (implements `SectionNavProps`), `Navbar` (owns the hooks) |
+| `nav/` | `NodeRailNav` (in use), `PillNavAdapter` (kept unimported as the second implementation that proves the seam), `Navbar` (owns the hooks) |
 | `sections/` | The seven sections. Governed: no React Bits imports |
-| `components/reactbits/` | Eleven vendored components, owned and edited by this project |
+| `components/reactbits/` | Sixteen vendored components, owned and edited by this project |
+| `components/ui/` | `ContactForm`, `FeaturedProject` |
 | `components/layout/` | `SectionShell` |
-| `test/` | `setup.ts`, and `stubs.ts` with the six APIs jsdom lacks plus the drivable `observers` registry |
+| `test/` | `setup.ts`, and `stubs.ts` with the seven APIs jsdom lacks plus the drivable `observers` registry |
 
-Anything positioned absolutely against a section — the timeline dots — must sit outside its `Reveal`; see the layout traps below.
+The timeline rule that forced absolutely positioned dots outside their `Reveal` is gone, so that constraint no longer binds anything — but the rule behind it still does: a transformed ancestor becomes the containing block for absolutely positioned descendants, and `AnimatedContent` transforms its wrapper.
 
 ## Working practices this project arrived at the hard way
 
@@ -78,6 +82,22 @@ Anything positioned absolutely against a section — the timeline dots — must 
 - **Open the browser before calling visual work done.** The project modal shipped pinned to a corner with 177 tests green; it was caught from a screenshot, not a test. Verification scheduled for a later task is verification that arrives too late.
 - **Prove a guard fails.** Several tests here were checked by deliberately breaking the thing they watch — the import boundary, the asset invariant, the focus return, the cross-highlight wiring. A guard nobody has seen fail is a guess.
 - **Commit after each task.** Two sessions were cut off mid-task by usage limits, each time stranding finished work uncommitted. Per-task commits cap the loss at one task.
+
+## The design pass that followed the plans
+
+Everything below was decided in conversation, not in a plan document, after the owner said the page still read as flat. It is recorded here because nothing else records it — and because several of the decisions were reversals.
+
+**The hero avatar is `ProfileCard`, and it needs a cut-out portrait.** It anchors the image to the bottom of the card and lets the gradient show around it, so an opaque square renders as a pasted block with a seam across the card. Spec §5 carries the requirement; the placeholder is a transparent silhouette so the wrong shape is obvious in development. `mix-blend-mode: luminosity` was removed from the vendored component — it tinted the portrait into the card's hue and would have rendered a real face in blue-violet. `showUserInfo={false}` does **not** suppress the name and title upstream; the flag closes before them, and they are gated now.
+
+**The technology strip is `LogoLoop` with seventeen logos as path data** in `src/data/technologies.ts`. Java and C# are from devicon because simple-icons removed them, which is why `viewBox` is per logo.
+
+**Certificates are a wall, not a list.** Fourteen tiles in a six-column grid, labels revealed on hover, categories as a filter row above. This replaced grouped three-column cards, which replaced full-width thumbnails. The measurements that drove it: the section was 3484px with 3151px of it thumbnail — ninety percent — and is 1143px now. Grouping was tried and removed: it gave structure at the cost of the "look how many" reaction, and the smallest group held one tile.
+
+**The quiet project tier is `FlowingMenu` rows** that reveal a screenshot on hover, at 75px each against 285px as tiles. The three `featured` projects stay editorial rows above them.
+
+**A carousel was considered and rejected**, for reasons worth keeping: it hides work from a reader the spec says scans for 30–60 seconds, its slides must be large to justify the chrome so the height does not drop, and for Projects it would flatten the hierarchy the featured split had just created. Spec §9 had already excluded `CardSwap`, `CircularGallery`, `DomeGallery`, `FlyingPosters`, `InfiniteMenu` and `ScrollStack`. The distinction that mattered: the certificate wall hides no work, only labels, and all fourteen are on screen at once.
+
+**Every React Bits card component was rejected**: `ChromaGrid`, `ReflectiveCard` and `PixelCard` impose fixed pixel widths, and `BorderGlow` and `PixelCard` add render loops. They are showcase pieces sized for a demo page, and none of them addressed height, which was the actual complaint.
 
 ## Decisions that changed after the spec was approved
 
@@ -134,7 +154,7 @@ Every one of these produced a wrong turn before it was understood. They are not 
 ## Architectural rules that are enforced, not just documented
 
 - **No file under `src/sections/` may import `src/components/reactbits/`.** ESLint rule, verified to fire on relative, alias, and barrel import forms. The fix for a violation is a wrapper in `src/motion/`, never an exception in the config.
-- **Swapping the navigation touches one file.** `Navbar.tsx` is the only non-test file naming `PillNavAdapter`.
+- **Swapping the navigation touches one file.** `Navbar.tsx` is the only non-test file naming `NodeRailNav`, and a test in `Navbar.test.tsx` enforces it by scanning `src/`.
 - **Replacing placeholder content touches only `src/data/` and `public/`.** Section headers read from `SECTIONS` via `shellProps(id)`, so a section's number, nav label, and heading cannot drift apart.
 - **`src/index.css` contains `@source not '../docs'`.** Tailwind v4 scans the whole repository, and these plan documents name utility classes in prose. Without the exclusion, `docs/` generates real CSS and "this class is in the bundle" stops proving a component uses it.
 
@@ -167,7 +187,7 @@ Every one of these produced a wrong turn before it was understood. They are not 
 
 - **The `Galaxy` resize is confirmed** in the owner's browser. Nothing from the contact-and-launch sweep is outstanding.
 
-- **Seven motion effects landed; one was declined and one was replaced after being built.** `StarBorder` on the CV and Send buttons, `TextType` on the contact opening line, `CurvedLoop` in the footer, `ClickSpark` in Contact, `CircularText` as a badge, and `PulseDot` marking the current role. `ScrollFloat` was deleted rather than wired, because `SplitText` already carries `scrollTrigger: { once: true }` and running both would put two heading languages on one page.
+- **Seven motion effects landed; one was declined and two were replaced after being built.** `StarBorder` on the CV and Send buttons, `TextType` on the contact opening line, `ClickSpark` in Contact, `CircularText` as a badge, and `PulseDot` marking the current role. The footer marquee began as `CurvedLoop` and is `ScrollVelocity` now: the curve locked the element to `aspect-[100/12]`, so it took 152px of a 281px footer with no way to ask for less, and its replacement is 32px and moves with the scroll rather than on its own. `ScrollFloat` was deleted rather than wired, because `SplitText` already carries `scrollTrigger: { once: true }` and running both would put two heading languages on one page.
 
   `ElectricBorder` was built and then removed: the owner found it too loud beside prose, and it cost a render loop for as long as Experience was on screen. What replaced it is cheaper in every direction — a tinted card plus a three-second ring on the 10px timeline dot, animating only transform and opacity so it composites.
 
@@ -180,13 +200,16 @@ Every one of these produced a wrong turn before it was understood. They are not 
 - **GSAP-driven animation cannot be measured in the pane at all**, and the failure mode is silent. GSAP runs entirely on `requestAnimationFrame`, which never fires there, so it never applies its `from` state — every element reads `opacity: 1, transform: none` whether the animation already finished or never started. A reading like that looks like evidence and is not. Anything scheduled with `setInterval` or `setTimeout` **is** measurable there; that is why the `TextType` check worked and the `SplitText` one did not. The owner confirmed in a real browser that section headings animate per character on arrival and that the contact line types on arrival.
 
   What **was** measured on the production build, at 320, 375, 753, 985, 1085, 1265 and 1425: `documentElement.scrollWidth` never exceeds `clientWidth`, and the header's inner container never exceeds its own client width either — checked separately because a fixed element does not grow the document's scroll width. On a fresh load at 320 the grain canvas matches the viewport exactly.
-- **`main` has nothing on it.** Seventy-plus commits sit on one branch with no merge. Nothing is broken by that, but the longer it runs the more there is to unpick if something needs reverting.
+- **`main` has nothing on it.** Over a hundred commits sit on one branch with no merge. Nothing is broken by that, but the longer it runs the more there is to unpick if something needs reverting. The deploy task merges it.
 
-## What the last plan still has to cover
+- **The contact form has never sent a message.** `VITE_WEB3FORMS_KEY` is unset, so submitting reaches the error state and offers the `mailto:` fallback — which is the designed behaviour, not a bug, but it means the success path has only ever been seen in tests. Sending one real message is a step in the deploy task.
 
-Spec phases 8 through 10, none of it written yet:
+- **One test was wrongly called a flake, twice.** The `Sparks` frame clock flushed at an absolute timestamp of `10_000` while `ClickSpark` stamps sparks with `performance.now()`, so once the test process had been alive that long the flush stopped being past the 400ms duration. It is relative now. The lesson is the general one: a test that fails only in full-suite runs is usually reading a clock it does not own.
 
-- **The contact form.** Web3Forms was chosen in spec §6 but nothing is installed. Three states — loading, success, error — with a `mailto:` fallback, a honeypot, inline validation on blur, and `aria-live` on errors.
-- **The node-rail navigation.** Spec D6 always intended `PillNavAdapter` to be replaced by the section-node rail from spec §3.4. `SectionNavProps` exists for exactly this, and `Navbar.tsx` is the only file that names the adapter.
-- **Polish.** Reduced-motion sweep, keyboard pass, contrast check, Lighthouse against spec §12.3, `<title>`/OG/JSON-LD, `robots.txt` and `sitemap.xml`.
-- **Deploy.** Vercel, custom domain, analytics.
+## How this project verifies things
+
+The short version, because it is what makes the rest trustworthy:
+
+- **Prove the guard fails.** Nearly every guard here was checked by breaking what it watches — the import boundary, the asset invariant, the honeypot, the band clamp, the metadata drift, the navigation seam, the render loop, the section outline, the CSS-variable-on-canvas bug. A guard nobody has seen fail is a guess.
+- **Measure in a browser, then say the number.** Four visual defects shipped with a green suite before this became habit. Every layout claim in this file has a measurement behind it.
+- **Distrust a measurement that is impossible.** A `fixed` header claiming to be 1128px wide inside a 320px viewport, a page overflow that appears only without a reload, an element at `opacity: 1` that GSAP never touched — each looked like a bug and was not.
