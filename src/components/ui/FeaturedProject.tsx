@@ -14,9 +14,24 @@ interface FeaturedProjectProps {
  * One of the at-most-three projects the data marks as featured.
  *
  * A full-width row rather than a grid cell, with the image on one side and the
- * story on the other, alternating by index. The point is contrast: eight cards
+ * hook on the other, alternating by index. The point is contrast: eight cards
  * of equal weight tell a reader nothing about where to start, and `featured` is
  * an editorial judgement already recorded in the data and shown nowhere.
+ *
+ * The row is a teaser, not a summary. It used to carry `problem` in full —
+ * often three or four wrapped lines — right next to `outcome`, when the dialog
+ * already says everything the row said and more (problem, solution, outcome,
+ * the whole stack). That made the row both the biggest thing on the page and
+ * the least necessary: nothing on it earned a click. Now the row leads with
+ * the result, the one line a case study's teaser can least do without, and
+ * the rest — including *why* that result was hard — is one click away. A
+ * reader who wants the mechanism has to open the dialog to get it, which is
+ * the point.
+ *
+ * Two independent controls open that dialog: the title, and the image itself
+ * — siblings, not nested, since a button cannot contain a link and the row
+ * still carries Repository/Live demo. A picture this size inviting the click
+ * matters on a touch device, where nothing here ever gets a hover cue.
  *
  * Alternation is a wide-screen idea. Below `lg` both sides stack with the image
  * first — reversing the order on a phone would leave two layouts to debug for
@@ -33,6 +48,7 @@ export default function FeaturedProject({
   onOpen,
 }: FeaturedProjectProps) {
   const imageFirst = index % 2 === 0;
+  const open = () => onOpen(project);
 
   return (
     <Surface className="p-6">
@@ -42,17 +58,22 @@ export default function FeaturedProject({
           dimmed ? 'opacity-40' : 'opacity-100'
         }`}
       >
-        <img
-          src={project.thumbnail}
-          alt={`${project.title} preview`}
-          width={800}
-          height={500}
-          loading="lazy"
-          decoding="async"
-          className={`w-full rounded-lg border border-edge ${
-            imageFirst ? 'lg:order-1' : 'lg:order-2'
-          }`}
-        />
+        <button
+          type="button"
+          onClick={open}
+          aria-label={`View ${project.title} case study`}
+          className={`block w-full text-left ${imageFirst ? 'lg:order-1' : 'lg:order-2'}`}
+        >
+          <img
+            src={project.thumbnail}
+            alt={`${project.title} preview`}
+            width={800}
+            height={500}
+            loading="lazy"
+            decoding="async"
+            className="w-full rounded-lg border border-edge"
+          />
+        </button>
 
         <div className={imageFirst ? 'lg:order-2' : 'lg:order-1'}>
           {/* The oversized numeral is the accent that used to be missing: three
@@ -76,7 +97,7 @@ export default function FeaturedProject({
               be a button: it contains links, and a button containing links is
               invalid markup. */}
           <h3 className="mt-2 font-display text-2xl font-extrabold leading-tight break-words text-primary md:text-3xl">
-            <button type="button" onClick={() => onOpen(project)} className="text-left">
+            <button type="button" onClick={open} className="text-left">
               {project.title}
             </button>
           </h3>
@@ -85,16 +106,17 @@ export default function FeaturedProject({
             {`${project.category} · ${project.year} · ${project.role}`}
           </p>
 
-          {/* No character cap: the grid column is already narrower than 52ch
-              ever was (roughly 500px against the column's own ~504px cap at
-              this section's own max-width), so the cap never protected
-              readability — it only forced an extra wrapped line per paragraph
-              for no reason a reader could see. */}
-          <p className="mt-3 text-muted">{project.problem}</p>
-
-          {project.outcome && (
-            <p className="mt-2 font-semibold text-accent-2">{project.outcome}</p>
-          )}
+          {/* The result, not the problem: `problem` and `solution` now live in
+              the dialog only. Every project is guaranteed a non-empty outcome
+              by data/invariants.test.ts, so the fallback below never fires on
+              real data — it exists so a future edit that relaxes that
+              invariant degrades instead of rendering an empty line. Clamped to
+              two lines on principle, not because 140 characters usually needs
+              it: a teaser that cannot grow past a fixed height is one fewer
+              thing to re-check every time the real copy changes. */}
+          <p className="mt-3 line-clamp-2 font-semibold text-accent-2">
+            {project.outcome ?? project.problem}
+          </p>
 
           <ul className="mt-4 flex flex-wrap gap-2">
             {project.stack.map((s) => (
@@ -105,6 +127,13 @@ export default function FeaturedProject({
           </ul>
 
           <div className="mt-4 flex flex-wrap gap-4 text-sm">
+            <button
+              type="button"
+              onClick={open}
+              className="inline-flex min-h-11 items-center font-semibold text-accent"
+            >
+              View case study →
+            </button>
             {project.links.repo && (
               <a
                 href={project.links.repo}

@@ -32,9 +32,49 @@ describe('FeaturedProject', () => {
     expect(onOpen).toHaveBeenCalledWith(base);
   });
 
-  it('gives the outcome its own line, because it is the part worth scanning for', () => {
+  it('also opens the detail from the image, since nothing here gets a hover cue on touch', async () => {
+    const user = userEvent.setup();
+    const onOpen = vi.fn();
+    render(<FeaturedProject project={base} index={0} dimmed={false} onOpen={onOpen} />);
+
+    // A named button distinct from the title button, wrapping the image
+    // rather than nested inside it — a button cannot contain the Repository
+    // and Live demo links this row also carries.
+    await user.click(screen.getByRole('button', { name: `View ${base.title} case study` }));
+    expect(onOpen).toHaveBeenCalledWith(base);
+  });
+
+  it('offers an explicit "view case study" control, not just an implicit click on the title', async () => {
+    const user = userEvent.setup();
+    const onOpen = vi.fn();
+    render(<FeaturedProject project={base} index={0} dimmed={false} onOpen={onOpen} />);
+
+    await user.click(screen.getByRole('button', { name: /view case study/i }));
+    expect(onOpen).toHaveBeenCalledWith(base);
+  });
+
+  it('leads with the outcome and keeps the problem for the dialog, so the row stays a teaser', () => {
     render(<FeaturedProject project={base} index={0} dimmed={false} onOpen={() => {}} />);
     expect(screen.getByText(base.outcome!)).toBeInTheDocument();
+
+    // The whole reason this row shrank: `problem` used to be printed here in
+    // full, often three or four wrapped lines, duplicating what the dialog
+    // already says. It must not come back by accident.
+    expect(screen.queryByText(base.problem)).toBeNull();
+  });
+
+  it('falls back to the problem sentence if a project is ever missing its outcome', () => {
+    const { outcome, ...withoutOutcome } = base;
+    void outcome;
+    render(
+      <FeaturedProject project={withoutOutcome} index={0} dimmed={false} onOpen={() => {}} />,
+    );
+
+    // data/invariants.test.ts guarantees every real project has one, so this
+    // path is a safety net rather than a case the data ever actually reaches
+    // — worth covering so a relaxed invariant degrades instead of rendering
+    // an empty line.
+    expect(screen.getByText(base.problem)).toBeInTheDocument();
   });
 
   it('keeps the thumbnail dimensions that stop the layout shifting', () => {

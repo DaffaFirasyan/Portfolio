@@ -48,15 +48,15 @@ describe('Projects', () => {
 
     // The quiet tier is rows now: name on the surface, everything else a click
     // away. So the heading is what every project owes — it is how a screen
-    // reader moves between them — while the problem sentence belongs to the
-    // featured rows and the dialog.
+    // reader moves between them — while the featured rows additionally lead
+    // with their outcome, and the problem sentence lives in the dialog only.
     for (const p of projects) {
       expect(screen.getByRole('heading', { level: 3, name: p.title })).toBeInTheDocument();
     }
 
     const featured = projects.filter((p) => p.featured);
     for (const p of featured) {
-      expect(screen.getByText(p.problem)).toBeInTheDocument();
+      expect(screen.getByText(p.outcome!)).toBeInTheDocument();
     }
   });
 
