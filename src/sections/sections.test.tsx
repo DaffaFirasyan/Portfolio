@@ -1,9 +1,12 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import Hero from './Hero';
 import About from './About';
 import Skills from './Skills';
 import { profile } from '@/data/profile';
 import { skillCategories } from '@/data/skills';
+import { skillIcon } from '@/lib/skillIcon';
+import { SkillHighlightProvider } from '@/highlight/SkillHighlight';
 
 describe('Hero', () => {
   it('renders the name as the only h1, plus tagline and both calls to action', () => {
@@ -97,5 +100,53 @@ describe('Skills', () => {
         expect(screen.getAllByText(skill.name).length).toBeGreaterThan(0);
       }
     }
+  });
+
+  it('gives every skill an icon, distinct from the text that names it', () => {
+    render(<Skills />);
+    const allSkills = skillCategories.flatMap((c) => c.skills);
+
+    // One svg per skill, and skillIcon(...) is what the data invariant in
+    // invariants.test.ts already proves resolves for every icon name — this
+    // just confirms the component actually renders one, rather than only
+    // being capable of it.
+    expect(document.querySelectorAll('.grid svg').length).toBe(allSkills.length);
+    for (const skill of allSkills) {
+      expect(skillIcon(skill.icon)).toBeDefined();
+    }
+  });
+
+  it('marks the hovered chip itself, not just the projects it lights elsewhere', async () => {
+    // The dimming this drives lands on Projects, which can be a scroll away.
+    // Skills.tsx must not go inert for want of a provider — highlight/
+    // cross-highlight.test.tsx covers that link end to end; this covers the
+    // half of the feature that stays inside this section.
+    render(
+      <SkillHighlightProvider>
+        <Skills />
+      </SkillHighlightProvider>,
+    );
+    const [{ name }] = skillCategories.flatMap((c) => c.skills);
+    const button = screen.getByRole('button', { name });
+    const chip = button.firstElementChild!;
+
+    expect(chip).not.toHaveClass('bg-accent/15');
+
+    await userEvent.hover(button);
+    expect(chip).toHaveClass('bg-accent/15');
+
+    await userEvent.unhover(button);
+    expect(chip).not.toHaveClass('bg-accent/15');
+
+    // Plain button.focus() moves document.activeElement without going
+    // through React's act() batching, so the state update this handler
+    // schedules is not guaranteed to have committed by the next line.
+    // fireEvent.focus would flush it but skips the real focus() call
+    // entirely, which is the part act() lets us keep.
+    act(() => button.focus());
+    expect(chip).toHaveClass('bg-accent/15');
+
+    act(() => button.blur());
+    expect(chip).not.toHaveClass('bg-accent/15');
   });
 });

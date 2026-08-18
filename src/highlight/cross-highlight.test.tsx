@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SkillHighlightProvider } from './SkillHighlight';
 import Projects from '@/sections/Projects';
@@ -45,13 +45,28 @@ describe('skills and projects, wired together', () => {
   it('reaches the same state from the keyboard', async () => {
     setup();
 
+    const related = linked.relatedProjectIds!;
+    const unrelated = projects.find((p) => !related.includes(p.id))!;
     const button = screen.getByRole('button', { name: linked.name });
-    button.focus();
+
+    // "Not dimmed" alone would pass even if focus updated nothing at all —
+    // isDimmed returns false for every project while no skill is active.
+    // Asserting the unrelated project *does* dim is what actually shows the
+    // focus handler ran, the way the hover test above proves its own path.
+    // Wrapped in act() because the state update this schedules would
+    // otherwise not be guaranteed to have committed by the next line —
+    // toHaveFocus() needs the real DOM focus() call, not fireEvent.focus,
+    // which dispatches the event without moving document.activeElement.
+    act(() => button.focus());
 
     expect(button).toHaveFocus();
-    for (const id of linked.relatedProjectIds!) {
-      expect(card(id)).not.toHaveAttribute('data-dimmed');
+    for (const id of related) {
+      expect(card(id), `${id} should stay lit`).not.toHaveAttribute('data-dimmed');
     }
+    expect(card(unrelated.id), `${unrelated.id} should recede`).toHaveAttribute(
+      'data-dimmed',
+      'true',
+    );
   });
 
   it('restores every project when the skill is released', async () => {

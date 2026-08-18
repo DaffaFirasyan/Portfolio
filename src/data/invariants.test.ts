@@ -10,6 +10,7 @@ import { projects } from './projects';
 import { SECTIONS, shellProps } from './sections';
 import { site } from './site';
 import { skillCategories } from './skills';
+import { skillIcon } from '@/lib/skillIcon';
 
 const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
 
@@ -122,6 +123,16 @@ describe('skills', () => {
 
   it('links at least one skill to a project so cross-highlight has something to show', () => {
     expect(allSkills.some((s) => (s.relatedProjectIds?.length ?? 0) > 0)).toBe(true);
+  });
+
+  it('gives every skill an icon name that actually resolves to one', () => {
+    // `icon` sat in the data and the type, unread by any component, for as
+    // long as this field has existed — a string with nowhere to resolve
+    // wouldn't be a broken *reference* the way a bad relatedProjectIds entry
+    // is, so nothing else here would have caught a typo.
+    for (const s of allSkills) {
+      expect(skillIcon(s.icon), `${s.name} has no icon for "${s.icon}"`).toBeDefined();
+    }
   });
 });
 
