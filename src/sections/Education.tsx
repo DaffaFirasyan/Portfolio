@@ -1,3 +1,5 @@
+import { useCallback, useEffect, useState } from 'react';
+
 import SectionShell from '@/components/layout/SectionShell';
 import { shellProps } from '@/data/sections';
 import { education } from '@/data/education';
@@ -6,11 +8,37 @@ import Chip from '@/motion/Chip';
 import Counter from '@/motion/Counter';
 import Reveal from '@/motion/Reveal';
 import Surface from '@/motion/Surface';
+import Dialog from '@/motion/Dialog';
+import { cycleIndex } from '@/lib/cycle';
 
 /** Seconds between one certificate card arriving and the next. */
 const STEP = 0.04;
 
 export default function Education() {
+  const [openAt, setOpenAt] = useState<number | null>(null);
+  const [imageBroken, setImageBroken] = useState(false);
+
+  const step = useCallback((delta: number) => {
+    setImageBroken(false);
+    setOpenAt((at) => (at === null ? at : cycleIndex(at, certificates.length, delta)));
+  }, []);
+
+  useEffect(() => {
+    if (openAt === null) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowRight') step(1);
+      if (event.key === 'ArrowLeft') step(-1);
+    };
+
+    // On window rather than the dialog: the browser moves focus inside the
+    // dialog on open, and which child holds it is not ours to assume.
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [openAt, step]);
+
+  const shown = openAt === null ? null : certificates[openAt];
+
   return (
     <SectionShell {...shellProps('education')}>
       {education.map((e) => (
@@ -42,15 +70,25 @@ export default function Education() {
         {certificates.map((c, index) => (
           <Reveal key={c.id} delay={STEP * index} fill>
             <article className="h-full rounded-xl border border-edge bg-surface p-4">
-              <img
-                src={c.thumbnailUrl}
-                alt={`${c.title} certificate issued by ${c.issuer}`}
-                width={600}
-                height={420}
-                loading="lazy"
-                decoding="async"
-                className="mb-3 w-full rounded-lg border border-edge"
-              />
+              <button
+                type="button"
+                onClick={() => {
+                  setImageBroken(false);
+                  setOpenAt(index);
+                }}
+                aria-label={`Enlarge ${c.title}`}
+                className="block w-full"
+              >
+                <img
+                  src={c.thumbnailUrl}
+                  alt={`${c.title} certificate issued by ${c.issuer}`}
+                  width={600}
+                  height={420}
+                  loading="lazy"
+                  decoding="async"
+                  className="mb-3 w-full rounded-lg border border-edge"
+                />
+              </button>
               <p className="text-sm font-semibold break-words text-primary">{c.title}</p>
               <p className="mt-1 font-mono text-xs uppercase tracking-[0.12em] text-muted">
                 {`${c.issuer} · ${c.issueDate}`}
@@ -80,6 +118,85 @@ export default function Education() {
           </Reveal>
         ))}
       </div>
+
+      <Dialog
+        open={shown !== null}
+        onClose={() => setOpenAt(null)}
+        label={shown ? `${shown.title}, enlarged` : ""}
+        wide
+      >
+        {shown && (
+          <div className="p-6">
+            <p className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
+              {`${shown.issuer} · ${shown.issueDate}`}
+            </p>
+            <h2 className="mt-2 font-display text-h2 font-bold break-words text-primary">
+              {shown.title}
+            </h2>
+
+            {imageBroken ? (
+              // No intrinsic dimensions are stored per certificate, so a failed
+              // image cannot reserve its space. Saying what it was beats a
+              // broken-image icon.
+              <p className="mt-6 rounded-lg border border-edge p-8 text-center text-muted">
+                {`The scan of this certificate could not be loaded. It was issued by ${shown.issuer}.`}
+              </p>
+            ) : (
+              <img
+                src={shown.imageUrl}
+                alt={`${shown.title}, issued by ${shown.issuer}`}
+                onError={() => setImageBroken(true)}
+                decoding="async"
+                // Full-size scans keep their own aspect ratio by design, which
+                // is why no width or height is recorded for them — the box
+                // absorbs the variation instead.
+                className="mx-auto mt-6 max-h-[60vh] w-auto max-w-full rounded-lg border border-edge object-contain"
+              />
+            )}
+
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => step(-1)}
+                aria-label="Previous certificate"
+                className="inline-flex min-h-11 items-center rounded-full border border-edge px-5 text-sm text-muted"
+              >
+                Previous
+              </button>
+              <button
+                type="button"
+                onClick={() => step(1)}
+                aria-label="Next certificate"
+                className="inline-flex min-h-11 items-center rounded-full border border-edge px-5 text-sm text-muted"
+              >
+                Next
+              </button>
+              <p className="font-mono text-xs text-muted">
+                {`${(openAt ?? 0) + 1} / ${certificates.length}`}
+              </p>
+
+              {shown.credentialUrl && (
+                <a
+                  href={shown.credentialUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-11 items-center text-sm text-accent"
+                >
+                  Verify credential
+                </a>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setOpenAt(null)}
+                className="ml-auto inline-flex min-h-11 items-center rounded-full border border-edge px-5 text-sm font-semibold text-muted"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+      </Dialog>
     </SectionShell>
   );
 }

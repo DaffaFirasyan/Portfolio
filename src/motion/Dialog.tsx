@@ -7,6 +7,14 @@ interface DialogProps {
   onClose: () => void;
   /** Announced as the dialog's name, so it is clear what opened. */
   label: string;
+  /**
+   * Wider, for content that is mostly a picture.
+   *
+   * A prop rather than a class the caller passes, because two arbitrary width
+   * utilities have equal specificity and which one wins would depend on their
+   * order in the stylesheet rather than in the class attribute.
+   */
+  wide?: boolean;
   children: ReactNode;
 }
 
@@ -22,7 +30,7 @@ interface DialogProps {
  * It reads no motion capability. A dialog that refuses to open because someone
  * asked for less motion is broken, not considerate.
  */
-export default function Dialog({ open, onClose, label, children }: DialogProps) {
+export default function Dialog({ open, onClose, label, wide = false, children }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLElement | null>(null);
   const { stop, start } = useLenis();
@@ -79,7 +87,9 @@ export default function Dialog({ open, onClose, label, children }: DialogProps) 
       // One scroll container, on the dialog itself. Nesting a second one inside
       // gives two scrollbars that fight each other. The scrollbar is coloured
       // because the browser default is a pale bar on a near-black surface.
-      className="m-auto max-h-[85vh] w-[min(48rem,92vw)] overflow-y-auto rounded-xl border border-edge bg-surface p-0 text-primary [scrollbar-color:var(--color-edge)_transparent] [scrollbar-width:thin] backdrop:bg-void/80 backdrop:backdrop-blur-sm"
+      className={`m-auto max-h-[85vh] overflow-y-auto rounded-xl border border-edge bg-surface p-0 text-primary [scrollbar-color:var(--color-edge)_transparent] [scrollbar-width:thin] backdrop:bg-void/80 backdrop:backdrop-blur-sm ${
+        wide ? 'w-[min(72rem,92vw)]' : 'w-[min(48rem,92vw)]'
+      }`}
     >
       {/* Children only exist while open. Keeping them mounted would leave
           fourteen full-size certificate images in the document waiting for a
