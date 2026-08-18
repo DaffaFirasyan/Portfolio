@@ -92,14 +92,19 @@ const publicPath = (url) => join(publicDir, url.replace(/^\//, ''));
 
 const defined = (values) => values.filter((value) => Boolean(value));
 
+/** OG images are JPEG; everything else is WebP. Chosen by extension, not by group. */
+const encode = (pipeline, url) =>
+  extname(url) === '.jpg' ? pipeline.jpeg({ quality: QUALITY }) : pipeline.webp({ quality: QUALITY });
+
 async function main() {
-  const [{ profile }, { projects }, { certificates }, { education }, { experiences }] =
+  const [{ profile }, { projects }, { certificates }, { education }, { experiences }, { site }] =
     await Promise.all([
       loadData('profile.ts'),
       loadData('projects.ts'),
       loadData('certificates.ts'),
       loadData('education.ts'),
       loadData('experiences.ts'),
+      loadData('site.ts'),
     ]);
 
   const groups = [
@@ -140,6 +145,13 @@ async function main() {
       height: 256,
       urls: defined(experiences.map((e) => e.logoUrl)),
     },
+    {
+      name: 'og image',
+      width: 1200,
+      height: 630,
+      urls: [site.ogImage],
+      label: site.title,
+    },
   ];
 
   const seen = new Set();
@@ -152,9 +164,9 @@ async function main() {
       seen.add(out);
 
       await mkdir(dirname(out), { recursive: true });
-      await sharp(svg(group.width, group.height, slugOf(url)))
-        .webp({ quality: QUALITY })
-        .toFile(out);
+      await encode(sharp(svg(group.width, group.height, group.label ?? slugOf(url))), url).toFile(
+        out,
+      );
       written += 1;
       const { size } = await stat(out);
       console.log(`${group.width}x${group.height}  ${String(size).padStart(7)}b  ${url}`);

@@ -8,6 +8,7 @@ import { experiences } from './experiences';
 import { profile } from './profile';
 import { projects } from './projects';
 import { SECTIONS, shellProps } from './sections';
+import { site } from './site';
 import { skillCategories } from './skills';
 
 const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
@@ -281,6 +282,7 @@ describe('assets', () => {
     const referenced = [
       profile.avatarUrl,
       profile.cvUrl,
+      site.ogImage,
       ...projects.map((p) => p.thumbnail),
       ...projects.flatMap((p) => p.images ?? []),
       ...certificates.map((c) => c.imageUrl),

@@ -135,3 +135,13 @@ export interface Certificate {
   category: CertificateCategory;
   skills: string[];
 }
+
+export interface Site {
+  /** Origin only, no trailing slash. Every absolute URL is built from this. */
+  url: string;
+  title: string;
+  description: string;
+  /** Absolute path under public/. JPEG, because several scrapers still refuse WebP. */
+  ogImage: string;
+  ogImageAlt: string;
+}
