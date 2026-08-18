@@ -10,7 +10,7 @@ This file exists so a session that remembers nothing can pick the work up withou
 
 **Branch:** `feat/foundation-and-content-layer`, ~115 commits ahead of `main`. Nothing is merged; `main` still sits at the first plan document.
 
-**State:** 329 tests pass across 45 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean. Initial payload is 204 KB JS plus 11 KB CSS gzip against a 250 KB budget, with the WebGL backdrop split into a further 16 KB chunk that only loads when the capability check passes.
+**State:** 334 tests pass across 46 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean. Initial payload is 204 KB JS plus 11 KB CSS gzip against a 250 KB budget, with the WebGL backdrop split into a further 16 KB chunk that only loads when the capability check passes.
 
 | Plan | Covers | Status |
 |---|---|---|
@@ -64,11 +64,11 @@ Enough of a map to orient without reading everything.
 | `types/` | Every content interface, plus `SectionMeta`, `SectionNavProps`, `Site`, `Technology` |
 | `lib/` | All pure and tested directly: `scroll`, `filter`, `cycle`, `rail` (node geometry), `group` (`groupByCategory`, `CATEGORY_ORDER`), `validate` (contact fields), `web3forms` (the submit call), `token` (`cssToken` — canvas cannot read `var()`), `skillIcon` (kebab-case data key → lucide component, explicit table not a derived lookup) |
 | `hooks/` | `useActiveSection`, `useScrolledPast`, `useMotionAllowed`, `useOnScreen`, `useLenis` — the last is a **module singleton**, see the traps |
-| `motion/` | The wrapper layer, and the only place React Bits is touched: `Reveal` (takes `fill`), `Heading`, `Surface` (the one hover language), `Backdrop`, `Chip`, `Dialog` (takes `wide`), `Counter`, `BlurIn`, `Shine`, `RotatingRole`, `Grain`, `StarButton`, `Typed`, `Marquee`, `Sparks`, `CircularBadge`, `PulseDot`, `AvatarCard`, `LogoMarquee`, `ProjectFlow` |
+| `motion/` | The wrapper layer, and the only place React Bits is touched: `Reveal` (takes `fill`), `Heading`, `Surface` (the one hover language), `Backdrop`, `Chip`, `Dialog` (takes `wide`), `Counter`, `BlurIn`, `Shine`, `RotatingRole`, `Grain`, `StarButton`, `Typed`, `Marquee`, `Sparks`, `CircularBadge`, `PulseDot`, `AvatarCard`, `LogoMarquee`, `ProjectFlow`, `SplashCursor` |
 | `highlight/` | `SkillHighlightProvider` and `useSkillHighlight` — the skill-to-project cross-highlight |
 | `nav/` | `NodeRailNav` (in use), `PillNavAdapter` (kept unimported as the second implementation that proves the seam), `Navbar` (owns the hooks) |
 | `sections/` | The seven sections. Governed: no React Bits imports |
-| `components/reactbits/` | Sixteen vendored components, owned and edited by this project |
+| `components/reactbits/` | Seventeen vendored components, owned and edited by this project |
 | `components/ui/` | `ContactForm`, `FeaturedProject` |
 | `components/layout/` | `SectionShell` |
 | `test/` | `setup.ts`, and `stubs.ts` with the seven APIs jsdom lacks plus the drivable `observers` registry |
@@ -205,7 +205,11 @@ Every one of these produced a wrong turn before it was understood. They are not 
 
   The problem: a full-screen canvas at `z-30` covers every piece of page content, and the pane cannot render it to show that. Everything below `z-40` vanished behind an opaque canvas — the owner's screenshot showed a white page with only the navbar and the node rail, both of which sit at `z-40`, still visible. Every check that *was* possible here passed: the canvas mounted with a live `webgl2` context, `z-index` computed to 30 against the navigation's 40, and `elementFromPoint` at three places hit page content rather than the canvas. The display shader even emits alpha correctly (`vec4(c, max(c.r,c.g,c.b))`), so reading the source predicts transparency. It was not transparent in a real browser.
 
-  Two lessons. **`TRANSPARENT` is a dead prop** — it is declared, defaulted, threaded into `config` and listed in the dependency array, and never read anywhere in the render path, which is the kind of thing only a browser tells you. And more generally: **the pane can verify that a canvas exists, not what it paints.** For anything whose whole purpose is pixels on a full-screen surface, no amount of DOM measurement here substitutes for one look in a real browser. Revert is `git revert 85bc1e6` if it is ever worth another attempt; the correct next try puts it *behind* the content the way `Backdrop` and `Grain` already are, at a negative z-index, not above it.
+  Two lessons. **`TRANSPARENT` is a dead prop** — it is declared, defaulted, threaded into `config` and listed in the dependency array, and never read anywhere in the render path, which is the kind of thing only a browser tells you. And more generally: **the pane can verify that a canvas exists, not what it paints.** For anything whose whole purpose is pixels on a full-screen surface, no amount of DOM measurement here substitutes for one look in a real browser.
+
+  **It was brought back the same day at `-z-10`, with a second fault fixed that the first attempt had introduced.** The cleanup called `gl.getExtension('WEBGL_lose_context').loseContext()`, which is the tidy-looking thing to do and is wrong here: `main.tsx` renders under `StrictMode`, so effects run mount → cleanup → mount on the *same* canvas element, and a lost context is never restored automatically. The second mount called `getContext` on that canvas, got the dead one back, and every shader compile and draw failed silently for the life of the page. That alone would explain a canvas painting nothing useful in `npm run dev` while every static check passed. Dropping the reference is enough; the browser reclaims the context with the canvas.
+
+  The placement is now the safety property rather than a judgement call: at `-z-10` the body's background paints beneath it — `html` carries no background, so body's propagates to the viewport canvas — the content paints above it, and nothing it draws can obscure a word even if it paints fully opaque. Verified there is no transformed, isolated or non-opaque ancestor to trap it in a stacking context. If it ever needs removing again, the effect is one component: delete `<SplashCursor />` from `App.tsx`.
 
 - **GSAP-driven animation cannot be measured in the pane at all**, and the failure mode is silent. GSAP runs entirely on `requestAnimationFrame`, which never fires there, so it never applies its `from` state — every element reads `opacity: 1, transform: none` whether the animation already finished or never started. A reading like that looks like evidence and is not. Anything scheduled with `setInterval` or `setTimeout` **is** measurable there; that is why the `TextType` check worked and the `SplitText` one did not. The owner confirmed in a real browser that section headings animate per character on arrival and that the contact line types on arrival.
 
