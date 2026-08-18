@@ -8,9 +8,9 @@ This file exists so a session that remembers nothing can pick the work up withou
 
 ## Where the work stands
 
-**Branch:** `feat/foundation-and-content-layer`, 66 commits ahead of `main`. Nothing is merged; `main` still sits at the first plan document.
+**Branch:** `feat/foundation-and-content-layer`, 74 commits ahead of `main`. Nothing is merged; `main` still sits at the first plan document.
 
-**State:** 143 tests pass across 18 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean. Initial JS is 165 KB gzip against a 250 KB budget, with the WebGL backdrop split into a further 15 KB chunk that only loads when the capability check passes.
+**State:** 192 tests pass across 25 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean. Initial JS is 165 KB gzip against a 250 KB budget, with the WebGL backdrop split into a further 15 KB chunk that only loads when the capability check passes.
 
 | Plan | Covers | Status |
 |---|---|---|
@@ -18,16 +18,16 @@ This file exists so a session that remembers nothing can pick the work up withou
 | [Navigation](plans/2026-08-17-navigation.md) | Spec phase 2 | **Built.** 9 tasks |
 | [Motion & hero](plans/2026-08-17-motion-and-hero.md) | Spec phases 3–4 | **Built.** 7 tasks |
 | [Sections & cross-highlight](plans/2026-08-18-sections-and-cross-highlight.md) | Spec phase 5 + phase 7 animation | **Built.** 7 tasks |
-| [Interactive surfaces](plans/2026-08-18-interactive-surfaces.md) | Project filter, modal, certificate lightbox | **Written, not started.** 6 tasks |
+| [Interactive surfaces](plans/2026-08-18-interactive-surfaces.md) | Project filter, modal, certificate lightbox | **Built.** 6 tasks |
 | Contact & launch | Spec phases 8–10 | Not written |
 
 The authority on decisions is [the design spec](specs/2026-08-17-portfolio-onepage-design.md). Each plan records the decisions it changed and why.
 
 ## What to do next
 
-Execute [the interactive surfaces plan](plans/2026-08-18-interactive-surfaces.md), task by task from Task 1.
+Write and execute the last plan: the contact form, the node-rail navigation upgrade that spec D6 always intended, accessibility and performance polish, meta tags and structured data, and deployment.
 
-Its Tasks 4 and 5 are specified at the level of intent rather than as complete code, because both are applications of the `Dialog` primitive whose contract and tests Task 2 gives in full. Write the assertions before the components either way.
+**Two checks are still open from the interactive-surfaces plan** and need a real browser, because the in-app pane holds no document focus: that Tab cannot escape an open dialog, and that Escape closes it. Everything else there was measured — focus moves into the dialog on open and returns to the trigger on close, the body locks and Lenis genuinely stops, and the filter changes card count without resizing the cards that remain.
 
 Before vendoring any further React Bits component, read its source. Four have now been rejected on inspection — `PillNav`, `MagicBento`, `ScrollReveal` and `GlareHover` — because they are finished widgets rather than pieces, and three already in the tree needed edits: `SplitText` renders its own heading via a `tag` prop, `BlurText` renders its own `<p>`, and `SpotlightCard` hardcoded a palette that collided with the design tokens.
 
@@ -54,6 +54,8 @@ Every one of these produced a wrong turn before it was understood. They are not 
 **Verify package versions against the registry rather than recalling them.** Every version pinned from memory in the first plan was wrong, including three majors. `npm view <pkg> version` before writing a plan.
 
 **Two layout traps this project has already hit.** `AnimatedContent` sets a transform on its wrapper, and a transformed ancestor becomes the containing block for absolutely positioned descendants — so anything positioned against a section must stay outside its `Reveal`, as the timeline dots do. And `Reveal` adds one or two divs, which breaks a `h-full` chain: it takes `fill` for the grid-item case and must not take it anywhere else, because stacked Reveals each claim the full height of their column.
+
+**Tailwind preflight un-centres native dialogs.** A modal dialog is centred by the UA stylesheet through `margin: auto`, and preflight resets margin to 0 on every element, so it pins itself to the top-left corner. `Dialog` carries `m-auto` for exactly that reason. Nothing in jsdom can catch it, because every rect there is zero — it shipped looking broken and was only found from a screenshot.
 
 **A fixed header can overflow invisibly.** `documentElement.scrollWidth` does not grow for a fixed element, so an overflow sweep reports clean while a control sits off screen and unreachable. Measure the header contents against `clientWidth` directly.
 
