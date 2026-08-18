@@ -33,6 +33,26 @@ describe('Marquee', () => {
     expect(screen.getByText(/open to work/i)).toBeInTheDocument();
   });
 
+  it('shows the words on screen under reduced motion, not only to a screen reader', () => {
+    // This line carries the page's copyright now, and the drifting copy that
+    // normally displays it never mounts under reduced motion. sr-only here
+    // would leave the footer visibly empty for anyone who asked for less
+    // movement — announced but not shown is not the same as shown.
+    setMotion(false);
+    render(<Marquee text="Open to work" />);
+    expect(screen.getByText(/open to work/i)).not.toHaveClass('sr-only');
+  });
+
+  it('hides the plain line while the moving copy is displaying it', () => {
+    setMotion(true);
+    const { container } = render(<Marquee text="Open to work" />);
+
+    // Queried by element rather than by text: with the marquee mounted the
+    // phrase is on the page many times over, once per repeat, which is the
+    // very reason the moving copy is aria-hidden.
+    expect(container.querySelector('p')).toHaveClass('sr-only');
+  });
+
   it('hides the moving copy from assistive technology, because it repeats', () => {
     setMotion(true);
     const { container } = render(<Marquee text="Open to work" />);

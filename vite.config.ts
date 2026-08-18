@@ -14,10 +14,18 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     // Vitest defaults to 5s per test. A single App render mounts all seven
-    // sections — fourteen certificates, eight projects, every motion primitive
-    // — and measures about 3.8s on this machine even with the file running
-    // alone. That left no headroom: adding one more test file was enough to
-    // push it over and fail on time rather than on an assertion.
-    testTimeout: 20000,
+    // sections — fourteen certificates, eight projects, seventeen logos,
+    // twenty skill icons, every motion primitive — and none of it is cheap in
+    // jsdom. That render measured about 3.8s when this was first raised to
+    // 20s; it measures about 8.7s now (App.test.tsx alone: 5 tests, 43.7s),
+    // and a full-suite run put the first test at 19.2s against the 20s
+    // ceiling. It failed on time, not on an assertion, and passed in
+    // isolation — the signature of a timeout rather than a bug.
+    //
+    // Raised rather than papered over silently: the growth is real and worth
+    // knowing about. The cheap fix when it next bites is that App.test.tsx
+    // pays for five separate full renders to make five cheap assertions,
+    // so merging them would cut the file's cost outright.
+    testTimeout: 45000,
   },
 });

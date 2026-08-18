@@ -37,15 +37,15 @@ export default function App() {
       {/* overflow-hidden is load-bearing. The marquee is deliberately wider
           than the viewport, and without clipping here the whole document
           scrolls sideways — the same bug the grain canvas already shipped
-          once. */}
-      <footer className="overflow-hidden border-t border-edge py-10">
-        <Marquee text={`${profile.name} — ${profile.roles[0]}`} />
+          once.
 
-        <div className="mx-auto mt-8 w-full max-w-[1200px] px-6 md:px-12">
-          <p className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
-            {`© ${new Date().getFullYear()} ${profile.name} · Built with React`}
-          </p>
-        </div>
+          The credit line *is* the marquee now, rather than sitting under a
+          second one carrying the name and role. Printing it in both places
+          would be the same sentence twice in a footer ten lines tall, and the
+          name is already the h1 at the top of the page. The year stays
+          computed so it cannot go stale. */}
+      <footer className="overflow-hidden border-t border-edge py-10">
+        <Marquee text={`© ${new Date().getFullYear()} ${profile.name} · Built with React`} />
       </footer>
     </>
   );

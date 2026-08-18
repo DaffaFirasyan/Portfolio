@@ -28,6 +28,14 @@ interface MarqueeProps {
  * The words are present as ordinary text for assistive technology, and the
  * moving copy is hidden from it: the phrase repeats as many times as it takes
  * to fill the width, which is not something to read aloud.
+ *
+ * Since this line became the page's copyright it also has to be *seen*, not
+ * merely announced, when the drifting copy is not there to show it. The plain
+ * line is therefore visible under reduced motion rather than screen-reader
+ * only. It keys off `animate` alone and deliberately not off `onScreen`:
+ * swapping a 16px static line for a 32px drifting one at the moment the footer
+ * enters the viewport would change the footer's height under the reader as
+ * they scrolled into it.
  */
 export default function Marquee({ text }: MarqueeProps) {
   const { animate } = useMotionAllowed();
@@ -36,7 +44,15 @@ export default function Marquee({ text }: MarqueeProps) {
 
   return (
     <div ref={host}>
-      <span className="sr-only">{text}</span>
+      <p
+        className={
+          animate
+            ? 'sr-only'
+            : 'mx-auto w-full max-w-[1200px] px-6 font-mono text-xs uppercase tracking-[0.12em] text-muted md:px-12'
+        }
+      >
+        {text}
+      </p>
 
       {animate && onScreen && (
         <div aria-hidden="true" data-marquee>

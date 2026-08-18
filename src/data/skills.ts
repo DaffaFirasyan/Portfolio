@@ -60,7 +60,7 @@ export const skillCategories: SkillCategory[] = [
         relatedProjectIds: ['sentiment-dashboard'],
       },
       {
-        name: 'Retrieval-Augmented AI',
+        name: 'RAG',
         icon: 'search',
         level: 'advanced',
         relatedProjectIds: ['kg-maintenance-assistant', 'thesis-corpus-explorer'],

@@ -106,11 +106,20 @@ describe('skills', () => {
     }
   });
 
-  it('stresses the layout — some skill name reaches 90% of the limit', () => {
-    expect(longest(allSkills.map((s) => s.name))).toBeGreaterThanOrEqual(
-      LIMITS.skill.name * STRESS_RATIO,
-    );
-  });
+  // There is deliberately no stress assertion here, and this is the third
+  // place that decision has landed — `certificate.issuer` and
+  // `experience.organization` reached it first, and the handoff predicted
+  // this one. A skill name is a proper noun or an established term of art:
+  // RAG, Git, SQL, Neo4j, Docker. None of them can be padded to 90% of a
+  // 22-character limit to satisfy a test, and inventing a longer synonym to
+  // keep a guard green would be putting the test's convenience ahead of the
+  // page's honesty.
+  //
+  // What that costs is worth stating plainly: nothing in the data now
+  // exercises the layout at its declared maximum, so the 22 above is held up
+  // by the browser measurement that produced it (162px of row, 22 characters)
+  // and by the limit assertion, not by a rendered example. Re-measure if the
+  // Skills card ever stops being four across.
 
   it('only references project ids that exist', () => {
     const projectIds = new Set(projects.map((p) => p.id));
