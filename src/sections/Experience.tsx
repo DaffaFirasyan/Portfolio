@@ -101,8 +101,15 @@ export default function Experience() {
                   space the column has, and cannot move the number. */}
               <div className="flex items-start gap-2">
                 <p
+                  // Past years were `text-edge`, which measures 1.39:1 against
+                  // the page — a 48px extrabold numeral almost invisible, and
+                  // unlike the footer marquee this is information rather than
+                  // decoration: it is the only date on the row until you read
+                  // the small print. muted/70 is 3.73:1, over the 3:1 AA asks
+                  // of large text, while staying obviously quieter than the
+                  // accent the current role gets.
                   className={`font-display text-3xl font-extrabold leading-none md:text-display-sm ${
-                    current ? 'text-accent' : 'text-edge'
+                    current ? 'text-accent' : 'text-muted/70'
                   }`}
                 >
                   {e.startDate.slice(0, 4)}

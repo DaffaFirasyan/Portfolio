@@ -85,7 +85,11 @@ export default function FeaturedProject({
               tag span, not the numeral, because projects-filter.test.tsx counts
               rows by an element whose own text ends in "— Featured". */}
           <p className="flex items-baseline gap-2">
-            <span className="font-display text-3xl font-extrabold text-accent/30 md:text-4xl">
+            {/* accent/30 measured 1.84:1, under the 3:1 AA asks of large text
+                and faint enough that the ordinal it exists to give each row
+                barely registered. accent/55 is 3.4:1 and still reads as a
+                ghosted numeral rather than a heading. */}
+            <span className="font-display text-3xl font-extrabold text-accent/55 md:text-4xl">
               {String(index + 1).padStart(2, '0')}
             </span>
             <span className="font-mono text-xs uppercase tracking-[0.12em] text-accent">
