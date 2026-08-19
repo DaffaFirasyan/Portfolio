@@ -67,6 +67,22 @@ describe('published metadata', () => {
     expect(data.sameAs).toEqual(profile.socials.map((social) => social.url));
   });
 
+  it('preloads the avatar the profile data actually names', () => {
+    // The avatar is the page's largest contentful paint, and it was being
+    // discovered 880ms late because React renders it. The preload hint fixes
+    // that only while it points at the right file — and it is a hardcoded path
+    // in index.html sitting next to a data file that owns the real one, which
+    // is exactly the drift this suite exists to catch. Swapping in a real
+    // photo under a new name would otherwise leave a preload fetching a file
+    // nobody displays, and the LCP regression would be silent.
+    const preload = html.match(/<link[^>]*rel="preload"[^>]*>/s);
+    if (!preload) throw new Error('index.html carries no preload for the avatar');
+
+    expect(preload[0]).toContain(`href="${profile.avatarUrl}"`);
+    expect(preload[0]).toContain('as="image"');
+    expect(preload[0]).toContain('fetchpriority="high"');
+  });
+
   it('gives crawlers a robots.txt and a sitemap that agree on the origin', () => {
     expect(read('public', 'robots.txt')).toContain(`Sitemap: ${site.url}/sitemap.xml`);
     expect(read('public', 'sitemap.xml')).toContain(`<loc>${site.url}/</loc>`);

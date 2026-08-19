@@ -37,6 +37,12 @@ export default function AvatarCard({ src, name, width, height, className }: Avat
         height={height}
         className={className}
         decoding="async"
+        // This is the page's largest contentful paint. Without it the browser
+        // treats the avatar as an ordinary image and queues it behind the
+        // fonts and the bundle, which is most of the 880ms of load delay
+        // Lighthouse measured. The preload in index.html covers discovery;
+        // this covers priority once discovered.
+        fetchPriority="high"
       />
     );
   }

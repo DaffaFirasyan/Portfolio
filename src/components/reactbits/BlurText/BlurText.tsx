@@ -108,7 +108,14 @@ const BlurText: React.FC<BlurTextProps> = ({
             onAnimationComplete={index === elements.length - 1 ? onAnimationComplete : undefined}
             style={{
               display: 'inline-block',
-              willChange: 'transform, filter, opacity'
+              // `filter` is out of this hint. Naming a property in will-change
+              // asks the browser to prepare for it whether or not anything
+              // animates it, and a filter cannot be composited — Lighthouse
+              // counted every word of the hero line as a non-composited
+              // animation. The callers that still want a blur pass it through
+              // `animationFrom`/`animationTo`, and the hint costs more than it
+              // buys for the ones that do not.
+              willChange: 'transform, opacity'
             }}
           >
             {segment === ' ' ? '\u00A0' : segment}
