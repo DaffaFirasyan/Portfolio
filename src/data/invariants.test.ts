@@ -206,14 +206,16 @@ describe('experiences', () => {
     }
   });
 
-  it('stresses the layout on role, organization and highlights', () => {
-    expect(longest(experiences.map((e) => e.role))).toBeGreaterThanOrEqual(
-      LIMITS.experience.role * STRESS_RATIO,
-    );
-    expect(longest(experiences.map((e) => e.organization))).toBeGreaterThanOrEqual(
-      LIMITS.experience.organization * STRESS_RATIO,
-    );
-    expect(Math.max(...experiences.map((e) => e.highlights.length))).toBe(
+  // The stress clauses for `role` and `organization` are gone, and this is the
+  // fourth time that has happened — after certificate.issuer,
+  // experience.organization's neighbours and skill.name. Both are proper nouns
+  // owned by someone else: the real titles are "AI Full-Stack Developer Intern"
+  // and "Human Capital Development Staff", the longest real employer is
+  // "Perhimpunan Mahasiswa Bandung", and none can be padded to 90% of its limit
+  // without inventing a job that does not exist. The ceiling below is the half
+  // that protects the layout, and it stays.
+  it('caps how many highlights an entry may carry', () => {
+    expect(Math.max(...experiences.map((e) => e.highlights.length))).toBeLessThanOrEqual(
       LIMITS.experience.highlights,
     );
   });
@@ -228,8 +230,19 @@ describe('experiences', () => {
     }
   });
 
-  it('has at most one entry still marked present', () => {
-    expect(experiences.filter((e) => e.endDate === 'present').length).toBeLessThanOrEqual(1);
+  it('marks every ongoing role as present, however many there are', () => {
+    // This used to insist on at most one, which held while the content was
+    // invented. The owner genuinely holds two organisational roles at once,
+    // both running from September 2024, and bending a CV to keep an assertion
+    // green would be lying about it. What is worth guarding is that "present"
+    // means present — an ongoing entry still needs a real start date, and the
+    // section gives every one of them the accent and the pulse dot it uses to
+    // mean exactly that.
+    const current = experiences.filter((e) => e.endDate === 'present');
+    expect(current.length).toBeGreaterThan(0);
+    for (const e of current) {
+      expect(e.startDate, `${e.id} claims present but has no start date`).toMatch(MONTH);
+    }
   });
 });
 
