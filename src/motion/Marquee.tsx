@@ -40,7 +40,9 @@ interface MarqueeProps {
 export default function Marquee({ text }: MarqueeProps) {
   const { animate } = useMotionAllowed();
   const host = useRef<HTMLDivElement>(null);
-  const onScreen = useOnScreen(host);
+  // The footer is the furthest thing from the fold there is, so this starts
+  // hidden. The plain line above still renders either way.
+  const onScreen = useOnScreen(host, '100px', false);
 
   return (
     <div ref={host}>

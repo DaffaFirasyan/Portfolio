@@ -53,9 +53,28 @@ describe('Marquee', () => {
     expect(container.querySelector('p')).toHaveClass('sr-only');
   });
 
+  it('does not mount the moving copy until the footer is reached', () => {
+    // It used to mount on render. The footer is the furthest thing from the
+    // fold there is, so that put a scrolling animation into every page load
+    // for something nobody could see — measurable in Lighthouse, and the
+    // reason `useOnScreen` now takes an explicit starting value.
+    setMotion(true);
+    const { container } = render(<Marquee text="Open to work" />);
+    expect(container.querySelector('[data-marquee]')).toBeNull();
+  });
+
   it('hides the moving copy from assistive technology, because it repeats', () => {
     setMotion(true);
     const { container } = render(<Marquee text="Open to work" />);
+
+    const record = observers.at(-1);
+    if (!record) throw new Error('Marquee registered no IntersectionObserver');
+    act(() => {
+      record.emit([
+        { target: [...record.targets][0], isIntersecting: true, intersectionRatio: 1 },
+      ]);
+    });
+
     expect(container.querySelector('[aria-hidden="true"]')).not.toBeNull();
   });
 

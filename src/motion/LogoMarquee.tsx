@@ -39,7 +39,10 @@ function Logo({ name, viewBox, path }: (typeof technologies)[number]) {
 export default function LogoMarquee() {
   const { animate } = useMotionAllowed();
   const host = useRef<HTMLDivElement>(null);
-  const onScreen = useOnScreen(host);
+  // Not visible at load: Skills is two and a half screens down. Starting
+  // visible mounted 71 SVGs and a scrolling animation into every page load for
+  // a strip nobody could see yet.
+  const onScreen = useOnScreen(host, '100px', false);
 
   if (!animate) {
     return (
