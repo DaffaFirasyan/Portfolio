@@ -28,12 +28,21 @@ describe('Hero', () => {
 
   it('announces one role at a time rather than all of them', () => {
     render(<Hero />);
-    // A rotator that renders every phrase and hides the inactive ones visually
-    // still reads all four job titles to a screen reader.
+
+    // Counted excluding aria-hidden, which is the difference between "on the
+    // page" and "announced". The rotator now renders the longest role a second
+    // time, invisibly, to hold the line's width still — without that the hero
+    // reflowed by up to 109px on every rotation and the desktop audit scored
+    // the container 0.243 for layout shift. That copy is aria-hidden, so the
+    // guarantee this test exists for is unchanged: a screen reader still meets
+    // exactly one job title.
+    const announced = (text: string) =>
+      screen.queryAllByText(text).filter((el) => !el.closest('[aria-hidden="true"]'));
+
     for (const role of profile.roles.slice(1)) {
-      expect(screen.queryByText(role)).not.toBeInTheDocument();
+      expect(announced(role)).toHaveLength(0);
     }
-    expect(screen.getByText(profile.roles[0])).toBeInTheDocument();
+    expect(announced(profile.roles[0])).toHaveLength(1);
   });
 
   it('keeps the stat labels and values readable', () => {

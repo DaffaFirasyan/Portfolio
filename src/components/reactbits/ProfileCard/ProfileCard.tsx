@@ -540,7 +540,14 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
                 className="w-full absolute left-1/2 bottom-[-1px] will-change-transform transition-transform duration-[120ms] ease-out"
                 src={avatarUrl}
                 alt={`${name || 'User'} avatar`}
-                loading="lazy"
+                // Not lazy, and not by preference: on a desktop this portrait
+                // *is* the largest contentful paint, sitting at the top of the
+                // page. `loading="lazy"` tells the browser to deprioritise the
+                // one image the score is measured against — Lighthouse names
+                // that case outright — and the desktop run showed 640ms of
+                // element render delay behind it. The mobile path in
+                // AvatarCard was already eager; this is the other half.
+                fetchPriority="high"
                 style={{
                   transformOrigin: '50% 100%',
                   transform:
