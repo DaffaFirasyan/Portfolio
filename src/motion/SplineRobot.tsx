@@ -20,39 +20,56 @@ const Spline = lazy(() => import('@splinetool/react-spline'));
  */
 const SCENE = 'https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode';
 
-/**
- * How far the target may travel left and right of centre, as a fraction of the
- * canvas. This is the head turning, and it is the part worth having.
- *
- * Raise for more movement, lower for a stiffer robot.
- */
-const REACH_X = 0.4;
+interface Tuning {
+  /**
+   * Where the constant vertical aim sits, as a fraction of canvas height from
+   * the top. This is the dial that sets the robot's posture: lower aims higher
+   * and tips it back, higher aims lower and tips it forward.
+   */
+  aimY: number;
+  /**
+   * How far the target travels left and right of centre, as a fraction of the
+   * canvas. This is the head turning, and it is the part worth having.
+   */
+  reachX: number;
+  /**
+   * The same for up and down, and **zero on purpose**. The scene aims its whole
+   * upper body at the target, not just the head, so any vertical travel bends
+   * the torso. Halving it was tried twice and failed both times, because a
+   * smaller bend is still a bend; only removing the vertical component makes
+   * the robot stand straight. With this at 0 the pose cannot lean in response
+   * to the cursor at all.
+   */
+  reachY: number;
+}
+
+const DEFAULTS: Tuning = { aimY: 0.5, reachX: 0.4, reachY: 0 };
 
 /**
- * The same for up and down — and it is **zero on purpose**.
+ * Reads the tuning, letting `window.robotAim` override it at runtime.
  *
- * The scene aims its whole upper body at the target, not just the head, so any
- * vertical travel bends the torso. Shrinking that travel was tried twice and
- * failed both times: halving it left the bend plainly visible, because a
- * smaller bend is still a bend. Nothing short of removing the vertical
- * component altogether makes the robot stand straight.
+ * This exists because the posture cannot be judged from code. It is one number
+ * against a 3D scene nobody here can see, and two rounds of picking a value,
+ * shipping it and asking produced no progress at all.
  *
- * With this at 0 the vertical aim is a constant, so the pose cannot lean in
- * response to the cursor at all. The head still follows left and right, which
- * is the movement that reads as "it is watching you".
+ * The runtime override closes that loop in seconds instead of round trips, and
+ * it sidesteps the trap that most likely wasted the last attempt: editing a
+ * constant and reloading does not reliably reload it. Vite's HMR served a stale
+ * module twice while this component was being built, each time reporting the
+ * previous value and reading exactly like "changing the number does nothing" —
+ * which is what the owner reported. Reading through `window` cannot go stale,
+ * because it is read fresh on every pointer move.
+ *
+ * To find the right posture, in the browser console:
+ *
+ *     robotAim = { aimY: 0.35 }   // then move the mouse; try 0.3 … 0.7
+ *
+ * Whatever value stands the robot up is the one to write into DEFAULTS.
  */
-const REACH_Y = 0;
-
-/**
- * Where that constant vertical aim sits, as a fraction of canvas height from
- * the top. This is the one dial that sets the robot's posture.
- *
- * `0.5` is the canvas centre, which is where a fitted scene puts its camera's
- * eye level, so the robot looks straight ahead. Lower numbers aim higher and
- * tip it back; higher numbers aim lower and tip it forward. If it still leans,
- * this is the only value to change, and 0.05 at a time is a visible step.
- */
-const AIM_Y = 0.5;
+function tuning(): Tuning {
+  const override = (window as unknown as { robotAim?: Partial<Tuning> }).robotAim;
+  return override ? { ...DEFAULTS, ...override } : DEFAULTS;
+}
 
 /**
  * The canvas is deliberately larger than the box it is seen through, and the
@@ -82,77 +99,53 @@ export default function SplineRobot() {
   const { webgl, hover } = useMotionAllowed();
   const host = useRef<HTMLDivElement>(null);
 
-  /**
-   * Makes the robot watch the whole page, without asking it to reach for
-   * places it cannot reach.
-   *
-   * Spline binds its pointer handling to the canvas it creates, so the scene
-   * only ever saw the cursor while the cursor was inside a 528px box at the
-   * foot of one column — a robot that wakes up when you get close and ignores
-   * you otherwise. Window events are forwarded onto the canvas to fix that.
-   *
-   * Forwarding the raw coordinates is what broke the pose. The scene aims at
-   * wherever it is told the pointer is, and a pointer several thousand pixels
-   * outside its own box is an instruction to bend over backwards and throw
-   * both arms up — which is exactly what it did, permanently, because the
-   * cursor is almost always outside a box that size.
-   *
-   * So the viewport is *mapped* onto the canvas rather than passed through:
-   * the far left of the window becomes the canvas's left edge, the far right
-   * its right edge. The robot still turns to follow the cursor anywhere on the
-   * page, but the target it is given never leaves the range the scene was
-   * authored for, so the pose stays natural at every position.
-   *
-   * Every move is forwarded, with no branch for the pointer being over the
-   * canvas. That branch existed and was a bug: the wrapper is
-   * `pointer-events-none`, so real events never reach the canvas at all, and
-   * skipping the synthetic one left a dead patch exactly where the robot is.
-   *
-   * Both event names are sent because which one the runtime listens for is its
-   * own business and not part of any contract this project can rely on.
-   */
-  /**
-   * Aims the scene at a viewport position, in the scene's own terms.
-   *
-   * `fraction` is where the cursor is across the window, 0..1 on each axis.
-   * Passing 0.5, 0.5 is the neutral pose, which is what the scene is primed
-   * with the moment it loads — see `settle` below.
-   */
-  const aim = (fractionX: number, fractionY: number) => {
-    const canvas = host.current?.querySelector('canvas');
-    if (!canvas) return false;
-
-    const box = canvas.getBoundingClientRect();
-    if (!box.width || !box.height) return false;
-
-    const x = box.left + box.width / 2 + (fractionX - 0.5) * box.width * REACH_X;
-    const y = box.top + box.height * AIM_Y + (fractionY - 0.5) * box.height * REACH_Y;
-
-    const init = { clientX: x, clientY: y, bubbles: false, cancelable: true };
-    canvas.dispatchEvent(
-      new PointerEvent('pointermove', { ...init, pointerType: 'mouse', isPrimary: true }),
-    );
-    canvas.dispatchEvent(new MouseEvent('mousemove', init));
-    return true;
-  };
-
   useEffect(() => {
     if (!webgl || !hover) return;
 
-    const forward = (event: PointerEvent) => {
-      aim(event.clientX / window.innerWidth, event.clientY / window.innerHeight);
+    /**
+     * Aims the scene at a position given as 0..1 across the window.
+     *
+     * Spline binds its pointer handling to the canvas it creates, so the scene
+     * only ever saw the cursor while the cursor was inside a box at the foot of
+     * one column — a robot that wakes when you come close and ignores you
+     * otherwise. Window events are forwarded onto the canvas to fix that.
+     *
+     * Forwarding raw coordinates is what broke the pose: a pointer thousands of
+     * pixels outside the canvas is an instruction to bend over backwards, and
+     * the cursor is almost always outside it. So the window is *mapped* onto a
+     * span of the canvas instead, and the vertical is pinned.
+     */
+    const aim = (fractionX: number, fractionY: number) => {
+      const canvas = host.current?.querySelector('canvas');
+      if (!canvas) return false;
+
+      const box = canvas.getBoundingClientRect();
+      if (!box.width || !box.height) return false;
+
+      const { aimY, reachX, reachY } = tuning();
+      const x = box.left + box.width / 2 + (fractionX - 0.5) * box.width * reachX;
+      const y = box.top + box.height * aimY + (fractionY - 0.5) * box.height * reachY;
+
+      const init = { clientX: x, clientY: y, bubbles: false, cancelable: true };
+      canvas.dispatchEvent(
+        new PointerEvent('pointermove', { ...init, pointerType: 'mouse', isPrimary: true }),
+      );
+      canvas.dispatchEvent(new MouseEvent('mousemove', init));
+      return true;
     };
+
+    const forward = (event: PointerEvent) =>
+      aim(event.clientX / window.innerWidth, event.clientY / window.innerHeight);
 
     /**
      * Puts the robot into the neutral pose without waiting for the reader to
      * move the mouse.
      *
      * Until a scene is told where the pointer is it holds whatever pose it was
-     * authored to idle in, and for this one that idle is the hunched,
-     * arms-raised stance. Anyone who loads the page and does not immediately
-     * wave the cursor about sees the robot bent over, which is precisely the
-     * complaint — and no amount of tuning the *movement* fixes a pose that is
-     * showing because no movement has happened yet.
+     * authored to idle in, and this one idles hunched with its arms up. Anyone
+     * who loads the page and does not immediately wave the cursor about sees
+     * exactly the reported bend — and no amount of tuning how the robot *moves*
+     * fixes a pose that is showing because nothing has moved yet.
      *
      * The canvas does not exist at mount: the chunk is lazy and Spline builds
      * the canvas after that. So this retries briefly and stops the moment it
