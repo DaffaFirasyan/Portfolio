@@ -43,6 +43,17 @@ export default function Reveal({ children, delay = 0, className, fill = false }:
       direction="vertical"
       duration={0.6}
       delay={delay}
+      // The entrance rises but does not fade, and that is an accessibility
+      // decision rather than a taste one. AnimatedContent's default sets
+      // opacity to 0 and animates it to 1, so every block of text spends the
+      // first six tenths of a second below its own contrast ratio — Lighthouse
+      // caught the About paragraph mid-fade and failed it, and a reader
+      // scrolling quickly sees the same half-transparent text. Prose that is
+      // briefly unreadable is still prose that is unreadable.
+      //
+      // Movement carries the reveal on its own. Set this back to true and the
+      // fade returns, along with the failure.
+      animateOpacity={false}
       className={fill ? 'h-full' : ''}
     >
       <div className={classes || undefined}>{children}</div>
