@@ -50,3 +50,17 @@ blob-report/
 
 # Brainstorming session artifacts (mockups, server state)
 .superpowers/
+
+# Bahan mentah konten asli.
+
+# Scan sertifikat sebelum disensor, CV, dan foto pribadi masuk ke sini.
+
+# Sekali ter-commit, file itu ada di riwayat git selamanya — dihapus pun
+
+# masih bisa diambil dari commit lama. Yang sudah disensor dan siap tayang
+
+# tempatnya di public/, dan itu yang di-commit.
+
+Konten_Asli/*
+
+!Konten_Asli/README.md
