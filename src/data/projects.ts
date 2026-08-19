@@ -1,136 +1,78 @@
 import type { Project } from '@/types';
 
+/**
+ * Four projects, three of them featured, chosen by the owner.
+ *
+ * Two are described from the CV. Two are not in the CV at all and their
+ * descriptions are the owner's to write — they are marked `TODO(owner)` rather
+ * than invented, because a portfolio that describes work in words its author
+ * did not choose is worse than one that says less.
+ */
 export const projects: Project[] = [
   {
-    id: 'kg-maintenance-assistant',
-    title: 'Predictive Maintenance Knowledge Graph Assistant',
-    category: 'AI/ML',
-    year: 2026,
-    role: 'Solo — AI Engineer and system designer',
+    id: 'village-portal',
+    title: 'Village Profile and MSME Commerce Portal',
+    category: 'Web',
+    year: 2025,
+    role: 'Contract developer at Telkom University',
     problem:
-      'Maintenance teams across three plantation sites recorded equipment faults as free-form text in separate spreadsheets, so nobody could see that the same failure kept coming back.',
+      'Village updates lived in noticeboards and group chats, and the MSMEs trading nearby had no shared shopfront, so residents could see neither the administration nor the businesses.',
     solution:
-      'Built a retrieval pipeline that extracts entities from work orders into a Neo4j graph, then answers natural-language questions by walking the graph before prompting the model.',
+      'A Laravel application pairing a public transparency portal with a product catalogue, and an admin panel letting village staff manage news, galleries and listings themselves.',
     outcome:
-      'Cut the time to trace a repeat fault from roughly forty minutes of manual search to under two minutes.',
-    stack: ['Python', 'Neo4j', 'FastAPI', 'LangChain', 'Groq', 'Docker'],
-    thumbnail: '/projects/kg-maintenance-assistant.webp',
-    links: { repo: 'https://github.com/example/kg-maintenance-assistant' },
+      'Deployed to production on Hostinger, with bulk product upload by Excel and dashboards tracking visitors and most-viewed listings.',
+    stack: ['PHP', 'Laravel', 'MySQL', 'Bootstrap', 'Hostinger', 'Excel Import'],
+    thumbnail: '/projects/village-portal.webp',
+    links: {},
     featured: true,
   },
   {
-    id: 'sentiment-dashboard',
-    title: 'Indonesian Product Review Sentiment Dashboard',
-    category: 'Data',
-    year: 2025,
-    role: 'Team of 3 — data pipeline',
-    problem:
-      'A small seller had thousands of marketplace reviews in Bahasa Indonesia and no way to tell which product complaints were growing month over month.',
-    solution:
-      'Fine-tuned a multilingual transformer for three-class sentiment, then surfaced weekly aspect trends in a dashboard the seller could read without training.',
-    outcome: 'Reached 87% macro F1 on a held-out set of 2,400 hand-labelled reviews.',
-    stack: ['Python', 'Transformers', 'Streamlit', 'Pandas'],
-    thumbnail: '/projects/sentiment-dashboard.webp',
-    links: { repo: 'https://github.com/example/sentiment-dashboard' },
-    featured: true,
-  },
-  {
-    id: 'campus-room-booking',
-    title: 'Campus Room Booking System',
+    id: 'simpel-ibs',
+    title: 'Simpel IBS',
     category: 'Web',
     year: 2025,
-    role: 'Team of 4 — backend lead',
-    problem:
-      'Room bookings ran through a group chat, so double bookings were discovered only when two classes arrived at the same room.',
-    solution:
-      'Built a booking service with conflict detection at the database level and a calendar view that shows availability before a request is submitted.',
-    outcome: 'Used by 59 students and staff across one semester with no double booking reported.',
-    stack: ['TypeScript', 'Next.js', 'PostgreSQL', 'Prisma'],
-    thumbnail: '/projects/campus-room-booking.webp',
-    links: {
-      demo: 'https://example.com/room-booking',
-      repo: 'https://github.com/example/campus-room-booking',
-    },
+    role: 'TODO(owner): your role on this project',
+    // TODO(owner): this project is not in the CV. Replace all three sentences.
+    // The section renders `problem` on the featured row and all of it in the
+    // dialog, so these are the words a recruiter actually reads.
+    problem: 'TODO(owner): what problem did this solve, and for whom?',
+    solution: 'TODO(owner): how did you solve it, and what did you build?',
+    outcome: 'TODO(owner): what changed as a result — a number if you have one.',
+    stack: ['TODO'],
+    thumbnail: '/projects/simpel-ibs.webp',
+    links: {},
     featured: true,
   },
   {
-    id: 'ocr-invoice-parser',
-    title: 'Invoice Field Extractor',
-    category: 'AI/ML',
+    id: 'animart',
+    title: 'Inventory and Demand Forecasting for a Food MSME',
+    category: 'Data',
     year: 2025,
-    role: 'Solo',
+    role: 'Solo — analysis and build',
     problem:
-      'A finance team retyped totals and dates from scanned supplier invoices, which meant slow entry and frequent transcription errors.',
+      'A food MSME ordered stock on instinct, so fast-moving items ran out while slow ones sat until they spoiled, and nobody could say which was about to happen next week.',
     solution:
-      'Combined layout-aware OCR with a rule pass that validates extracted totals against line items before anything is written.',
-    outcome: 'Extracted the four key fields correctly on 92% of a 300-invoice sample.',
-    stack: ['Python', 'PaddleOCR', 'FastAPI'],
-    thumbnail: '/projects/ocr-invoice-parser.webp',
-    links: { repo: 'https://github.com/example/ocr-invoice-parser' },
-    featured: false,
+      'A web decision support system that tracks inventory and forecasts demand from past sales, turning a guess about next week into a number the owner can order against.',
+    outcome:
+      'Built as a case study with Animart, covering stock management and demand prediction in one interface.',
+    stack: ['Python', 'Web', 'Forecasting'],
+    thumbnail: '/projects/animart.webp',
+    links: {},
+    featured: true,
   },
   {
-    id: 'thesis-corpus-explorer',
-    title: 'Thesis Corpus Explorer',
-    category: 'Data',
-    year: 2024,
-    role: 'Solo',
-    problem:
-      'Students searching past theses could only match exact titles, so closely related work in another department stayed invisible.',
-    solution:
-      'Embedded every abstract and exposed nearest-neighbour search with a topic map, so related work surfaces even when the wording differs.',
-    outcome: 'Indexed 1,850 abstracts with sub-second search on commodity hardware.',
-    stack: ['Python', 'FAISS', 'Flask'],
-    thumbnail: '/projects/thesis-corpus-explorer.webp',
-    links: { repo: 'https://github.com/example/thesis-corpus-explorer' },
-    featured: false,
-  },
-  {
-    id: 'attendance-vision',
-    title: 'Attendance by Face Recognition',
-    category: 'AI/ML',
-    year: 2024,
-    role: 'Team of 3 — model training',
-    problem:
-      'Paper attendance sheets for a 120-student lecture took ten minutes per session and were easy to sign on behalf of someone else.',
-    solution:
-      'Trained a face embedding model on enrolled students and matched against a gallery at the door, with a manual fallback for failed matches.',
-    outcome: 'Recorded a full lecture in under 90 seconds at 96% top-1 match accuracy.',
-    stack: ['Python', 'PyTorch', 'OpenCV'],
-    thumbnail: '/projects/attendance-vision.webp',
-    links: { repo: 'https://github.com/example/attendance-vision' },
-    featured: false,
-  },
-  {
-    id: 'kos-finder',
-    title: 'Student Housing Finder',
+    id: 'dukunify',
+    title: 'Dukunify',
     category: 'Web',
-    year: 2024,
-    role: 'Solo',
-    problem:
-      'Listings for student housing near campus were scattered across social media posts with no consistent price or distance information.',
-    solution:
-      'Scraped and normalised listings into one searchable map with filters for price, distance to campus, and facilities.',
-    outcome: 'Normalised 340 listings and reduced a typical search from hours to minutes.',
-    stack: ['TypeScript', 'React', 'Leaflet'],
-    thumbnail: '/projects/kos-finder.webp',
-    links: { demo: 'https://example.com/kos-finder' },
-    featured: false,
-  },
-  {
-    id: 'rainfall-forecast',
-    title: 'Regional Rainfall Forecast Baseline',
-    category: 'Data',
-    year: 2023,
-    role: 'Solo',
-    problem:
-      'Plantation scheduling relied on a single national forecast that was too coarse to be useful at the level of an individual estate.',
-    solution:
-      'Trained a gradient-boosted baseline on ten years of station data and compared it honestly against the naive persistence forecast.',
-    outcome: 'Beat the persistence baseline by 14% RMSE on next-day rainfall.',
-    stack: ['Python', 'scikit-learn', 'Matplotlib'],
-    thumbnail: '/projects/rainfall-forecast.webp',
-    links: { repo: 'https://github.com/example/rainfall-forecast' },
+    year: 2025,
+    role: 'TODO(owner): your role on this project',
+    // TODO(owner): not in the CV either. Same three sentences to fill.
+    problem: 'TODO(owner): what problem did this solve, and for whom?',
+    solution: 'TODO(owner): how did you solve it, and what did you build?',
+    outcome: 'TODO(owner): what changed as a result — a number if you have one.',
+    stack: ['TODO'],
+    thumbnail: '/projects/dukunify.webp',
+    links: {},
     featured: false,
   },
 ];

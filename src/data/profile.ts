@@ -26,10 +26,7 @@ export const profile: Profile = {
   avatarUrl: '/profile/avatar.webp',
   openToWork: true,
   socials: [
-    // TODO(owner): the CV lists no GitHub. Replace this with the real profile
-    // or delete the entry — a portfolio linking to a dead account is worse than
-    // one that links to none.
-    { label: 'GitHub', url: 'https://github.com/example', icon: 'github' },
+    { label: 'GitHub', url: 'https://github.com/DaffaFirasyan', icon: 'github' },
     { label: 'LinkedIn', url: 'https://www.linkedin.com/in/daffafirasyan/', icon: 'linkedin' },
   ],
   stats: [

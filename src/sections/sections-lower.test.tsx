@@ -85,13 +85,16 @@ describe('Projects', () => {
 
     // Links live where there is room for them: the featured rows and the
     // dialog. A 76px row carrying three controls would be a worse row.
+    // queryAll, not getAll: getAll throws on an empty result, and none of the
+    // real projects carry a repo URL yet. Zero expected and zero found is the
+    // assertion doing its job — no project renders a link it does not have.
     const withRepo = projects.filter((p) => p.featured && p.links.repo);
-    expect(screen.getAllByRole('link', { name: /repository/i })).toHaveLength(withRepo.length);
+    expect(screen.queryAllByRole('link', { name: /repository/i })).toHaveLength(withRepo.length);
   });
 
   it('opens external links safely', () => {
     render(<Projects />);
-    for (const link of screen.getAllByRole('link', { name: /repository|live demo/i })) {
+    for (const link of screen.queryAllByRole('link', { name: /repository|live demo/i })) {
       expect(link).toHaveAttribute('target', '_blank');
       expect(link).toHaveAttribute('rel', expect.stringContaining('noopener'));
     }
@@ -114,8 +117,18 @@ describe('Education', () => {
     // moved into the lightbox, where education-lightbox.test.tsx covers both
     // the present and absent cases. What the wall owes is that nothing is
     // hidden and each tile is a single control.
+    // Matched on the whole accessible name rather than a regex built from the
+    // title. Real titles broke that twice over: "Python (Basic)" has regex
+    // groups in it, and "Web Developer" is a substring of "Junior Web
+    // Developer — Programming and Software Development", so one tile matched
+    // two certificates. The tile names itself with its title and issuer, and
+    // asserting both is stricter than what it replaced.
     for (const c of certificates) {
-      expect(screen.getByRole('button', { name: new RegExp(c.title, 'i') })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', {
+          name: (name: string) => name.startsWith(c.title) && name.includes(c.issuer),
+        }),
+      ).toBeInTheDocument();
     }
   });
 
