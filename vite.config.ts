@@ -9,6 +9,30 @@ export default defineConfig({
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Splits the vendor libraries into named chunks. The immediate reason
+        // is diagnostic — a single 598 KB `index.js` says nothing about what
+        // is inside it, and Lighthouse reporting 4.9s of script execution
+        // needs to be attributable before it can be acted on. It also caches
+        // better: these change on a dependency bump, the app code changes
+        // every commit, and bundling them together throws away both.
+        // The function form, not the object map: Vite 8 runs Rolldown, whose
+        // types accept only `ManualChunksFunction`, and the map form fails to
+        // compile rather than being ignored.
+        manualChunks(id: string) {
+          const pkg = (name: string) => id.includes(`node_modules/${name}/`);
+          if (pkg('react') || pkg('react-dom') || pkg('scheduler')) return 'react';
+          if (pkg('gsap') || id.includes('node_modules/@gsap/')) return 'gsap';
+          if (pkg('motion') || pkg('motion-dom') || pkg('motion-utils')) return 'motion';
+          if (pkg('lenis')) return 'lenis';
+          if (pkg('lucide-react')) return 'icons';
+          return undefined;
+        },
+      },
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',

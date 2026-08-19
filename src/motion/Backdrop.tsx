@@ -6,13 +6,24 @@ import { useOnScreen } from '@/hooks/useOnScreen';
 const Galaxy = lazy(() => import('@/components/reactbits/Galaxy/Galaxy'));
 
 /**
- * The single WebGL surface on the page.
+ * The single WebGL surface behind the hero.
  *
- * Three things must be true at once for it to run: the reader accepts motion,
- * the device looks capable, and the backdrop is on screen. The last one matters
- * more than it sounds — a hidden canvas keeps rendering, so hiding it with CSS
- * would leave a GPU loop running for a section nobody is looking at. It is
- * unmounted instead.
+ * Four things must be true at once for it to run: the reader accepts motion,
+ * the device looks capable, it has a pointer that hovers, and the backdrop is
+ * on screen. The on-screen part matters more than it sounds — a hidden canvas
+ * keeps rendering, so hiding it with CSS would leave a GPU loop running for a
+ * section nobody is looking at. It is unmounted instead.
+ *
+ * `hover` was added after measuring, and it is the one that needs explaining
+ * because it is not about pointer input. The `webgl` flag tests memory, cores
+ * and Save-Data, none of which a phone-emulating audit fakes — so the starfield
+ * was running through every mobile Lighthouse run and, more to the point,
+ * through every real phone visit that happened to report enough memory. A
+ * continuous WebGL loop on a battery-powered device, for a decoration behind
+ * the hero, is the wrong trade; `hover` is the flag that actually separates
+ * "a laptop" from "a phone", and it is what already gates the splash cursor
+ * and the robot. Phones get the gradient fallback, which is the same thing
+ * reduced-motion readers have always seen.
  *
  * ogl sits behind a lazy import so the WebGL code never reaches a visitor whose
  * settings or device rule it out.
@@ -31,7 +42,7 @@ export default function Backdrop() {
 
   return (
     <div ref={host} aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden">
-      {webgl && onScreen ? (
+      {webgl && hover && onScreen ? (
         <Suspense fallback={fallback}>
           <Galaxy
             density={0.8}

@@ -69,14 +69,20 @@ describe('Backdrop', () => {
     expect(galaxyProps.at(-1)?.mouseInteraction).toBe(true);
   });
 
-  it('leaves the pointer parallax off on a device that cannot hover', async () => {
-    // Otherwise a touch device attaches a window mousemove listener for an
-    // effect it can never show.
+  it('renders a static gradient and no starfield on a device that cannot hover', async () => {
+    // This used to assert something weaker — that the starfield still ran but
+    // with its pointer parallax switched off. The gate is stronger now, and
+    // measurement is why: `webgl` tests memory, cores and Save-Data, none of
+    // which a phone-emulating audit fakes, so a WebGL render loop was running
+    // through every mobile Lighthouse run and through every real phone visit
+    // from a device with enough memory. `hover` is the flag that actually
+    // separates a laptop from a phone, and it is what already gates the splash
+    // cursor and the robot.
     setCapability({ reduced: false, memory: 16, hover: false });
     render(<Backdrop />);
-    await screen.findByTestId('galaxy');
 
-    expect(galaxyProps.at(-1)?.mouseInteraction).toBe(false);
+    expect(screen.getByTestId('backdrop-fallback')).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByTestId('galaxy')).toBeNull());
   });
 
   it('renders the starfield when the device is capable', async () => {
