@@ -21,20 +21,38 @@ const Spline = lazy(() => import('@splinetool/react-spline'));
 const SCENE = 'https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode';
 
 /**
- * How far the forwarded target may travel from the canvas centre, as a
- * fraction of the canvas.
+ * How far the target may travel left and right of centre, as a fraction of the
+ * canvas. This is the head turning, and it is the part worth having.
  *
- * The scene aims its whole upper body at the pointer, not just the head, and
- * how far it bends is proportional to how far the target sits from centre. At
- * `1` the target reaches the canvas edges, which is the scene's full range and
- * leaves the torso permanently hunched. Lowering it shortens the throw: the
- * head still turns to follow the cursor everywhere on the page, because the
- * whole viewport is still mapped across this span, but the span itself is
- * small enough that the body stays upright.
- *
- * Raise it for more movement, lower it for a stiffer, more upright robot.
+ * Raise for more movement, lower for a stiffer robot.
  */
-const REACH = 0.45;
+const REACH_X = 0.4;
+
+/**
+ * The same for up and down — and it is **zero on purpose**.
+ *
+ * The scene aims its whole upper body at the target, not just the head, so any
+ * vertical travel bends the torso. Shrinking that travel was tried twice and
+ * failed both times: halving it left the bend plainly visible, because a
+ * smaller bend is still a bend. Nothing short of removing the vertical
+ * component altogether makes the robot stand straight.
+ *
+ * With this at 0 the vertical aim is a constant, so the pose cannot lean in
+ * response to the cursor at all. The head still follows left and right, which
+ * is the movement that reads as "it is watching you".
+ */
+const REACH_Y = 0;
+
+/**
+ * Where that constant vertical aim sits, as a fraction of canvas height from
+ * the top. This is the one dial that sets the robot's posture.
+ *
+ * `0.5` is the canvas centre, which is where a fitted scene puts its camera's
+ * eye level, so the robot looks straight ahead. Lower numbers aim higher and
+ * tip it back; higher numbers aim lower and tip it forward. If it still leans,
+ * this is the only value to change, and 0.05 at a time is a visible step.
+ */
+const AIM_Y = 0.5;
 
 /**
  * The canvas is deliberately larger than the box it is seen through, and the
@@ -93,35 +111,64 @@ export default function SplineRobot() {
    * Both event names are sent because which one the runtime listens for is its
    * own business and not part of any contract this project can rely on.
    */
+  /**
+   * Aims the scene at a viewport position, in the scene's own terms.
+   *
+   * `fraction` is where the cursor is across the window, 0..1 on each axis.
+   * Passing 0.5, 0.5 is the neutral pose, which is what the scene is primed
+   * with the moment it loads — see `settle` below.
+   */
+  const aim = (fractionX: number, fractionY: number) => {
+    const canvas = host.current?.querySelector('canvas');
+    if (!canvas) return false;
+
+    const box = canvas.getBoundingClientRect();
+    if (!box.width || !box.height) return false;
+
+    const x = box.left + box.width / 2 + (fractionX - 0.5) * box.width * REACH_X;
+    const y = box.top + box.height * AIM_Y + (fractionY - 0.5) * box.height * REACH_Y;
+
+    const init = { clientX: x, clientY: y, bubbles: false, cancelable: true };
+    canvas.dispatchEvent(
+      new PointerEvent('pointermove', { ...init, pointerType: 'mouse', isPrimary: true }),
+    );
+    canvas.dispatchEvent(new MouseEvent('mousemove', init));
+    return true;
+  };
+
   useEffect(() => {
-    const el = host.current;
-    if (!el || !webgl || !hover) return;
+    if (!webgl || !hover) return;
 
     const forward = (event: PointerEvent) => {
-      const canvas = el.querySelector('canvas');
-      if (!canvas) return;
-
-      const box = canvas.getBoundingClientRect();
-      if (!box.width || !box.height) return;
-
-      // Viewport position as -0.5..0.5 from its centre, then thrown across
-      // REACH of the canvas around the canvas centre. Mapping onto the whole
-      // canvas is what kept the torso bent at its limit.
-      const fromCentreX = event.clientX / window.innerWidth - 0.5;
-      const fromCentreY = event.clientY / window.innerHeight - 0.5;
-
-      const x = box.left + box.width / 2 + fromCentreX * box.width * REACH;
-      const y = box.top + box.height / 2 + fromCentreY * box.height * REACH;
-
-      const init = { clientX: x, clientY: y, bubbles: false, cancelable: true };
-      canvas.dispatchEvent(
-        new PointerEvent('pointermove', { ...init, pointerType: 'mouse', isPrimary: true }),
-      );
-      canvas.dispatchEvent(new MouseEvent('mousemove', init));
+      aim(event.clientX / window.innerWidth, event.clientY / window.innerHeight);
     };
 
+    /**
+     * Puts the robot into the neutral pose without waiting for the reader to
+     * move the mouse.
+     *
+     * Until a scene is told where the pointer is it holds whatever pose it was
+     * authored to idle in, and for this one that idle is the hunched,
+     * arms-raised stance. Anyone who loads the page and does not immediately
+     * wave the cursor about sees the robot bent over, which is precisely the
+     * complaint — and no amount of tuning the *movement* fixes a pose that is
+     * showing because no movement has happened yet.
+     *
+     * The canvas does not exist at mount: the chunk is lazy and Spline builds
+     * the canvas after that. So this retries briefly and stops the moment it
+     * lands, rather than assuming a timing it does not control.
+     */
+    let tries = 0;
+    const settle = window.setInterval(() => {
+      tries += 1;
+      if (aim(0.5, 0.5) || tries > 40) window.clearInterval(settle);
+    }, 250);
+
     window.addEventListener('pointermove', forward);
-    return () => window.removeEventListener('pointermove', forward);
+    return () => {
+      window.clearInterval(settle);
+      window.removeEventListener('pointermove', forward);
+    };
   }, [webgl, hover]);
 
   if (!webgl || !hover) return null;
