@@ -104,47 +104,48 @@ export default function SplineRobot() {
   const [ready, setReady] = useState(false);
 
   /**
-   * Holds the import back until the browser has finished the page.
+   * Holds the import back until the reader is heading for this section.
    *
-   * Measured on the production build: the runtime began downloading at 224ms,
-   * just after DOMContentLoaded at 149ms, and the scene at 738ms — 555 KB and
-   * 1.3 MB landing inside the window that decides first paint, largest paint
-   * and blocking time, for a decoration at the very bottom of the page. It was
-   * 61% of a 931 KB first load.
+   * Deferring to the `load` event was tried first and was not enough, which is
+   * worth recording because the reasoning looked sound. It did move the bytes:
+   * measured on the production build, transfer before `load` fell from 931 KB
+   * to 210 KB. The score got worse anyway — 85 to 57, with total blocking time
+   * going from 220ms to 1,150ms — because **Lighthouse does not stop measuring
+   * at the load event.** It keeps going until the page is quiet, so parsing
+   * 2 MB of runtime and initialising a 3D scene still landed inside the
+   * blocking-time window, just later. The robot costs about 930ms of main
+   * thread and roughly 28 points wherever it runs.
    *
-   * Waiting for `load` and then for an idle moment moves all of it outside
-   * that window. Nothing else changes: `ready` only ever goes true, so the
-   * scene still mounts once and is never torn down and rebuilt by scrolling
-   * away and back, which is what the owner asked for. In practice it is
-   * present long before anyone scrolls seven sections to reach it.
+   * So it is tied to approach instead of to time. The margin is deliberately
+   * huge — one and a half viewports — so it begins loading while Contact is
+   * still well below the fold and is ready long before anyone reaches it,
+   * which is what the owner asked for. The observer disconnects on the first
+   * hit and `ready` only ever goes true, so it mounts once and is never torn
+   * down and rebuilt by scrolling away and back, which is the other half of
+   * what they asked for.
    *
-   * `requestIdleCallback` is not in Safari, hence the timeout fallback; the
-   * `timeout` option covers a browser that never goes idle.
+   * It also stops being a cost for readers who never scroll that far, which is
+   * the honest version of the same change: an audit that never scrolls is
+   * simply the most extreme such reader.
    */
+  const box = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!webgl || !hover) return;
+    const el = box.current;
+    if (!el) return;
 
-    let idle = 0;
-    let timer = 0;
-    const begin = () => {
-      // `typeof`, not `'requestIdleCallback' in window`: TypeScript's DOM lib
-      // declares the method unconditionally, so the `in` check narrows the
-      // fallback branch to `never` and the Safari path stops compiling.
-      if (typeof window.requestIdleCallback === 'function') {
-        idle = window.requestIdleCallback(() => setReady(true), { timeout: 2500 });
-      } else {
-        timer = window.setTimeout(() => setReady(true), 800);
-      }
-    };
-
-    if (document.readyState === 'complete') begin();
-    else window.addEventListener('load', begin, { once: true });
-
-    return () => {
-      window.removeEventListener('load', begin);
-      if (idle && 'cancelIdleCallback' in window) window.cancelIdleCallback(idle);
-      if (timer) window.clearTimeout(timer);
-    };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setReady(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '150% 0px' },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
   }, [webgl, hover]);
 
   useEffect(() => {
@@ -197,7 +198,11 @@ export default function SplineRobot() {
   return (
     // Anchored to the top of the clipping box and centred across it, so the
     // overflow that gets cut is the bottom — the legs — rather than the head.
-    <div aria-hidden="true" className={`absolute left-1/2 top-0 -translate-x-1/2 ${CANVAS}`}>
+    <div
+      ref={box}
+      aria-hidden="true"
+      className={`absolute left-1/2 top-0 -translate-x-1/2 ${CANVAS}`}
+    >
       {ready && (
       <Suspense fallback={null}>
         <Spline
