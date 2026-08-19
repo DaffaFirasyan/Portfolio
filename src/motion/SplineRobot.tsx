@@ -44,7 +44,15 @@ interface Rig {
   headPitch: number;
   torsoYaw: number;
 }
-const DEFAULTS: Rig = { headYaw: 0.55, headPitch: 0.12, torsoYaw: 0.18 };
+/**
+ * Settled by the owner against the running scene, which is the only place this
+ * could have been settled — the pose cannot be judged from code, and three
+ * rounds of choosing values here and asking produced nothing. `headPitch` is
+ * far higher than the cautious 0.12 this started with: the nodding is not what
+ * bent the robot over, the scene's own `lookAt` was, and once that stopped
+ * driving the torso the head was free to move properly.
+ */
+const DEFAULTS: Rig = { headYaw: 0.8, headPitch: 0.8, torsoYaw: 0.25 };
 
 function rig(): Rig {
   const override = (window as unknown as { robotRig?: Partial<Rig> }).robotRig;

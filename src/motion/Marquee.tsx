@@ -62,7 +62,13 @@ export default function Marquee({ text }: MarqueeProps) {
             damping={40}
             stiffness={300}
             numCopies={6}
-            className="font-display text-2xl font-extrabold uppercase tracking-[0.08em] text-edge"
+            // text-muted/60 rather than text-edge. Measured against the page:
+            // edge gave 1.39:1, which is barely a shade off the background and
+            // read as the line half-appearing rather than drifting past. This
+            // is 3.03:1 — 2.2x the contrast, and just over the 3:1 that AA asks
+            // of large text, which this is at 24px extrabold. Still well below
+            // the plain copyright line it duplicates, so it stays decoration.
+            className="font-display text-2xl font-extrabold uppercase tracking-[0.08em] text-muted/60"
           />
         </div>
       )}
