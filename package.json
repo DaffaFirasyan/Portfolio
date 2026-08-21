@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "placeholders": "node scripts/generate-placeholders.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "avatar": "node scripts/crop-avatar.mjs"
   },
   "dependencies": {
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",
