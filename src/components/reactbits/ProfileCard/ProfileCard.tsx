@@ -382,6 +382,23 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
     onContactClick?.();
   }, [onContactClick]);
 
+  // ───────────────────────────────────────────────────────────────────────────
+  // How strong the holographic effect is. Both are 0..1; lower is calmer.
+  //
+  // SHINE is the iridescent sweep across the card, and it is a colour-dodge
+  // layer — the blend mode that divides by the inverse of what is beneath it,
+  // so it brightens hard and blows highlights out to white. Upstream ships 0.5.
+  //
+  // GLARE is the soft highlight that follows the cursor. Upstream's is a
+  // near-white lavender at 80% lightness; that number is the second half of
+  // this dial.
+  //
+  // Neither now falls on the face — the portrait sits above both, see zIndex 5
+  // below — so these only affect the card around the person.
+  // ───────────────────────────────────────────────────────────────────────────
+  const SHINE = 0.32;
+  const GLARE_LIGHTNESS = 62;
+
   // Complex styles that require CSS variables and can't be done with Tailwind
   const shineStyle = {
     maskImage: 'var(--icon)',
@@ -389,7 +406,7 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
     maskRepeat: 'repeat',
     maskSize: '150%',
     maskPosition: 'top calc(200% - (var(--background-y) * 5)) left calc(100% - var(--background-x))',
-    filter: 'brightness(0.66) contrast(1.33) saturate(0.33) opacity(0.5)',
+    filter: `brightness(0.66) contrast(1.33) saturate(0.33) opacity(${SHINE})`,
     animation: 'pc-holo-bg 18s linear infinite',
     animationPlayState: 'running' as const,
     mixBlendMode: 'color-dodge' as const,
@@ -436,7 +453,7 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
     overflow: 'hidden',
     backgroundImage: `radial-gradient(
       farthest-corner circle at var(--pointer-x) var(--pointer-y),
-      hsl(248, 25%, 80%) 12%,
+      hsl(248, 25%, ${GLARE_LIGHTNESS}%) 12%,
       hsla(207, 40%, 30%, 0.8) 90%
     )`,
     mixBlendMode: 'overlay',
@@ -532,6 +549,23 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
                 // blue-violet rather than in its own colour. The holographic
                 // sheen behind and in front of the portrait still reads; the
                 // person no longer has to be tinted for it to.
+                //
+                // zIndex 6 is the same argument carried one step further. This
+                // is a grid item with no z-index of its own, so it defaulted to
+                // auto and painted *under* the shine at 3 and the glare at 4 —
+                // a colour-dodge layer and an overlay gradient, both of which
+                // brighten, stacked directly on a face. Skin lit that way turns
+                // white, which is what the owner reported. Above them, the card
+                // still shimmers everywhere the cut-out is transparent, and the
+                // person keeps their own colour.
+                //
+                // 6 rather than 5 because the details block is also 5 and comes
+                // later in the DOM, which would put its `luminosity` blend over
+                // the portrait. It is empty here — `showUserInfo` is off — so it
+                // tints nothing today, but leaving the order to depend on which
+                // element happens to be written last is how that changes by
+                // accident later.
+                zIndex: 6,
                 transform: 'translateZ(2px)',
                 gridArea: '1 / -1',
                 borderRadius: cardRadius,

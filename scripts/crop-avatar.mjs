@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import sharp from 'sharp';
 
-const ZOOM = 1.15;
+const ZOOM = 0.75;
 
 // ─────────────────────────────────────────────────────────────────────────────
 
