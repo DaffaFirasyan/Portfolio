@@ -3,7 +3,7 @@ import ContactForm from '@/components/ui/ContactForm';
 import { shellProps } from '@/data/sections';
 import { profile } from '@/data/profile';
 import Reveal from '@/motion/Reveal';
-import OrbMark from '@/motion/OrbMark';
+import WorkSearch from '@/components/ui/WorkSearch';
 import Sparks from '@/motion/Sparks';
 import Typed from '@/motion/Typed';
 
@@ -62,38 +62,22 @@ export default function Contact() {
                 ))}
               </ul>
 
-              {/* Absolutely positioned, and that is the whole point: in normal
-                  flow the robot was the tallest thing in this column and set
-                  the section's height itself, running roughly 300px past the
-                  Send button for no reason a reader could name. Out of flow it
-                  contributes nothing, so the section ends where the form ends
-                  and the robot fills the space that was already there.
 
-                  `-bottom-32` against `SectionShell`'s `py-32` puts its base on
-                  the footer border, and `overflow-hidden` cuts anything past
-                  that line instead of pushing into the footer — which is what
-                  makes standing it on the border safe: its feet may be clipped.
-                  Only the lg variant is needed since the whole thing is lg-only,
-                  and `md:py-32` is already in force by then.
+              {/* This slot held the orb, and before that the Spline robot. The
+                  two could not share the column: measured with the entrance
+                  transforms settled, the social links end 15px above where the
+                  orb began. In the last section of a nine-screen page, a reader
+                  who is still here is deciding whether to write — so the space
+                  goes to something that helps them decide rather than to a
+                  glow. `OrbMark` is still in the tree and is one import from
+                  coming back.
 
-                  lg and up only, as the rotating badge was. Below that it would
-                  sit between the social links and the form, pushing the thing
-                  people came to use further down a screen that is already tall
-                  — and it is 1.4 MB, which is the last thing to put in front of
-                  a phone. The `hidden` here and the `hover` gate inside the
-                  component overlap on purpose: this one keeps it out of the
-                  layout, that one keeps it off the network. */}
-              {/* 25rem is the largest this can be before it reaches the social
-                  links: measured with the entrance transforms settled, the gap
-                  between them and the footer line is 415px, and this is 400px.
-                  pointer-events-none because it is absolutely positioned across
-                  the column and must never intercept a click meant for the
-                  links or the address above it — the orb does not need real
-                  pointer events, since it reads the window and normalises
-                  against its own rect. */}
-              <div className="pointer-events-none absolute inset-x-0 -bottom-32 hidden h-[25rem] overflow-hidden lg:block">
-                <OrbMark />
-              </div>
+                  In flow, unlike the orb: this one has to be reachable, and an
+                  absolutely positioned control at `pointer-events-none` is
+                  neither. It grows the column, which is why it sits below the
+                  links rather than above them — the email address is what most
+                  people came to this section for and it stays where it was. */}
+              <WorkSearch />
             </div>
           </Reveal>
 
