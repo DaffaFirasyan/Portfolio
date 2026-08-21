@@ -105,20 +105,24 @@ export default function Hero() {
               // against the card's 0.718 — filling the width at that shape puts
               // the head above the top edge, where the card clips it.
               //
-              // Cropping to the card's aspect at full width gave head-to-hips,
-              // and the figure still read small: the card renders the image at
-              // its own width, so the only way to enlarge the person is to show
-              // less of them. This crops narrower than the subject, cutting
-              // into the arms and everything below the chest, and is centred on
-              // the head rather than on the frame — centring on the frame put
-              // the face noticeably off to one side, because the arms are not
-              // symmetrical in the source.
+              // The card renders the image at its own width, so the only way to
+              // change how large the person reads is to show more or less of
+              // them. Measured by the head's rendered width: a full-width crop
+              // gave 123px and read small, a 1.32x crop gave 162px and read too
+              // big, and this is the midpoint at 142px.
               //
-              // These numbers must match the file: the browser reserves a box
-              // from them before the image arrives, and a wrong one stretches
-              // the portrait into it.
-              width={279}
-              height={389}
+              // Centred on the head rather than on the frame — the arms are not
+              // symmetrical in the source, so the two centres are 50px apart
+              // and framing on the wrong one put the face visibly off to the
+              // side. At this width the head cannot be centred inside the
+              // source at all, so the canvas is extended with transparency,
+              // which is invisible against the card.
+              //
+              // 320x446 is exactly the card's rendered size, so the browser
+              // scales nothing. These numbers must match the file: they are
+              // what it reserves a box from before the image arrives.
+              width={320}
+              height={446}
               className="w-full max-w-xs"
             />
           </div>
