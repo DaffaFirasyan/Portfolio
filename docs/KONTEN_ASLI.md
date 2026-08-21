@@ -23,7 +23,7 @@ dipindahkan ke `src/data/` dan `public/`; folder itu sendiri tidak dibaca aplika
 | `shortName` | Nama untuk logo navbar | — |
 | `roles` | Jabatan yang berputar di hero | **maks 4 item, tiap item ≤ 28 karakter** |
 | `tagline` | Satu kalimat di bawah nama | **≤ 120 karakter** |
-| `bio` | Paragraf untuk section About | **maks 3 paragraf, tiap paragraf ≤ 420 karakter** |
+| `bio` | Paragraf untuk section About | **maks 4 paragraf, tiap paragraf ≤ 420 karakter** |
 | `location` | Kota, Negara | — |
 | `email` | Email yang benar-benar Anda baca | — |
 | `openToWork` | `true` / `false` | — |

@@ -18,6 +18,16 @@ export const profile: Profile = {
   bio: [
     'I am a fresh Information Systems graduate from Telkom University. My final project was a decision support system for industrial asset maintenance, where a language model answers questions by walking a knowledge graph built from years of unstructured work orders rather than guessing from raw text. It scored 4.73 out of 5, matched the correct procedure 92.9% of the time, and passed all 39 functional tests.',
     'Most of my work sits between data and the people who have to use it. At Pertamina Hulu Indonesia I built an AI assistant that centralised information scattered across 350 internal portals — .NET Core 8 for the core, a Python microservice for the NLP work, and retrieval over official documents so the answers could be traced. Before that I shipped a Django platform reading live IoT sensors from farms across Indonesia.',
+    // Added 2026-08-22, to fill a measured 176px of empty column rather than
+    // for its own sake — but it earns the space independently. The bio read as
+    // research plus two internships and never mentioned the one thing that
+    // shipped and is still running with people who are not him using it.
+    //
+    // Every clause is from `experiences.ts` and `projects.ts`, which came from
+    // the CV: the contract role and its Laravel platform, the admin panel over
+    // news and galleries and product listings, the live domain, and the 7,682
+    // residents. Nothing here is a sentiment put in his mouth.
+    'Not all of it is research. On a contract at Telkom University I built and deployed the Laravel platform that Banjarsari village runs on: a transparency portal beside a catalogue for its local businesses, with an admin panel through which village staff publish their own news, galleries and product listings. It has been live at banjarsarigarut.id since 2025, for a village of 7,682 people.',
     'I am looking for work where the hard part is the domain rather than the framework: messy operational data, unclear requirements, and users who will tell you plainly when the output is wrong.',
   ],
   location: 'Bandung, Indonesia',

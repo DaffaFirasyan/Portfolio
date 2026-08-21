@@ -24,17 +24,19 @@
  * ~141px against the previous photo. Re-measure after changing the source
  * rather than trusting the table.
  *
- * At 1.00 nothing is cut from the width at all: the crop is the whole trimmed
- * photo with 71px taken off the bottom to make the card's aspect. Anything
- * below about 1.045 lands in the same place, because the height runs out first
- * and the clamp below takes over. So 1.00 means "the photo as the owner framed
- * it", which is exactly what he asked for.
+ * At 1.00 nothing is cut from the width at all — the crop is the whole trimmed
+ * photo, with only as much off the bottom as the card's aspect demands. Any
+ * value below roughly 1.05 lands in the same place, because the height runs out
+ * first and the clamp below takes over. So 1.00 means "the photo as the owner
+ * framed it", which is exactly what he asked for. The script prints how much it
+ * cut on every run; read that rather than a number quoted here.
  *
  * Change the number, run `npm run avatar`, and reload the page. The output is
  * always 320x446 whatever you choose, so nothing else in the project needs
  * touching — that size is what `Hero.tsx` declares and what the card renders,
  * and keeping it fixed is what stops the two drifting apart.
  */
+import { readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import sharp from 'sharp';
@@ -44,8 +46,34 @@ const ZOOM = 1.0;
 // ─────────────────────────────────────────────────────────────────────────────
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const SOURCE = join(root, 'Konten_Asli', 'gambar', 'profil', 'fotoprofil (1).png');
+const SOURCE_DIR = join(root, 'Konten_Asli', 'gambar', 'profil');
 const OUTPUT = join(root, 'public', 'profile', 'avatar.webp');
+
+/**
+ * The newest image in the source folder, rather than a filename.
+ *
+ * This used to name `fotoprofil (1).png` outright, and that broke the moment
+ * the owner re-exported his photo: the file arrived as `fotoprofil (3).png`,
+ * the old name stopped existing, and `npm run avatar` could only fail. A
+ * hardcoded filename carrying a browser's copy-counter in it was never going
+ * to survive a second export.
+ *
+ * The folder is a drop-box for one portrait, so "the newest image here" is
+ * both what the owner means and something he cannot break by renaming. It
+ * prints what it picked, because magic that does not say what it chose is
+ * worse than a hardcoded path.
+ */
+function newestImage() {
+  const files = readdirSync(SOURCE_DIR)
+    .filter((f) => /\.(png|jpe?g|webp)$/i.test(f))
+    .map((f) => ({ f, at: statSync(join(SOURCE_DIR, f)).mtimeMs }))
+    .sort((a, b) => b.at - a.at);
+
+  if (files.length === 0) {
+    throw new Error(`No image in ${SOURCE_DIR} — drop the portrait there first.`);
+  }
+  return join(SOURCE_DIR, files[0].f);
+}
 
 /** ProfileCard's own aspect ratio, and the size it renders at in the hero. */
 const CARD_ASPECT = 0.718;
@@ -72,6 +100,9 @@ async function main() {
   // The source photo carries its own transparent margins, so the subject is
   // trimmed to its true edges first. Without this, ZOOM would be measured
   // against empty space rather than against the person.
+  const SOURCE = newestImage();
+  console.log(`source ${SOURCE.slice(root.length)}`);
+
   const trimmed = await sharp(SOURCE)
     .trim({ threshold: 1 })
     .ensureAlpha()

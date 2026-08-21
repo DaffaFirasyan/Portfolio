@@ -39,9 +39,13 @@ export const certificates: Certificate[] = [
   },
   {
     id: 'web-developer',
-    // TODO(owner): the exact title on the scan is still unconfirmed. The issuer
-    // is BNSP, confirmed. This is the last unverified string in the file.
-    title: 'Web Developer',
+    // Confirmed by the owner off the scan, 2026-08-22. Note how close it is to
+    // `bnsp-junior-web-developer` above — the two differ by the word "Junior"
+    // and nothing else, and one title is a proper substring of the other. The
+    // wall test matches on `startsWith` rather than `includes` precisely
+    // because of that; `includes` matched two rows for one certificate the
+    // last time these two were this similar.
+    title: 'Web Developer — Programming and Software Development',
     issuer: 'BNSP',
     imageUrl: '/certificates/web-developer.webp',
     thumbnailUrl: '/certificates/thumb-web-developer.webp',

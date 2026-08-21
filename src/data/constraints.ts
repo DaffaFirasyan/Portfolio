@@ -1,7 +1,13 @@
 export const STRESS_RATIO = 0.9;
 
 export const LIMITS = {
-  profile: { tagline: 120, role: 28, bioParagraph: 420, roles: 4, bio: 3 },
+  // `bio` went 3 -> 4 on 2026-08-22, and the reason is a measurement rather
+  // than a preference. About's prose column sat 176px shorter than the
+  // credential rail beside it — 8 lines at 78 characters and a 24px line
+  // height, measured on the built page at 1280. Paragraphs one and two were
+  // already at 407 and 419 of 420, so there was nowhere to put the words
+  // except a new paragraph.
+  profile: { tagline: 120, role: 28, bioParagraph: 420, roles: 4, bio: 4 },
   project: { title: 48, problem: 180, solution: 180, outcome: 140, role: 40, stack: 6 },
   experience: { role: 48, organization: 40, summary: 140, highlight: 160, highlights: 4 },
   certificate: { title: 72, issuer: 40, skills: 4 },

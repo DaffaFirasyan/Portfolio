@@ -166,7 +166,7 @@ describe('profile', () => {
     );
   });
 
-  it('has two or three bio paragraphs inside the length limit', () => {
+  it('has between two and four bio paragraphs, each inside the length limit', () => {
     expect(profile.bio.length).toBeGreaterThanOrEqual(2);
     expect(profile.bio.length).toBeLessThanOrEqual(LIMITS.profile.bio);
     for (const paragraph of profile.bio) {
