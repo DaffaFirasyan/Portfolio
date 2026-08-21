@@ -103,15 +103,22 @@ export default function Hero() {
               //
               // Trimmed to the subject it is 368x744, an aspect of 0.495
               // against the card's 0.718 — filling the width at that shape puts
-              // the head above the top edge, and the card clips it. So it is
-              // cropped to the card's own aspect instead, head to hips, which
-              // is the framing that lets the subject reach both edges.
+              // the head above the top edge, where the card clips it.
+              //
+              // Cropping to the card's aspect at full width gave head-to-hips,
+              // and the figure still read small: the card renders the image at
+              // its own width, so the only way to enlarge the person is to show
+              // less of them. This crops narrower than the subject, cutting
+              // into the arms and everything below the chest, and is centred on
+              // the head rather than on the frame — centring on the frame put
+              // the face noticeably off to one side, because the arms are not
+              // symmetrical in the source.
               //
               // These numbers must match the file: the browser reserves a box
               // from them before the image arrives, and a wrong one stretches
               // the portrait into it.
-              width={368}
-              height={513}
+              width={279}
+              height={389}
               className="w-full max-w-xs"
             />
           </div>
