@@ -478,14 +478,11 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
             // viewport that put 388px of card in a 246px column and pushed the
             // whole document 94px sideways.
             //
-            // `width: 100%` is the part that matters and has not changed: the
-            // card can never be wider than what it is given, whatever this cap
-            // says. The cap was 388px, upstream's largest size, and is raised
-            // to 448 so the hero column governs instead of this number — at
-            // 1280 that column is 432px, and the old cap was leaving 112px of
-            // it unused.
+            // `width: 100%` is the part that matters: the card can never be
+            // wider than what it is given, whatever this cap says. 388px is
+            // upstream's largest size and is kept.
             width: '100%',
-            maxWidth: '448px',
+            maxWidth: '388px',
             aspectRatio: '0.718',
             borderRadius: cardRadius,
             backgroundBlendMode: 'color-dodge, normal, normal, normal',

@@ -132,7 +132,10 @@ async function main() {
     ]);
 
   const groups = [
-    { name: 'avatar', width: 800, height: 800, urls: [profile.avatarUrl], cutout: true },
+    // 368x513, the card's own 0.718 aspect. A square placeholder would
+    // regenerate the mistake the real portrait had: boxed into a square, the
+    // subject fills under half the card's width and reads as small in it.
+    { name: 'avatar', width: 368, height: 513, urls: [profile.avatarUrl], cutout: true },
     {
       name: 'project thumbnail',
       width: 800,

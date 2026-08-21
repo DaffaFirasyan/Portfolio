@@ -94,16 +94,25 @@ export default function Hero() {
             <AvatarCard
               src={profile.avatarUrl}
               name={profile.name}
-              width={800}
-              height={800}
-              // max-w-md, not the max-w-xs this used to be. Measured at 1280:
-              // the column offers 432px and the card was stopping at 320,
-              // leaving 112px of it unused for the one image the hero is built
-              // around. The cap still exists rather than being removed, because
-              // below `md` the layout stacks and the column becomes the whole
-              // content width — a portrait that fills 719px on a tablet is a
-              // different problem, not a fix.
-              className="w-full max-w-md"
+              // 368x513, and every part of that is measured. The asset was
+              // padded into an 800x800 square, so the subject filled 45% of the
+              // card's width and read as a small figure in a large frame.
+              // Removing the padding was not enough: the source photo carries
+              // its own transparent margins, and the subject only spanned 68%
+              // of even the unpadded file.
+              //
+              // Trimmed to the subject it is 368x744, an aspect of 0.495
+              // against the card's 0.718 — filling the width at that shape puts
+              // the head above the top edge, and the card clips it. So it is
+              // cropped to the card's own aspect instead, head to hips, which
+              // is the framing that lets the subject reach both edges.
+              //
+              // These numbers must match the file: the browser reserves a box
+              // from them before the image arrives, and a wrong one stretches
+              // the portrait into it.
+              width={368}
+              height={513}
+              className="w-full max-w-xs"
             />
           </div>
         </div>
