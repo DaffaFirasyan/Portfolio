@@ -1,7 +1,22 @@
 /**
  * Crops the hero portrait from the original photo in Konten_Asli.
  *
- * Run with: npm run avatar
+ * ─────────────────────────────────────────────────────────────────────────────
+ *  THIS DOES NOT RUN WITHOUT `--force`, AND THAT IS DELIBERATE.
+ * ─────────────────────────────────────────────────────────────────────────────
+ *
+ * On 2026-08-22 the owner put his own portrait at public/profile/avatar.webp
+ * and asked that it not be touched, because the version this script produced
+ * looked wrong to him on his own screen. He owns that file now.
+ *
+ * The likely reason, for whoever picks this up: the output is 320px wide, and
+ * the card renders it at up to 388 CSS px. On a display at 2x that needs ~776
+ * real pixels, so a 320px source is upscaled about two and a half times and
+ * goes soft. The browser pane here reports devicePixelRatio 1, so it cannot
+ * show that and did not. If this script is ever wanted again, raise OUT_W to
+ * 2x the rendered width before anything else — do not just re-run it.
+ *
+ * Run with: npm run avatar -- --force
  *
  * ─────────────────────────────────────────────────────────────────────────────
  *  THE ONLY NUMBER TO CHANGE IS `ZOOM`, JUST BELOW.
@@ -31,10 +46,11 @@
  * framed it", which is exactly what he asked for. The script prints how much it
  * cut on every run; read that rather than a number quoted here.
  *
- * Change the number, run `npm run avatar`, and reload the page. The output is
- * always 320x446 whatever you choose, so nothing else in the project needs
- * touching — that size is what `Hero.tsx` declares and what the card renders,
- * and keeping it fixed is what stops the two drifting apart.
+ * Change the number, run `npm run avatar -- --force`, and reload the page. The
+ * output is always 320x446 whatever you choose — which is no longer what
+ * `Hero.tsx` declares, because the owner's own portrait is a different shape.
+ * `hero-avatar.test.ts` compares the declaration against the file and fails on
+ * a mismatch, so running this again means updating that pair to 320x446 too.
  */
 import { readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -97,6 +113,22 @@ function headExtent(data, width, height, channels) {
 }
 
 async function main() {
+  // Refuses by default. The owner's photo lives at OUTPUT and overwriting it
+  // silently is the exact accident this guard exists to prevent — the same
+  // shape of footgun as `npm run placeholders`, which will happily replace
+  // every real asset in public/ with generated stand-ins.
+  if (!process.argv.includes('--force')) {
+    console.error("Refusing to run: public/profile/avatar.webp is the owner's own file.");
+    console.error('');
+    console.error('He replaced the generated portrait with his own on 2026-08-22 and asked');
+    console.error('that it not be regenerated. Read the note at the top of this file first —');
+    console.error('the output width is very likely too small for a high-DPI display.');
+    console.error('');
+    console.error('If you still mean it:  npm run avatar -- --force');
+    process.exitCode = 1;
+    return;
+  }
+
   // The source photo carries its own transparent margins, so the subject is
   // trimmed to its true edges first. Without this, ZOOM would be measured
   // against empty space rather than against the person.

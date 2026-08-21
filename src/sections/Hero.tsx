@@ -94,35 +94,30 @@ export default function Hero() {
             <AvatarCard
               src={profile.avatarUrl}
               name={profile.name}
-              // 368x513, and every part of that is measured. The asset was
-              // padded into an 800x800 square, so the subject filled 45% of the
-              // card's width and read as a small figure in a large frame.
-              // Removing the padding was not enough: the source photo carries
-              // its own transparent margins, and the subject only spanned 68%
-              // of even the unpadded file.
+              // The framing of this portrait is no longer decided here, and the
+              // long note that used to sit in this spot — head widths, crop
+              // ratios, where the transparent padding went — described a
+              // generated crop that is not what ships. The owner supplies the
+              // file himself as of 2026-08-22 and asked that it not be
+              // regenerated; `scripts/crop-avatar.mjs` refuses to run without
+              // `--force` for that reason.
               //
-              // Trimmed to the subject it is 368x744, an aspect of 0.495
-              // against the card's 0.718 — filling the width at that shape puts
-              // the head above the top edge, where the card clips it.
+              // These two numbers exist to carry the file's aspect ratio, which
+              // is what the browser reserves a box from before the image
+              // arrives. They must therefore track whatever is actually in
+              // `public/profile/avatar.webp`, and on 2026-08-22 they stopped:
+              // the owner replaced the portrait with one at 2000x2666, ratio
+              // 0.750, while this still said 320x446, ratio 0.717. The image
+              // rendered at its own ratio regardless, so nothing looked broken
+              // — the reservation was simply the wrong shape and the column
+              // shifted when the portrait loaded.
               //
-              // The card renders the image at its own width, so the only way to
-              // change how large the person reads is to show more or less of
-              // them. Measured by the head's rendered width: a full-width crop
-              // gave 123px and read small, a 1.32x crop gave 162px and read too
-              // big, and this is the midpoint at 142px.
-              //
-              // Centred on the head rather than on the frame — the arms are not
-              // symmetrical in the source, so the two centres are 50px apart
-              // and framing on the wrong one put the face visibly off to the
-              // side. At this width the head cannot be centred inside the
-              // source at all, so the canvas is extended with transparency,
-              // which is invisible against the card.
-              //
-              // 320x446 is exactly the card's rendered size, so the browser
-              // scales nothing. These numbers must match the file: they are
-              // what it reserves a box from before the image arrives.
+              // That is the second time a stale pair of these has shipped
+              // (About had 800x800 for the same 0.717 file), so it is no longer
+              // left to care: hero-avatar.test.ts reads the file and fails if
+              // this ratio disagrees with it.
               width={320}
-              height={446}
+              height={427}
               className="w-full max-w-xs"
             />
           </div>
