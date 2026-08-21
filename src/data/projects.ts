@@ -16,12 +16,15 @@ export const projects: Project[] = [
     year: 2025,
     role: 'Contract developer at Telkom University',
     problem:
-      'Village updates lived in noticeboards and group chats, and the MSMEs trading nearby had no shared shopfront, so residents could see neither the administration nor the businesses.',
+      'Banjarsari had no single place to find what its administration was doing, who ran it, or what its 7,682 residents were selling — it lived in noticeboards and group chats.',
     solution:
-      'A Laravel application pairing a public transparency portal with a product catalogue, and an admin panel letting village staff manage news, galleries and listings themselves.',
+      'A portal carrying the profile, history, officials, news and an interactive map, next to a searchable catalogue of village produce and crafts under "Dari Banjarsari, Untukmu".',
     outcome:
-      'Deployed to production on Hostinger, with bulk product upload by Excel and dashboards tracking visitors and most-viewed listings.',
-    stack: ['PHP', 'Laravel', 'MySQL', 'Bootstrap', 'Hostinger', 'Excel Import'],
+      'Live at banjarsarigarut.id, with village staff managing news, galleries and product listings themselves through an admin panel.',
+    // Leaflet over OpenStreetMap is what draws the village map. Everything here
+    // is evidenced — Laravel and Hostinger from the CV, the map from the site
+    // itself — rather than assumed from "it is a Laravel app".
+    stack: ['PHP', 'Laravel', 'MySQL', 'JavaScript', 'Leaflet', 'Hostinger'],
     thumbnail: '/projects/village-portal.webp',
     links: {},
     featured: true,
@@ -30,9 +33,9 @@ export const projects: Project[] = [
     id: 'simpel-ibs',
     title: 'Simpel IBS — Online Village Letter Service',
     category: 'Web',
-    year: 2025,
-    // TODO(owner): your role here — solo, or the part you owned in a team.
-    role: 'TODO(owner)',
+    year: 2026,
+    // No role, at the owner's instruction: the meta line reads "Web · 2026".
+    // `role` is optional, and the line is assembled from the parts that exist.
     problem:
       'Every administrative letter in Banjarsari meant a trip to the village office, and once a request was in, residents had no way to see whether it had moved or stalled.',
     solution:
@@ -44,8 +47,10 @@ export const projects: Project[] = [
     // by opening it; what it achieved is not.
     outcome:
       'Covers the whole path in one place: submission, document checks, status tracking, and email or WhatsApp notices on every change.',
-    // TODO(owner): what this is actually built with.
-    stack: ['TODO'],
+    // The same stack as the village portal, at the owner's instruction, minus
+    // Leaflet — that one draws the portal's map, and this service has none.
+    // Say the word if it belongs here too.
+    stack: ['PHP', 'Laravel', 'MySQL', 'JavaScript', 'Hostinger'],
     thumbnail: '/projects/simpel-ibs.webp',
     links: {},
     featured: true,

@@ -92,7 +92,12 @@ export interface Project {
   title: string;
   category: string;
   year: number;
-  role: string;
+  /**
+   * Optional. Not every project has a role worth stating — a solo build often
+   * does not — and the meta line drops it rather than printing a separator
+   * with nothing after it.
+   */
+  role?: string;
   problem: string;
   solution: string;
   outcome?: string;

@@ -107,7 +107,10 @@ export default function FeaturedProject({
           </h3>
 
           <p className="mt-1 font-mono text-xs uppercase tracking-[0.12em] text-muted">
-            {`${project.category} · ${project.year} · ${project.role}`}
+            {/* Built from the parts that exist. Interpolating `role` directly
+                printed a trailing separator with nothing after it for any
+                project that does not state one. */}
+            {[project.category, project.year, project.role].filter(Boolean).join(' · ')}
           </p>
 
           {/* The result, not the problem: `problem` and `solution` now live in

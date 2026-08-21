@@ -112,7 +112,10 @@ export default function Projects() {
         {selected && (
           <div className="p-6">
             <p className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
-              {`${selected.category} · ${selected.year} · ${selected.role}`}
+              {/* Same as the featured row: only the parts that exist, so a
+                  project without a stated role does not show a dangling
+                  separator. */}
+              {[selected.category, selected.year, selected.role].filter(Boolean).join(' · ')}
             </p>
             {/* h2, not h3: the card titles are level 3 and a dialog heading at
                 the same level would join their outline. */}

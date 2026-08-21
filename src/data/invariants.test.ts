@@ -63,7 +63,9 @@ describe('projects', () => {
       expect(p.problem.length, `${p.id}.problem`).toBeLessThanOrEqual(LIMITS.project.problem);
       expect(p.solution.length, `${p.id}.solution`).toBeLessThanOrEqual(LIMITS.project.solution);
       expect(p.outcome?.length ?? 0, `${p.id}.outcome`).toBeLessThanOrEqual(LIMITS.project.outcome);
-      expect(p.role.length, `${p.id}.role`).toBeLessThanOrEqual(LIMITS.project.role);
+      // `role` is optional now — a project may simply not state one — so this
+      // caps it when present rather than assuming it is there.
+      expect(p.role?.length ?? 0, `${p.id}.role`).toBeLessThanOrEqual(LIMITS.project.role);
       expect(p.stack.length, `${p.id}.stack`).toBeLessThanOrEqual(LIMITS.project.stack);
     }
   });
