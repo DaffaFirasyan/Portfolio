@@ -63,7 +63,7 @@ function Body({ entry, current }: { entry: (typeof experiences)[number]; current
 export default function Experience() {
   return (
     <SectionShell {...shellProps('experience')}>
-      {/* No rule and no dots down the left. With five entries in reverse order
+      {/* No rule and no dots down the left. With the entries in reverse order
           the sequence is already obvious from the dates, so the rule spent
           horizontal space restating it — and a ruled timeline is the layout
           almost every portfolio template ships.

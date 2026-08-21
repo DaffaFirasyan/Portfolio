@@ -1,8 +1,13 @@
 import type { Experience, ExperienceType } from '@/types';
 
 /**
- * Shown beside the organisation so five near-identical rows can be told apart
- * at a glance. The data always carried `type`; this is what renders it.
+ * Shown beside the organisation so near-identical rows can be told apart at a
+ * glance. The data always carried `type`; this is what renders it.
+ *
+ * The table stays exhaustive over `ExperienceType` even though only `work` and
+ * `internship` are in use — it is a `Record`, so the compiler requires every
+ * member, and that is what stops a type added to the union from rendering
+ * `undefined` beside an organisation.
  */
 export const EXPERIENCE_TYPE_LABEL: Record<ExperienceType, string> = {
   work: 'Work',
@@ -13,6 +18,24 @@ export const EXPERIENCE_TYPE_LABEL: Record<ExperienceType, string> = {
   research: 'Research',
 };
 
+/**
+ * Three engineering roles, newest first.
+ *
+ * Three student-organisation roles were removed on 2026-08-22 at the owner's
+ * decision, and the reason is worth keeping: the section is headed "Where I
+ * have worked", and media, recruitment and external-relations staff posts are
+ * not that. They also captured the section's one signal for *now* — both were
+ * the only `endDate: 'present'` entries, so the accent year and the pulse dot
+ * were pointing at organisational admin rather than at engineering.
+ *
+ * Nothing is hidden by dropping them: the CV is on the page as a download and
+ * carries the complete record. A portfolio is the curated subset; the CV is the
+ * whole one.
+ *
+ * The consequence to accept is that no role is current — the timeline ends
+ * September 2025 with no pulse dot anywhere. That is simply true of a fresh
+ * graduate looking for work, and `profile.openToWork` is what says so.
+ */
 export const experiences: Experience[] = [
   {
     id: 'telkom-fullstack',
@@ -66,52 +89,5 @@ export const experiences: Experience[] = [
       'Fed device data into a dashboard so one operator could monitor farms in several provinces at once.',
     ],
     stack: ['Python', 'Django', 'MQTT', 'REST API', 'Celery', 'Redis'],
-  },
-  {
-    id: 'eim-lab',
-    role: 'Human Capital Development Staff',
-    organization: 'Enterprise Infrastructure Mgmt Lab',
-    type: 'organization',
-    location: 'Telkom University',
-    startDate: '2024-09',
-    endDate: 'present',
-    summary:
-      'Support recruitment, development programmes and internal communication for the infrastructure lab.',
-    highlights: [
-      'Run the social channels that carry the lab’s work to students inside and outside the faculty.',
-      'Support recruitment and member development, from intake through performance review.',
-      'Use channel analytics to decide what the lab publishes rather than guessing at it.',
-    ],
-  },
-  {
-    id: 'permib-external',
-    role: 'External Division Staff',
-    organization: 'Perhimpunan Mahasiswa Bandung',
-    type: 'organization',
-    location: 'Telkom University',
-    startDate: '2024-09',
-    endDate: 'present',
-    summary:
-      'Hold the relationships with outside organisations, local businesses and community partners.',
-    highlights: [
-      'Coordinate collaborations and joint events with student associations and partners beyond the campus.',
-      'Manage communication with external stakeholders on behalf of the organisation.',
-    ],
-  },
-  {
-    id: 'cci-media',
-    role: 'Media Management Staff',
-    organization: 'Central Computer Improvement',
-    type: 'organization',
-    location: 'Telkom University',
-    startDate: '2023-12',
-    endDate: '2024-12',
-    summary:
-      'Ran content across the organisation’s channels for a student body building campus digital tools.',
-    highlights: [
-      'Planned and produced multimedia content, using analytics to decide what to make next.',
-      'Worked across teams to promote initiatives, events and the digital tools the organisation shipped.',
-      'Led media strategy for UKM projects across content, social channels and public relations.',
-    ],
   },
 ];

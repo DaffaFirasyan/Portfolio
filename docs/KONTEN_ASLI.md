@@ -86,6 +86,14 @@ mati. Jangan diisi placeholder.
 | `highlights` | Poin pencapaian | **maks 4 poin, tiap poin ≤ 160 karakter** |
 | `stack` | Teknologi | opsional |
 
+**Section ini hanya untuk pengalaman kerja.** Tiga peran organisasi kampus
+dihapus pada 2026-08-22 atas keputusan Anda — judul sectionnya "Where I have
+worked", dan staf media, rekrutmen serta hubungan eksternal bukan itu. Rekam
+lengkapnya tetap ada di CV yang bisa diunduh dari halaman; portfolio adalah
+versi terkurasi, CV yang versi utuh. Nilai `organization`, `volunteer`,
+`freelance` dan `research` pada `type` masih tersedia kalau suatu saat
+dibutuhkan.
+
 ### 1.5 Education (`src/data/education.ts`)
 
 | Field | Isi | Batas |

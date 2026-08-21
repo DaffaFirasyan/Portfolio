@@ -94,7 +94,7 @@ Enough of a map to orient without reading everything.
 
 | Path | What is there |
 |---|---|
-| `data/` | `profile`, `projects` (4, three featured), `skills` (4 categories), `experiences` (6) + `EXPERIENCE_TYPE_LABEL`, `education` (1), `certificates` (14), `technologies` (18 logo paths), `site` (canonical URL, title, OG), `sections` (`SECTIONS` + `shellProps`), `constraints` (`LIMITS`, `longest`, `STRESS_RATIO`), plus `invariants.test.ts` and `site.test.ts` — the data rules and the metadata drift guards. **All of it is the owner's real content now**, except what is listed under "Still the owner's to fill" |
+| `data/` | `profile`, `projects` (4, three featured), `skills` (4 categories), `experiences` (3, all engineering) + `EXPERIENCE_TYPE_LABEL`, `education` (1), `certificates` (14), `technologies` (18 logo paths), `site` (canonical URL, title, OG), `sections` (`SECTIONS` + `shellProps`), `constraints` (`LIMITS`, `longest`, `STRESS_RATIO`), plus `invariants.test.ts` and `site.test.ts` — the data rules and the metadata drift guards. **All of it is the owner's real content now**, except what is listed under "Still the owner's to fill" |
 | `types/` | Every content interface, plus `SectionMeta`, `SectionNavProps`, `Site`, `Technology` |
 | `lib/` | All pure and tested directly: `scroll`, `filter`, `cycle`, `rail` (node geometry), `group` (`groupByCategory`, `CATEGORY_ORDER`), `validate` (contact fields), `web3forms` (the submit call), `token` (`cssToken` — canvas cannot read `var()`), `skillIcon` (kebab-case data key → lucide component, explicit table not a derived lookup) |
 | `hooks/` | `useActiveSection`, `useScrolledPast`, `useMotionAllowed`, `useOnScreen`, `useLenis` — the last is a **module singleton**, see the traps |
@@ -149,7 +149,21 @@ Everything below was decided in conversation, not in a plan document, after the 
 
 Landed 2026-08-21/22 across five commits, from the owner's CV and his own accounts of each project. **The architectural promise held**: `git show --stat` on `514ff25` and `1fd57e7` touches `src/data/`, `public/`, `index.html` and tests, and not one component. That was spec §11 criterion 3, written before there was any content to test it with, and it is now tested.
 
-**What is on the page:** Raden Daffa Firasyan Adikusumah (short form "Daffa Firasyan" everywhere, and the comment in `profile.ts` says why), Bachelor of Information Systems from Telkom University at 3.64, six experience entries — Telkom University, Pertamina Hulu Indonesia, Arranet, and three organisational roles — fourteen certificates, four projects, and the real avatar, CV and OG cover.
+**What is on the page:** Raden Daffa Firasyan Adikusumah (short form "Daffa Firasyan" everywhere, and the comment in `profile.ts` says why), Bachelor of Information Systems from Telkom University at 3.64, three engineering roles — Telkom University, Pertamina Hulu Indonesia, Arranet — fourteen certificates, four projects, and the real avatar, CV and OG cover.
+
+### Experience is engineering only, and nothing is current
+
+Three student-organisation roles — media, human-capital and external-relations staff — were removed on 2026-08-22 at the owner's decision. The section is headed "Where I have worked", and those posts are not that.
+
+**They also held the section's only signal for *now*.** Both ongoing entries were organisational, so the accent year and the pulse dot — the one device the timeline uses to mean "this is what I do today" — were pointing at organisational admin rather than at engineering. That was the strongest argument for removing them and it was not the one that prompted it.
+
+Nothing is hidden by the removal: the CV is a download on the page and carries the complete record. The portfolio is the curated subset; the CV is the whole one.
+
+**The consequence to accept is that no role is current.** The timeline ends September 2025 and no pulse dot renders anywhere. That is simply true of a fresh graduate looking for work, and `profile.openToWork` is what says so.
+
+**Two tests had encoded a fact about the owner's life as an invariant, and it has now been wrong in both directions.** `invariants.test.ts` first insisted on *at most* one current role, which held only while the content was invented — he genuinely held two at once. It was then changed to insist on *at least* one, and removing the organisational roles left zero and failed it. Both versions were making the same mistake as the five deleted stress clauses: asserting something about a person rather than about the data. What survives is the part that is a real invariant — "present" must mean present, so an ongoing entry still needs a real start date — which is vacuous at zero, and correctly so. The companion assertion in `sections-lower.test.tsx` moved from `getAllByText` to `queryAllByText`, because `getAllBy*` throws on an empty result and made zero literally inexpressible.
+
+`EXPERIENCE_TYPE_LABEL` still covers all six `ExperienceType` members even though only `work` and `internship` are used. It is a `Record`, so the compiler requires exhaustiveness, and that is what stops a newly-added type rendering `undefined` beside an organisation. That is not dead data in the way `credentialId` is.
 
 **Two content decisions worth not re-litigating:**
 

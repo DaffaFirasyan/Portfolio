@@ -232,17 +232,24 @@ describe('experiences', () => {
     }
   });
 
-  it('marks every ongoing role as present, however many there are', () => {
-    // This used to insist on at most one, which held while the content was
-    // invented. The owner genuinely holds two organisational roles at once,
-    // both running from September 2024, and bending a CV to keep an assertion
-    // green would be lying about it. What is worth guarding is that "present"
-    // means present — an ongoing entry still needs a real start date, and the
-    // section gives every one of them the accent and the pulse dot it uses to
-    // mean exactly that.
-    const current = experiences.filter((e) => e.endDate === 'present');
-    expect(current.length).toBeGreaterThan(0);
-    for (const e of current) {
+  it('marks every ongoing role as present, however many there are — including none', () => {
+    // This assertion has now been wrong about the owner's life twice, in
+    // opposite directions. It first insisted on at most one current role, which
+    // held only while the content was invented; he genuinely held two at once.
+    // It then insisted on at least one — and when the two organisational roles
+    // were removed from the section, zero were left and it failed.
+    //
+    // Both versions were asserting a fact about a person rather than an
+    // invariant of the data, which is the same mistake the five deleted stress
+    // clauses made. A fresh graduate between roles has no current entry, and
+    // that is not a defect for a test to catch.
+    //
+    // What survives is the part that is genuinely an invariant: "present" has
+    // to mean present, so an ongoing entry still needs a real start date. With
+    // no ongoing entries the loop is vacuous, which is the correct answer
+    // rather than a gap — nothing claims to be current, so nothing can lie
+    // about it.
+    for (const e of experiences.filter((e) => e.endDate === 'present')) {
       expect(e.startDate, `${e.id} claims present but has no start date`).toMatch(MONTH);
     }
   });

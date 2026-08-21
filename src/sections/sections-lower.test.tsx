@@ -15,9 +15,15 @@ describe('Experience', () => {
       expect(screen.getByRole('heading', { level: 3, name: e.role })).toBeInTheDocument();
       expect(screen.getAllByText(e.organization).length).toBeGreaterThan(0);
     }
-    // The date line renders as "Feb 2026 — Present" in a single element,
-    // so match the tail rather than the bare word.
-    expect(screen.getAllByText(/— Present$/).length).toBe(
+    // The date line renders as "Feb 2026 — Present" in a single element, so
+    // match the tail rather than the bare word.
+    //
+    // queryAllByText, not getAllByText: getAllBy* throws when nothing matches,
+    // which made zero current roles inexpressible. It is zero today — the two
+    // ongoing entries were both organisational and left with them — and "the
+    // page marks exactly as many roles current as the data does" is the
+    // assertion, whatever that number is.
+    expect(screen.queryAllByText(/— Present$/).length).toBe(
       experiences.filter((e) => e.endDate === 'present').length,
     );
   });
@@ -26,8 +32,8 @@ describe('Experience', () => {
     render(<Experience />);
 
     // experience.type was in the data, covered by a type, and rendered nowhere.
-    // "Internship" and "Volunteer" are the difference between five entries that
-    // look identical and five a reader can weigh.
+    // "Work" and "Internship" are the difference between entries that look
+    // identical and entries a reader can weigh.
     for (const e of experiences) {
       expect(screen.getAllByText(EXPERIENCE_TYPE_LABEL[e.type]).length).toBeGreaterThan(0);
     }
