@@ -32,7 +32,7 @@ const ZOOM = 0.75;
 // ─────────────────────────────────────────────────────────────────────────────
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const SOURCE = join(root, 'Konten_Asli', 'gambar', 'profil', 'Foto Profil.webp');
+const SOURCE = join(root, 'Konten_Asli', 'gambar', 'profil', 'fotoprofil.webp');
 const OUTPUT = join(root, 'public', 'profile', 'avatar.webp');
 
 /** ProfileCard's own aspect ratio, and the size it renders at in the hero. */

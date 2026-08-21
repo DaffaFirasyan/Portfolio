@@ -28,16 +28,23 @@ export const projects: Project[] = [
   },
   {
     id: 'simpel-ibs',
-    title: 'Simpel IBS',
+    title: 'Simpel IBS — Online Village Letter Service',
     category: 'Web',
     year: 2025,
-    role: 'TODO(owner): your role on this project',
-    // TODO(owner): this project is not in the CV. Replace all three sentences.
-    // The section renders `problem` on the featured row and all of it in the
-    // dialog, so these are the words a recruiter actually reads.
-    problem: 'TODO(owner): what problem did this solve, and for whom?',
-    solution: 'TODO(owner): how did you solve it, and what did you build?',
-    outcome: 'TODO(owner): what changed as a result — a number if you have one.',
+    // TODO(owner): your role here — solo, or the part you owned in a team.
+    role: 'TODO(owner)',
+    problem:
+      'Every administrative letter in Banjarsari meant a trip to the village office, and once a request was in, residents had no way to see whether it had moved or stalled.',
+    solution:
+      'A service where residents register with their NIK, submit a request with supporting documents, and follow it through verification to a letter they download or collect.',
+    // Deliberately not the "500+ residents, 1,200+ letters, 98% satisfaction"
+    // shown on the site's own homepage. Those are the product's claims about
+    // itself, not measurements — and an outcome line on a portfolio reads as
+    // something its author stands behind. What the system does is verifiable
+    // by opening it; what it achieved is not.
+    outcome:
+      'Covers the whole path in one place: submission, document checks, status tracking, and email or WhatsApp notices on every change.',
+    // TODO(owner): what this is actually built with.
     stack: ['TODO'],
     thumbnail: '/projects/simpel-ibs.webp',
     links: {},
