@@ -69,8 +69,16 @@ async function main() {
   const { width: W, height: H, channels } = trimmed.info;
   const head = headExtent(trimmed.data, W, H, channels);
 
-  const cropW = Math.round(W / ZOOM);
-  const cropH = Math.min(Math.round(cropW / CARD_ASPECT), H);
+  // Both dimensions have to keep the card's aspect. Clamping only the height
+  // against a tall source left the crop at a different shape, which the resize
+  // below then squeezed to fit — a portrait 9% narrower than the person really
+  // is. When the height runs out, the width has to come down with it.
+  let cropW = Math.round(W / ZOOM);
+  let cropH = Math.round(cropW / CARD_ASPECT);
+  if (cropH > H) {
+    cropH = H;
+    cropW = Math.round(H * CARD_ASPECT);
+  }
 
   // Centred on the head, not on the frame: the arms are not symmetrical, so the
   // two centres are ~50px apart and framing on the wrong one puts the face
