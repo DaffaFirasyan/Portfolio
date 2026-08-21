@@ -30,7 +30,9 @@ npm run dev        # dev server
 npm test           # vitest, currently 330 tests across 45 files
 npm run lint       # eslint, includes the import boundary
 npm run build      # tsc --noEmit && vite build
-npm run avatar     # re-crop the hero portrait; one ZOOM constant, fixed 320x446 output
+npm run avatar     # REFUSES without --force. The hero portrait is the owner's own file.
 ```
+
+**`public/profile/avatar.webp` is the owner's, not the project's.** He replaced the generated crop with his own photo on 2026-08-22 and asked that it not be touched; `npm run avatar` refuses without `--force` for that reason. `src/sections/hero-avatar.test.ts` fails if `Hero.tsx`'s declared width/height stop matching the file's aspect ratio, which is what silently broke twice before that guard existed.
 
 `npm run placeholders` also exists and is **destructive now**: it overwrites every asset the data references — the real avatar, all fourteen certificate scans, the thumbnails, the OG cover and the real CV PDF — with generated stand-ins, unconditionally. It was the right tool while the content was fixtures. Do not run it without meaning to.

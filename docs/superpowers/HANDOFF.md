@@ -237,7 +237,13 @@ If a date is ever wanted as *data* — for sorting, or a "valid until" badge the
 
 ### The hero portrait has a dial, and it is the only thing to turn
 
-`npm run avatar` runs [`scripts/crop-avatar.mjs`](../../scripts/crop-avatar.mjs), which has **one number in it** — `const ZOOM` at line 30, currently `0.75`. Higher crops tighter and renders the person larger. It always writes 320×446, so `Hero.tsx`, `ProfileCard` and the `index.html` preload never need touching to change the framing. That was the point: the owner asked where to adjust it himself, and a single constant with a fixed output size is an answer he can act on without a code review.
+**Superseded on 2026-08-22: the owner supplies this file himself now**, and `npm run avatar` refuses to run without `--force`. He asked that his portrait not be touched, because the generated version looked wrong on his screen. The likely reason is arithmetic the pane cannot see: the script writes 320px wide, the card renders it at up to 388 CSS px, so a 2× display upscales it about two and a half times and it goes soft — and the pane reports `devicePixelRatio: 1`, so it can never reproduce that. Raising `OUT_W` to twice the rendered width is the first thing to fix if the script is ever wanted again; re-running it as-is would reproduce the problem.
+
+**The file is his photo, re-encoded losslessly to real WebP at his request** — 2000×2666 in, 2000×2666 out, PNG to WebP, 1,540 KB to 622 KB. Verified pixel by pixel rather than trusted: **zero differences in the alpha channel and zero in any visible pixel.** The 851,076 subpixels that do differ are all RGB inside fully transparent pixels, where RGB has no meaning and the encoder normalises it. Lossy at q95 was measured too — 150 KB, alpha still exact, mean visible error 0.643/255 — and not taken, because he was burned once by a degraded portrait and lossless costs him nothing he can see.
+
+**It is still 622 KB in the LCP slot**, preloaded with `fetchpriority="high"`. That is known and is his call.
+
+The historical note, for context: `scripts/crop-avatar.mjs` has **one number in it**, `const ZOOM`. Higher crops tighter and renders the person larger. It always writes 320×446 — which is no longer the shape of the file that ships, so running it now means updating `Hero.tsx`'s declared pair as well, and `hero-avatar.test.ts` will say so.
 
 `sharp` fought this three ways, each worth knowing before editing that script:
 
