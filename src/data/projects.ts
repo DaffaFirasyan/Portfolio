@@ -5,13 +5,17 @@ import type { Project } from '@/types';
  *
  * Every description here comes from an account the owner wrote — the CV for the
  * village portal, his own summaries for the rest. Nothing is invented, which is
- * why `role` is absent from three of the four and why AssetMind's stack stops
- * at the three ideas he named. A portfolio that describes work in words its
- * author did not choose is worse than one that says less.
+ * why `role` is absent from three of the four. A portfolio that describes work
+ * in words its author did not choose is worse than one that says less.
  *
- * AssetMind replaced Dukunify on 2026-08-22. Dukunify had sat here since the
- * content paste with every field still `TODO(owner)`, and it was the one
- * visible gap on the page.
+ * AssetMind replaced Dukunify on 2026-08-22, and took Animart's featured slot
+ * the same day. Dukunify had sat here since the content paste with every field
+ * still `TODO(owner)`; the featured tier held three Laravel builds on a site
+ * whose own title claims AI/ML. Both were the same gap seen from two sides.
+ *
+ * The featured three are 01 village portal, 02 Simpel IBS, 03 AssetMind, in
+ * array order. Leading with AssetMind instead is a one-line move if the AI
+ * claim should be the first thing a scanning reader meets.
  */
 export const projects: Project[] = [
   {
@@ -78,7 +82,11 @@ export const projects: Project[] = [
     stack: ['PHP', 'Laravel', 'MySQL', 'JavaScript', 'CSS'],
     thumbnail: '/projects/animart.webp',
     links: {},
-    featured: true,
+    // Demoted to the quiet tier on 2026-08-22 to make room for AssetMind.
+    // `featuredMax` is 3 and all three slots held Laravel work, on a site whose
+    // own title claims AI/ML. Of the three this was the weakest technically —
+    // a moving average — so it is the one that moved.
+    featured: false,
   },
   {
     id: 'assetmind',
@@ -103,16 +111,19 @@ export const projects: Project[] = [
     // highlight, which already carries 4.73 and the 39/39.
     outcome:
       'Two prototype iterations took explainability from 4.42 to 4.72 and procedure match from 80% to 92.9%. All 39 functional tests passed.',
-    // TODO(owner): these are the concepts you named, not the tools you built
-    // with. If you want the real stack on the card — Python, whatever graph
-    // store, whatever framework — say the word and it goes in. Nothing here is
-    // guessed, which is why it stops at three.
-    stack: ['LLM', 'KG-RAG', 'Knowledge Graph'],
-    // TODO(owner): a real screenshot. This is a generated placeholder —
-    // Dukunify's thumbnail was a real screenshot of Dukunify and could not
-    // stand in for this.
+    // Six of the eighteen the owner listed, chosen so each names a different
+    // layer rather than a different package: language, API, orchestration,
+    // model, graph store, embeddings. Uvicorn, Pydantic, pytest, httpx and the
+    // langchain-* adapters are all real and all implied by the six that are
+    // here — a chip row is a summary, and one that lists a test runner beside
+    // a 70B model tells a reader less, not more.
+    //
+    // Neo4j earns its place over anything else competing for the slot: the
+    // knowledge graph is the whole claim of this project, and it is the only
+    // chip that says the graph is real rather than a diagram.
+    stack: ['Python', 'FastAPI', 'LangChain', 'Llama 3.3 70B', 'Neo4j', 'Sentence Transformers'],
     thumbnail: '/projects/assetmind.webp',
     links: {},
-    featured: false,
+    featured: true,
   },
 ];

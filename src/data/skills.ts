@@ -5,7 +5,12 @@ export const skillCategories: SkillCategory[] = [
     id: 'languages',
     name: 'Languages & Frameworks',
     skills: [
-      { name: 'Python', icon: 'code', level: 'advanced', relatedProjectIds: ['animart'] },
+      {
+        name: 'Python',
+        icon: 'code',
+        level: 'advanced',
+        relatedProjectIds: ['animart', 'assetmind'],
+      },
       { name: 'PHP', icon: 'code', level: 'advanced', relatedProjectIds: ['village-portal'] },
       { name: 'Laravel', icon: 'layers', level: 'advanced', relatedProjectIds: ['village-portal'] },
       { name: 'Django', icon: 'server', level: 'intermediate' },
@@ -21,14 +26,20 @@ export const skillCategories: SkillCategory[] = [
     id: 'ai',
     name: 'AI & Retrieval',
     skills: [
-      // These four now point at a project, which they could not before: this
-      // category had no `relatedProjectIds` at all while the only AI work on
-      // the page was the unwritten Dukunify slot, so hovering any of them dimmed
-      // the whole Projects section and highlighted nothing. AssetMind's own
-      // description names all four, so the links are read off it rather than
-      // assumed. The rest of this category stays unlinked — NLP, embeddings and
-      // Sentence Transformers are evidenced for the Pertamina work, which is an
-      // experience entry, not a project.
+      // Six of the seven here now point at a project, which none of them could
+      // before: this category had no `relatedProjectIds` at all while the only
+      // AI work on the page was the unwritten Dukunify slot, so hovering any of
+      // them dimmed the whole Projects section and highlighted nothing.
+      //
+      // The links are read off AssetMind's own stack and description, never
+      // assumed. Embeddings and Sentence Transformers were left unlinked when
+      // AssetMind first landed, on the reasoning that they were evidenced for
+      // the Pertamina work rather than this one — the owner's stack table then
+      // showed sentence-transformers and PyTorch in AssetMind too, so that
+      // reasoning was superseded rather than wrong.
+      //
+      // `NLP` stays unlinked: it is the one skill here AssetMind's own account
+      // never names.
       { name: 'RAG', icon: 'search', level: 'advanced', relatedProjectIds: ['assetmind'] },
       { name: 'KG-RAG', icon: 'share-2', level: 'advanced', relatedProjectIds: ['assetmind'] },
       {
@@ -44,11 +55,17 @@ export const skillCategories: SkillCategory[] = [
         relatedProjectIds: ['assetmind'],
       },
       { name: 'NLP', icon: 'brain', level: 'intermediate' },
-      { name: 'Vector Embeddings', icon: 'chart', level: 'intermediate' },
+      {
+        name: 'Vector Embeddings',
+        icon: 'chart',
+        level: 'intermediate',
+        relatedProjectIds: ['assetmind'],
+      },
       {
         name: 'Sentence Transformers',
         icon: 'brain',
         level: 'intermediate',
+        relatedProjectIds: ['assetmind'],
       },
     ],
   },
