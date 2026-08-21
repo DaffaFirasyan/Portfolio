@@ -1,6 +1,6 @@
 # Handoff — read this first
 
-Written 2026-08-18, with all five written plans built and browser-verified. Kept current as work lands — if it disagrees with the code, the code is right and this needs fixing.
+Written 2026-08-18, **last updated 2026-08-22** with the real content in and the performance pass done. Kept current as work lands — if it disagrees with the code, the code is right and this needs fixing.
 
 This file exists so a session that remembers nothing can pick the work up without asking. Everything below is either recorded here or in a committed document — nothing important lives only in a conversation.
 
@@ -8,9 +8,23 @@ This file exists so a session that remembers nothing can pick the work up withou
 
 ## Where the work stands
 
-**Branch:** `feat/foundation-and-content-layer`, ~115 commits ahead of `main`. Nothing is merged; `main` still sits at the first plan document.
+**Branch:** `feat/foundation-and-content-layer`, **160 commits** ahead of `main`. Nothing is merged; `main` still sits at the first plan document.
 
-**State:** 329 tests pass across 45 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean. Initial payload is 204 KB JS plus 11 KB CSS gzip against a 250 KB budget, with the WebGL backdrop split into a further 16 KB chunk that only loads when the capability check passes.
+**State (2026-08-22):** 331 tests pass across 45 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean.
+
+**The real content has landed.** Profile, education, experience, projects, skills, certificates and every asset are the owner's own, pasted through `src/data/` and `public/` exactly as spec §11 criterion 3 promised — no component was touched to do it. What is still unfilled is listed under [Still the owner's to fill](#still-the-owners-to-fill).
+
+**Bundle, gzip, measured on this commit:**
+
+| Loaded | Chunks | gzip |
+|---|---|---|
+| Eagerly | `react` 57.15, `index` 50.07, `gsap` 50.27, `motion` 39.94, `lenis` 5.39, `icons` 2.31, runtime 0.51 | **205.6 KB JS** + 11.1 KB CSS |
+| On the hero, desktop only | `Galaxy` 15.99, `SplashCursor` 6.04 | 22 KB |
+| On approach to Contact, desktop only | `react-spline` 571.22, `physics` 733.92, `opentype` 50.62, plus `ui`/`gaussian-splat-compression`/`process`/`boolean`/`navmesh`/`howler` | ~1.4 MB |
+
+The eager 216.7 KB is inside spec §12.3's 250 KB budget. The Spline robot is several times outside it, knowingly — see [its own section](#the-spline-robot-at-the-foot-of-contact). Fonts add about 130 KB of woff2 on top, already compressed.
+
+Two animation libraries with overlapping capability, `gsap` and `motion`, are 44% of the eager bundle. That is the single largest reduction still available and nobody has taken it.
 
 | Plan | Covers | Status |
 |---|---|---|
@@ -27,12 +41,32 @@ The authority on decisions is [the design spec](specs/2026-08-17-portfolio-onepa
 
 ## What to do next
 
-**Every plan is built.** Two things remain, both the owner's:
+**Every plan is built and the content is in.** What remains is listed below, and most of it is the owner's.
 
-1. **Paste the real content.** It touches only `src/data/` and `public/` — that is spec §11 criterion 3 and it still holds. `npm run placeholders` regenerates the images from whatever the data says. Read the asset requirements in spec §5 first: the profile photo must have its background removed, and the certificate scans need identity numbers, dates of birth, wet signatures and personal QR codes covered before upload.
-2. **Deploy.** [Contact & launch](plans/2026-08-18-contact-and-launch.md) Task 10 is written and unstarted, held at the owner's request until real content lands. It needs a Web3Forms key and a Vercel account, so it is theirs to run; the plan says exactly what to do.
+### Still the owner's to fill
 
-**Re-measure Lighthouse after the content paste.** The recorded 85/100/100/100 predates the motion and layout work, and Performance sat exactly on its threshold even then. Run it against `npm run preview` on port 4173, in incognito — a run against the dev server measures an artefact ten times heavier and scored 27.
+None of this is guessed or invented — the project's standing rule is that a portfolio describing work in words its author did not choose is worse than one that says less. Each is marked `TODO(owner)` in the file, so `grep -rn "TODO(owner)" src/` is the live list.
+
+| What | Where | State |
+|---|---|---|
+| **Dukunify** — role, problem, solution, outcome, stack | [`src/data/projects.ts:83`](../../src/data/projects.ts) | Every field is a `TODO(owner)` string and `stack` is `['TODO']`. It is `featured: false`, so it shows only as a `ProjectFlow` row. **This is the one visible gap on the page.** |
+| **Animart** — the owner's own part on it | [`src/data/projects.ts:66`](../../src/data/projects.ts) | `role` was deliberately removed rather than guessed: the project report says the team chose the approach, and an earlier inferred "Solo — analysis and build" was wrong. Optional; the meta line reads "Data · 2025" without it. |
+| **Certificate dates** — 7 of 14 | [`src/data/certificates.ts`](../../src/data/certificates.ts) | Still on the placeholder `issueDate: '2025-01'`. They sort and display fine; they are simply not true yet. |
+| **The `web-developer` certificate title** | [`src/data/certificates.ts:39`](../../src/data/certificates.ts) | Issuer is confirmed **BNSP**. The exact wording on the scan is not. |
+| **`site.url`** | [`src/data/site.ts:4`](../../src/data/site.ts) | `https://daffa-firasyan.vercel.app` — a guess at the deploy target. Canonical URL, OG tags and JSON-LD all read from it, and `site.test.ts` guards it against drift, so changing it is one line. |
+
+### Then, in order
+
+1. **Deploy.** [Contact & launch](plans/2026-08-18-contact-and-launch.md) Task 10 is written and unstarted. It needs a Web3Forms key and a Vercel account, so it is the owner's to run; the plan says exactly what to do. It also merges this branch, which is the other reason to get to it.
+2. **Check the certificate scans before they go public, by eye.** Identity numbers, dates of birth, wet signatures and personal QR codes must be covered. The owner has confirmed they checked (*"Soal privasi sudah saya pastikan aman"*), but **no test can check this and none pretends to** — it is a look at fourteen images, and the only chance to do it is before the files are public.
+3. **Re-measure Lighthouse.** See [the performance pass](#the-performance-pass) for where it stands and what is already known to be costing points. Run it against `npm run preview` on port 4173, in incognito — a run against the dev server measures an artefact ten times heavier and scored 27.
+4. **Replace the Spline scene.** It is Spline's own sample robot, the same asset the 21st.dev demo points at. A recognisable template on a portfolio argues against the portfolio.
+
+### `Konten_Asli/` is gitignored, and must stay that way
+
+The owner's source folder holds unredacted certificate scans and a real CV. `.gitignore` excludes everything in it except its `README.md`. **Do not `git add -f` anything from it.** A file committed once stays in history after it is deleted, and there is no undo for that on a pushed branch.
+
+`docs/KONTEN_ASLI.md` is the committed specification of what belongs in that folder — every file, its format and its pixel size. It is safe to read and safe to share; it contains no content, only requirements.
 
 Expect the page to look different from what the plans describe. After the hierarchy plan the owner said four times that it still read as flat, and the sections were reworked conversationally rather than through a new plan document. What shipped is recorded under "The design pass that followed the plans" below.
 
@@ -60,7 +94,7 @@ Enough of a map to orient without reading everything.
 
 | Path | What is there |
 |---|---|
-| `data/` | `profile`, `projects` (8), `skills` (4 categories), `experiences` (5) + `EXPERIENCE_TYPE_LABEL`, `education`, `certificates` (14), `technologies` (17 logo paths), `site` (canonical URL, title, OG), `sections` (`SECTIONS` + `shellProps`), `constraints` (`LIMITS`, `longest`, `STRESS_RATIO`), plus `invariants.test.ts` and `site.test.ts` — the data rules and the metadata drift guards |
+| `data/` | `profile`, `projects` (4, three featured), `skills` (4 categories), `experiences` (6) + `EXPERIENCE_TYPE_LABEL`, `education` (1), `certificates` (14), `technologies` (18 logo paths), `site` (canonical URL, title, OG), `sections` (`SECTIONS` + `shellProps`), `constraints` (`LIMITS`, `longest`, `STRESS_RATIO`), plus `invariants.test.ts` and `site.test.ts` — the data rules and the metadata drift guards. **All of it is the owner's real content now**, except what is listed under "Still the owner's to fill" |
 | `types/` | Every content interface, plus `SectionMeta`, `SectionNavProps`, `Site`, `Technology` |
 | `lib/` | All pure and tested directly: `scroll`, `filter`, `cycle`, `rail` (node geometry), `group` (`groupByCategory`, `CATEGORY_ORDER`), `validate` (contact fields), `web3forms` (the submit call), `token` (`cssToken` — canvas cannot read `var()`), `skillIcon` (kebab-case data key → lucide component, explicit table not a derived lookup) |
 | `hooks/` | `useActiveSection`, `useScrolledPast`, `useMotionAllowed`, `useOnScreen`, `useLenis` — the last is a **module singleton**, see the traps |
@@ -82,6 +116,8 @@ The timeline rule that forced absolutely positioned dots outside their `Reveal` 
 - **Open the browser before calling visual work done.** The project modal shipped pinned to a corner with 177 tests green; it was caught from a screenshot, not a test. Verification scheduled for a later task is verification that arrives too late.
 - **Prove a guard fails.** Several tests here were checked by deliberately breaking the thing they watch — the import boundary, the asset invariant, the focus return, the cross-highlight wiring. A guard nobody has seen fail is a guess.
 - **Commit after each task.** Two sessions were cut off mid-task by usage limits, each time stranding finished work uncommitted. Per-task commits cap the loss at one task.
+- **Never `git add -A` in this repo.** The owner edits files while a session is working, so a blanket stage silently absorbs his in-progress changes into a commit whose message says nothing about them. It happened twice. Stage the specific paths the task touched, and run `git status` first to see what else is live.
+- **A report that "nothing changed" is evidence, not noise.** Three separate rounds of tuning the Spline pose were spent on an input the scene never read, and the owner saying his own console edits did nothing was the fact that finally ruled the approach out. When a change that must work appears not to, stop tuning and question the mechanism — after ruling out stale HMR, which produced the same symptom in this project more than once.
 
 ## The design pass that followed the plans
 
@@ -102,6 +138,48 @@ Everything below was decided in conversation, not in a plan document, after the 
 **The featured project row went through a second pass**, because shrinking the margins wasn't the actual complaint — "itu sebatas card besar dengan penjelasan" (it's just a big card with an explanation) was about the row duplicating the dialog. `problem` used to print in full beside `outcome`, when the dialog already shows problem, solution and outcome together; nothing on the row earned a click. `problem` now lives in the dialog only, the row leads with `outcome` alone as the hook, and the image is a second labelled button opening the same dialog as the title — a third, always-visible "View case study" control covers the rest, since nothing on this row gets a hover cue on a touch device. The three rows went from 433/433/373px to a uniform 373px, no longer duplicated dialog content, and are no longer different heights from each other, because a fixed-height teaser stopped depending on copy length at all.
 
 **Skills got two additions with no reactbits component at all.** `Skill.icon` had been in the data and the type since the first plan, unread by any component — the same shape of gap `EXPERIENCE_TYPE_LABEL` closed earlier. `lucide-react@1.32.0` renders it now (16 icons, ~2.4 KB gzip; two of the sixteen data values, `chart` and `flask`, have no bare-word icon in the set and map to `ChartColumn`/`FlaskConical` through `src/lib/skillIcon.ts` rather than a derived lookup). Separately, the skill chip that drives the Projects cross-highlight gave no feedback of its own — the dimming lands on Projects, which can be a scroll away — so the active chip now gets `bg-accent/15`, added rather than a border or text-colour override because both of those already exist on `Chip`'s base classes and a second utility for the same property is a coin flip on which one wins in the generated stylesheet. This is also what surfaced that the pane never gives the document real focus (see the environment facts below) — a `cross-highlight.test.tsx` assertion that had looked fine for months turned out to pass whether or not focus did anything at all, and only failed to catch that because it never needed to.
+
+**Three later fixes in the same conversational pass, each from something the owner saw:**
+
+- **Skill names were wrapping untidily inside their cards.** `LIMITS.skill.name` came down from 24 to 22, which is what actually fits the 162px the card gives it. A limit derived from a measurement, not from a round number.
+- **The `FlowingMenu` reveal is a near-white panel with near-black type**, which is the component's own default and what the owner asked for. It replaced the accent field, because a 76px band of amber reads as a warning, and a neutral field sidesteps the hue question rather than trading one loud hue for another — it also suits the panel's job, which is showing a screenshot, the way a gallery mat does. It uses `--color-primary` and `--color-void` rather than `#ffffff` and `#000000`: this page deliberately has no pure white anywhere. Stated plainly because it is a real trade — off-white sits at 0.841 luminance against the page's 0.004, roughly twice the brightness of the amber it replaced. `--color-elevated` is the quiet version if it ever reads as a flash.
+- **The Experience years hung 29px outside the section's own left edge**, and the current entry's year sat further out still than the others — the two things the owner spotted were one bug. The column was 7rem against a year that renders 120–123px, and `justify-end` sends overflow leftwards; on top of that the pulse dot shares the year's flex row and pushed the one current year a further 19px. Left-aligning at 10rem fixes both, because only the year's own box now decides where it starts and the dot grows rightwards into space the column has.
+
+## The real content, and what pasting it actually took
+
+Landed 2026-08-21/22 across five commits, from the owner's CV and his own accounts of each project. **The architectural promise held**: `git show --stat` on `514ff25` and `1fd57e7` touches `src/data/`, `public/`, `index.html` and tests, and not one component. That was spec §11 criterion 3, written before there was any content to test it with, and it is now tested.
+
+**What is on the page:** Raden Daffa Firasyan Adikusumah (short form "Daffa Firasyan" everywhere, and the comment in `profile.ts` says why), Bachelor of Information Systems from Telkom University at 3.64, six experience entries — Telkom University, Pertamina Hulu Indonesia, Arranet, and three organisational roles — fourteen certificates, four projects, and the real avatar, CV and OG cover.
+
+**Two content decisions worth not re-litigating:**
+
+- **Outcome lines say what a system does, not what its marketing claims.** Simpel IBS's own homepage advertises "500+ residents, 1,200+ letters, 98% satisfaction". Those are the product's claims about itself, not measurements, and an outcome line on a portfolio reads as something its author stands behind. What the system does is verifiable by opening it; what it achieved is not. The line describes the former.
+- **Nothing was invented to fill a field.** Animart's stack and role were inferred once, and the owner's project report contradicted both. `role` is optional on `Project` precisely so a project without a stated one renders "Data · 2025" rather than a dangling separator — that filter lives in both `FeaturedProject` and the dialog.
+
+**Five stress clauses were deleted, not worked around.** `certificate.issuer`, `certificate.title`, `skill.name`, `experience.role` and `experience.organization` are proper nouns owned by someone else: "BNSP" cannot be stretched to 90% of a 36-character limit, and a test demanding it would only ever be satisfied by lying in the data. Spec §4.1 anticipated exactly this. The length *ceilings* all still apply — it is only the floor that came off.
+
+**Two certificate test regexes broke on real titles**, both for the same underlying reason: a real string is not a pattern. `Python (Basic)` contains regex groups, and `Web Developer` is a substring of `Junior Web Developer — …`, so a `.includes` match hit the wrong row. Both are function matchers now.
+
+**Two things in the data are still inconsistent with the page, and both are the owner's call rather than bugs:**
+
+- `profile.stats` claims **8 projects** while `projects.ts` holds 4. It may well be true of his work overall, but a reader counts what is on screen. Either the number comes down or more projects go in.
+- `site.description` calls him "an Information Systems student"; `profile.bio` says fresh graduate. The description is what search results and link previews show.
+
+### The hero portrait has a dial, and it is the only thing to turn
+
+`npm run avatar` runs [`scripts/crop-avatar.mjs`](../../scripts/crop-avatar.mjs), which has **one number in it** — `const ZOOM` at line 30, currently `0.75`. Higher crops tighter and renders the person larger. It always writes 320×446, so `Hero.tsx`, `ProfileCard` and the `index.html` preload never need touching to change the framing. That was the point: the owner asked where to adjust it himself, and a single constant with a fixed output size is an answer he can act on without a code review.
+
+`sharp` fought this three ways, each worth knowing before editing that script:
+
+- **A raw buffer carries no metadata between calls.** Piping `.raw()` output into a new `sharp()` loses width and height, and the next operation guesses.
+- **It reorders `extend` and `extract` inside one pipeline**, which surfaces as `bad extract area` on a pipeline that reads correctly top to bottom. Going through an intermediate **PNG buffer** forces the order.
+- **Clamping height without reducing width squeezes the subject.** My first version did, by 9%, and only the taller source image ever reached that branch — so it passed on the old photo and distorted the new one.
+
+**And the check for that distortion was wrong before it was right.** Thresholding alpha at >24 to find the subject's edges catches antialiased pixels differently at two resolutions, so it reported a squeeze that was not there and missed one that was. Comparing a **ratio** — head width ÷ subject height — is resolution-independent, and gives 0.1% drift on a correct crop.
+
+### The card effects were turned down because they were bleaching a real face
+
+`ProfileCard`'s holographic layers are tuned for the demo's stock portrait. On an actual photograph they washed the skin out — the owner's words were that his face had gone very pale. `SHINE` is 0.32 and `GLARE_LIGHTNESS` 62 now, and the portrait sits at `zIndex: 6`, **above** the glare layers rather than under them. This is the second time this component has had to be edited for the same reason: `mix-blend-mode: luminosity` came out earlier because it tinted a face blue-violet. Anything added to that card gets checked against the real photo, not the placeholder silhouette.
 
 ## The Spline robot at the foot of Contact
 
@@ -127,13 +205,62 @@ Spline splits by feature and pulls what a scene uses, so `react-spline` at 571 K
 
 **`renderOnDemand` is deliberately not set.** It suits a scene that redraws only on interaction; this one follows the pointer continuously, and on-demand rendering is what would make it stutter.
 
-**Mounted on the capability gate, not on arrival.** `useOnScreen` was tried and removed: it saved little and tore the scene down when the reader scrolled away, so returning to Contact rebuilt a WebGL context and re-ran scene setup every time.
+**Mounted on approach, exactly once.** This went through three shapes. `useOnScreen` was tried and removed, because it tore the scene down when the reader scrolled away and rebuilt a WebGL context on every return. Deferring to the `load` event was tried next and made the score *worse* — see [the performance pass](#the-performance-pass) for why. What it does now is its own `IntersectionObserver` at `rootMargin: '150% 0px'`, which **disconnects on the first hit**, with a `ready` flag that only ever goes true. So it starts loading a viewport and a half before Contact arrives, is ready long before anyone reaches it, and is never rebuilt by scrolling away and back — which is what the owner asked for on both counts. A reader who never scrolls that far never pays for it, and an audit that never scrolls is simply the most extreme such reader.
 
 **Layout: no frame, standing on the footer border.** A border and surface background made it read as a picture of a robot hung on the page rather than something standing in it. It bleeds into the section's bottom padding instead, and the offset is not a tuned number — `-mb-20 md:-mb-32` is exactly the `py-20 md:py-32` that `SectionShell` applies, so the two cancel. `overflow-hidden` cuts anything past that line rather than pushing it into the footer, which is what makes standing the robot on the border safe: its feet are allowed to be cut.
 
 Verifying that flush landing needed the pane's own limitation worked around, and the technique generalises. The box measured 40px *past* the footer, which looked like a layout bug and was not: `Reveal` wraps its children in a transform that this pane never animates away, so the wrapper sits frozen at `translateY(40px), opacity: 0`. Setting `transform: none` on that one ancestor by hand and re-measuring gave a gap of exactly **0**. Anything measured inside a `Reveal` here carries that 40px until it is settled by hand.
 
+### The pose: three attempts failed for one reason, and it is worth knowing before touching this again
+
+The scene ships a **`lookAt` event**, and the obvious way to drive it is to hand the canvas pointer events. That was built, then refined twice — forwarding the events, then mapping viewport coordinates onto the canvas, then pinning their vertical axis — and the owner reported that **nothing changed, including when he set values from the console himself**. That report was the evidence that ruled the whole approach out, and it should have been sooner: `lookAt` is serviced by Spline's own internal event manager, which **does not read synthetic events dispatched onto the canvas**. Every one of those three rounds was tuning an input the scene never consulted. `lookAt` also aims the whole upper body, so while it was in charge the torso bent no matter what else was tried.
+
+`getAllObjects()` shows the rig is addressable — `Bot`, `Top part`, `Head`, `Neck` — and every `rotation` on it is writable. **So the pose is written rather than requested.** Each frame the head takes a yaw from the cursor, the torso takes a fraction of it, and **pitch and roll are written to zero**. A body assigned zero lean every frame cannot lean, whatever the scene's event would have done with it. The loop is registered after Spline's, so its values are the last written before the frame draws.
+
+**The settled rig is the owner's, measured against the running scene:** `{ headYaw: 0.8, headPitch: 0.8, torsoYaw: 0.25 }`. `headPitch` is far above the cautious `0.12` this started at — the nodding was never what bent the robot over. It is overridable at runtime for tuning without a rebuild: set `robotRig` in the console and move the mouse. `window.spline` is the loaded app.
+
+**The canvas is deliberately bigger than the box that shows it.** Spline fits the scene to its canvas, so a larger canvas renders a larger robot; `h-[44rem] w-[44rem]` anchored to the top of a clipping box sends the overflow to the legs, below the crop. That is what lets the head and torso be large in a column that has no room for a whole figure.
+
+**Suspect stale HMR before suspecting the code.** During this work Vite served stale modules at least three times, reporting old values in a way that reads exactly like "the change did nothing" — which is almost certainly what defeated the owner's own attempts at tuning it. Hard-reload before concluding an edit had no effect.
+
 **Three things to know before deploy.** The scene is Spline's own sample robot, the same one the 21st.dev demo points at — worth replacing with a scene made in Spline's free editor, because a recognisable template asset on a portfolio argues against the portfolio. `prod.spline.design` is a third party in this page's critical path, with no error hook to catch a failure: `SplineProps` extends the div's HTML attributes, so its `onError` is the DOM media handler and never fires for a failed scene fetch. And re-measure Lighthouse — Performance was 85 against a threshold of 85 before any of this.
+
+## The performance pass
+
+Run on 2026-08-20/21 after the owner chose performance as the first thing to fix, and before the content landed. Every score below is a real Lighthouse run on `npm run preview`, mobile, incognito. **Six commits, `bdb6802` through `3c7187c`, and each one carries its own measurements in its message** — read those rather than trusting a summary.
+
+| Run | Mobile Performance | What had changed |
+|---|---|---|
+| Baseline, pre-robot | 85 | The last score in this file before the Spline work |
+| 1 | **57** | The robot landed, deferred to the `load` event |
+| 2 | **70** | Robot tied to approach instead of to a timer |
+| 3 | **78** | Starfield off phones; vendor chunks split |
+| 4 | **80** | Below-the-fold decorations stopped mounting at load |
+
+Two more landed after that fourth run and have **not been measured**: the LCP preload plus removing the hero blur (`00b9f19`), and the desktop CLS fix (`3c7187c`).
+
+**The one lesson that changed how the rest was approached: Lighthouse does not stop measuring at the `load` event.** Deferring the robot to `load` did exactly what it was meant to — transfer before `load` fell from 931 KB to 210 KB, measured — and the score went *down*, 85 to 57, with blocking time going 220ms to 1,150ms. Parsing 2 MB of runtime and initialising a 3D scene still lands inside the blocking-time window; it just lands later. Lighthouse keeps going until the page is quiet. **Moving expensive work later in the same page does not help. Not doing it does.** Tying the robot to an IntersectionObserver instead — so an audit that never scrolls never pays for it, and neither does a reader who never scrolls — is what recovered the points.
+
+**The robot costs about 930ms of main thread and roughly 28 points wherever it runs.** That number is the price of the decision, and it is the owner's decision with the number in front of him.
+
+**Three findings from that pass that generalise past this project:**
+
+- **`useOnScreen` started `true`, and its own comment carried the condition that made that safe** — "callers are elements that are on screen by construction anyway". True while the hero backdrop was the only caller. It silently stopped being true when the Skills logo strip and the footer marquee adopted the hook, and nothing failed, so nothing said so: 71 SVGs and two scrolling animations mounted on page load for sections two and nine screens down. The starting value is an explicit argument now. **An assumption written in a comment is not enforced by the comment.**
+- **`webgl` was the wrong gate for "is this a phone".** It tests memory, cores and Save-Data — none of which a phone-emulating audit fakes — so a continuous WebGL starfield ran through every mobile run, and on real phones too whenever one reported enough memory. `hover` is the flag that actually separates a laptop from a phone.
+- **Splitting the vendor chunks was diagnostic before it was an optimisation.** A single 598 KB `index.js` makes "4.9s of script execution" unactionable. Named chunks turned it into an answer.
+
+**The accessibility dip was not a colour problem, and three passes over the rendered page missed it.** Lighthouse dropped Accessibility to 97 and named the About paragraph, whose colour measures 6.58:1 and passes comfortably. The cause was `opacity`: `AnimatedContent` fades from 0, so every block of text on the page spends the first six tenths of a second below its own contrast ratio, and the audit photographed one mid-fade. A reader scrolling quickly sees the same thing, so it is a real defect rather than an artefact of being measured. `Reveal` passes `animateOpacity={false}` now and the entrance rises without fading. **An entrance fade on text is an accessibility cost, not a matter of taste.** Fading a container that holds no text is free; fading one that does is not.
+
+**Measuring contrast in a Tailwind v4 page requires compositing, not reading.** Colours resolve to `oklab(…)`, and scraping the computed value and treating it as RGB produces confident nonsense — 1.04:1 on an element that plainly passes. Paint both colours to a canvas and read the pixels back. A related trap in my own probe: starting the background search at `parentElement` skips the element's own `background-color`, which reported the accent-filled "View projects" button at 1.0:1.
+
+**The desktop audit is a different page from the mobile one**, and reading only one of them hides half the problems. Desktop scored **79** with FCP 1.1s, LCP 1.4s and TBT 50ms — all excellent — and **CLS 0.245** against a 0.1 budget, dragging the score down almost single-handedly. Two causes, both invisible on mobile:
+
+- **The rotating job title had no reserved width.** The four roles render between 103px and 212px, so the hero line resized by up to 109px every 2.6 seconds with no user interaction behind it. That is exactly what CLS counts. The width is held by the longest role rendered invisibly in the same single-cell grid — a sizer rather than a magic number, so it survives the roles in `src/data` changing.
+- **`ProfileCard`'s portrait carried `loading="lazy"`, and on desktop that portrait *is* the LCP.** Lazy-loading the one image the metric is measured against is the case Lighthouse warns about by name.
+
+**The remaining structural CLS risk is the font fallbacks, and it is unfixed.** Measured on the real page: Geist renders 3.9% wider than `system-ui`, Bricolage 8.1%, and **JetBrains Mono 51.8% wider than `ui-monospace`**. Any font swap therefore reflows. That wants `size-adjust` overrides in `@font-face`, not a quick fix.
+
+**Known remaining targets, named by Lighthouse itself:** render-blocking requests, main-thread work, JavaScript execution, and the non-composited animations. They are GSAP and WebGL, not file size — which is why shrinking images will not move this score.
 
 ## Decisions that changed after the spec was approved
 
@@ -179,6 +306,10 @@ Every one of these produced a wrong turn before it was understood. They are not 
 
 **Canvas 2D silently ignores a CSS variable.** `ctx.strokeStyle = 'var(--color-accent)'` does not throw and does not resolve — it keeps whatever was there, which is `#000000` by default. Measured in a browser. `ClickSpark` shipped that way for one task and drew black sparks on a near-black page, invisible, with the whole suite green. Anything that paints to a canvas needs the resolved value: `src/lib/token.ts` reads it, so CSS keeps the single source of truth. The same applies to `ElectricBorder`, which additionally parses its colour as hex.
 
+**Tailwind v4 resolves colours to `oklab()`, so contrast cannot be measured by scraping a computed value.** Reading `getComputedStyle().color` and treating the string as RGB produces confident nonsense — it reported 1.04:1 on an element that plainly passes. Composite both colours to a canvas and read the pixels back instead. Two more ways the same probe went wrong here, both mine: starting the background walk at `parentElement` skips the element's *own* `background-color`, which reported an accent-filled button at 1.0:1; and a contrast failure Lighthouse reports may not be about colour at all — the one that cost a point on this page was `opacity` mid-fade.
+
+**Vite 8 runs Rolldown, which accepts only the function form of `manualChunks`.** The familiar object map — `{ react: ['react', 'react-dom'] }` — does not compile, rather than being quietly ignored. `vite.config.ts` carries the working form.
+
 **Measuring layout after `resize_window` without reloading gives false results.** The pane fires no `resize` event and no `ResizeObserver` callback, so anything that sizes itself from either keeps its old dimensions and drags the layout with it. Measured: resizing 1265 → 320 left `ClickSpark`'s canvas at its old width and reported **808px of page overflow**, with `<header>` — a `fixed` element — claiming to be 1128px wide inside a 320px viewport. That impossible header width is the tell. On a fresh load at 320 the overflow was 0. **Always reload after resizing before believing a measurement.**
 
 **An element at a negative z-index never receives a pointer event.** Hit testing follows paint order, and a child with `z-index: -1` or lower paints behind its parent's own background — so the parent wins every hit test over it. `Backdrop` sits at `-z-10`, which meant `Galaxy`'s `mousemove` listener was correctly attached to a container that could not receive a single event: measured on the built page, **no point anywhere in the hero resolved to it**. The pointer parallax was wired up and silently dead from the day it shipped. Raising the z-index does not fix it either, because the hero's `max-w-[1200px]` content wrapper legitimately covers most of the section and must stay hittable for text selection. `Galaxy` now listens on the window and normalises against its own `getBoundingClientRect()`, which works regardless of stacking; outside that box it fades the effect out rather than clamping to an edge. Anything decorative behind the content that wants pointer input has to do the same.
@@ -196,7 +327,7 @@ Every one of these produced a wrong turn before it was understood. They are not 
 
 ## Things known to be imperfect
 
-- **The stress rule does not apply to proper nouns.** `certificate.issuer` and `experience.organization` are names owned by someone else — "Coursera" cannot be stretched to 36 characters. When real content lands, those two assertion clauses should be deleted, not worked around. Spec §4.1 records this.
+- **~~The stress rule does not apply to proper nouns.~~ Settled.** Five clauses were deleted when the real content landed — `certificate.issuer`, `certificate.title`, `skill.name`, `experience.role`, `experience.organization` — rather than worked around, which is what spec §4.1 anticipated. The length ceilings still apply; only the 90%-of-limit floor came off, and only for names owned by someone else. If a sixth field turns out to be a proper noun, delete that clause too.
 - **Nothing animates while Windows has animation effects off**, and that setting is easy to forget. It makes every Chromium browser on the machine report `prefers-reduced-motion: reduce`, which correctly disables the starfield, per-character headings, the rotating role, the counters, the tilt, the grain, and Lenis smooth scroll all at once. The switch is **Settings → Accessibility → Visual effects → Animation effects**. The low-end heuristic is not involved on this machine — `deviceMemory` is 16 and `hardwareConcurrency` is 20.
 
   With the setting on, verified in a browser: `prefers-reduced-motion` reads false, Lenis mounts (`html.lenis`), `SplitText` splits the h1, the Galaxy chunk is fetched on demand, and there is **exactly one WebGL 2.0 context** at hero width with the gradient fallback gone.
@@ -207,11 +338,17 @@ Every one of these produced a wrong turn before it was understood. They are not 
 
   **Still unverified:** that the hero entrance reads as a staggered sequence finishing inside ~1.2s. Needs a compositing browser; the in-app pane advances no transitions and delivers no IntersectionObserver callbacks.
 - **Active-section tracking has never been watched in a real browser.** Its logic is covered by unit tests driving the observer directly, including fast scroll and document-order tie-breaks, but nobody has seen the indicator follow a real scroll. Worth a look in `npm run dev`.
-- **The profile photo has to be cut out of its background.** `ProfileCard` in the hero anchors the image to the bottom of the card and lets the gradient show around it, so an ordinary opaque square renders as a pasted block with a visible seam across the card — measured at 388×388 covering 72% of a 540px card, with 153px of bare gradient above it. Spec §5 now carries the requirement. The placeholder is a transparent silhouette so the wrong shape is obvious during development rather than after deploy. `mix-blend-mode: luminosity` was also removed from the vendored component: it tinted the portrait into the card's hue, which would have rendered a real face in blue-violet.
+- **The profile photo had to be cut out of its background, and it now is.** `ProfileCard` anchors the image to the bottom of the card and lets the gradient show around it, so an opaque square renders as a pasted block with a visible seam — measured at 388×388 covering 72% of a 540px card, with 153px of bare gradient above it. Spec §5 carries the requirement, the owner supplied a cut-out, and `npm run avatar` frames it from a single `ZOOM` constant. `mix-blend-mode: luminosity` was removed from the vendored component early, because it tinted the portrait into the card's hue and would have rendered a real face in blue-violet; the glare and shine were turned down later for the same class of reason. See [the portrait dial](#the-hero-portrait-has-a-dial-and-it-is-the-only-thing-to-turn).
 
-- **All content is placeholder.** Names, projects, certificates and the CV are realistic fixtures written at the maximum lengths the layout contract permits, so the layout is stress-tested before real content arrives. The owner intends to paste real content once every plan is built. It touches only `src/data/` and `public/`; `npm run placeholders` regenerates the images from whatever the data says.
+- **~~All content is placeholder.~~ It landed on 2026-08-21/22** and touched only `src/data/`, `public/`, `index.html` and tests, exactly as promised. What is still unfilled is in [Still the owner's to fill](#still-the-owners-to-fill); how it went is in [The real content](#the-real-content-and-what-pasting-it-actually-took).
+
+  **`npm run placeholders` is now a destructive command.** It writes unconditionally — no existence check anywhere in `scripts/generate-placeholders.mjs` — over every asset the data references. Running it today replaces the real avatar, all fourteen certificate scans, four project thumbnails, the education logo, the OG cover **and the real CV PDF** with generated stand-ins, and prints a cheerful count of files written. Git would recover them; nothing else would. It was the right tool while the content was fixtures and it is a footgun now.
 - **The dialogs are fully verified as of 2026-08-18.** The owner confirmed in a real browser that Tab cannot escape an open dialog and that Escape closes it, for both the project modal and the certificate lightbox, with the arrow keys stepping through certificates. Together with what was already measured — focus moves in on open, returns to the trigger on close, the body locks and Lenis genuinely stops — the native `<dialog>` bet is settled. Nothing here is outstanding.
-- **Lighthouse passes all four thresholds, with no headroom on one.** Measured 2026-08-18 on the production build (`npm run preview`), mobile, incognito: **Performance 85, Accessibility 100, Best Practices 100, SEO 100** against spec §12.3's 85/95/95/95. FCP 2.7s, LCP 3.1s, TBT 220ms, CLS 0.001.
+- **Lighthouse no longer passes Performance, and that is a known, priced decision rather than a regression to hunt.** The last mobile run reads **80** against spec §12.3's threshold of 85, down from 85 before the Spline robot, which costs about 28 points wherever it runs. Accessibility, Best Practices and SEO are 100/100/100 (a dip to 97 was found and fixed — it was `opacity`, not colour). Desktop last read 79, dragged down by a CLS of 0.245 that has since been fixed and not re-measured. The full journey, every number and every lesson, is in [the performance pass](#the-performance-pass).
+
+  Two commits landed after the last run and should raise it. **Re-measure before deciding anything**, and re-measure on the content that is actually shipping — every score above predates it.
+
+  The 2026-08-18 baseline, for comparison: Performance 85, Accessibility 100, Best Practices 100, SEO 100, FCP 2.7s, LCP 3.1s, TBT 220ms, CLS 0.001.
 
   **Run it against `preview`, never `dev`.** The first two runs scored 27 and 34 against the Vite dev server, which serves hundreds of unbundled ES modules — Lighthouse reported a 7,951 KB payload and offered to save 6,091 KB by minifying. The real initial payload is 179 KB gzip (170 JS, 8 CSS) plus about 109 KB of latin font subsets, with the Galaxy chunk a further 15 KB loaded only on demand. A run against `dev` is measuring the wrong artefact by a factor of ten.
 
@@ -223,7 +360,7 @@ Every one of these produced a wrong turn before it was understood. They are not 
 
 - **The `Galaxy` resize is confirmed** in the owner's browser. Nothing from the contact-and-launch sweep is outstanding.
 
-- **Seven motion effects landed; one was declined and two were replaced after being built.** `StarBorder` on the CV and Send buttons, `TextType` on the contact opening line, `ClickSpark` in Contact, `CircularText` as a badge, and `PulseDot` marking the current role. The footer marquee began as `CurvedLoop` and is `ScrollVelocity` now: the curve locked the element to `aspect-[100/12]`, so it took 152px of a 281px footer with no way to ask for less, and its replacement is 32px and moves with the scroll rather than on its own. `ScrollFloat` was deleted rather than wired, because `SplitText` already carries `scrollTrigger: { once: true }` and running both would put two heading languages on one page.
+- **Seven motion effects landed; one was declined and three were replaced after being built.** `StarBorder` on the CV and Send buttons, `TextType` on the contact opening line, `ClickSpark` in Contact, and `PulseDot` marking the current role. `CircularText` was a badge and is **deleted** — the Spline robot took its slot, and its `CircularBadge` wrapper went with it, following what already happened to `ElectricBorder` and `CurvedLoop`. The footer marquee began as `CurvedLoop` and is `ScrollVelocity` now: the curve locked the element to `aspect-[100/12]`, so it took 152px of a 281px footer with no way to ask for less, and its replacement is 32px and moves with the scroll rather than on its own. It reads `© {year} {profile.name} · Built with React`, composed in `App.tsx` from the data and the real clock, so the year cannot go stale. `ScrollFloat` was deleted rather than wired, because `SplitText` already carries `scrollTrigger: { once: true }` and running both would put two heading languages on one page.
 
   `ElectricBorder` was built and then removed: the owner found it too loud beside prose, and it cost a render loop for as long as Experience was on screen. What replaced it is cheaper in every direction — a tinted card plus a three-second ring on the 10px timeline dot, animating only transform and opacity so it composites.
 
@@ -252,7 +389,7 @@ Every one of these produced a wrong turn before it was understood. They are not 
 - **A `:focus` style cannot be verified in the pane at all**, which is the focus gap below showing up in CSS rather than in JavaScript. `:focus` only matches while the document itself is focused, and `document.hasFocus()` is permanently false there — so a `focus:z-50` utility computes as `z-index: auto` no matter what `.focus()` did to `document.activeElement`. To check what a focus variant resolves to, apply the same utilities to a throwaway element and read *that*: `document.createElement('a')` with `className = 'absolute z-50'` reports 50, which is the fact the assertion actually needed.
 
 - **The pane never gives the document real focus, so `.focus()` is exactly as unreliable there as `requestAnimationFrame` — same root cause, one more symptom.** Measured: `element.focus()` moves `document.activeElement` (that part is real bookkeeping, not faked), but `document.hasFocus()` reads `false` and neither a native `focus` nor `focusin` listener — attached directly, bypassing React entirely — ever fires. A React `onFocus` handler that depends on that event therefore never runs, which looked exactly like a bug in a freshly-added active-chip style before a plain `addEventListener('focusin', …)` check showed the event itself never arrives. Mouse events dispatched for real (`userEvent.hover`) still work fine in a real browser; this is specific to focus. Trust jsdom via `@testing-library/react`'s `act()` for anything focus-triggered — it has no such gap — and treat the pane the way this file already treats GSAP: fine for layout and DOM shape, blind to anything that starts with an event the pane cannot actually deliver.
-- **`main` has nothing on it.** Over a hundred commits sit on one branch with no merge. Nothing is broken by that, but the longer it runs the more there is to unpick if something needs reverting. The deploy task merges it.
+- **`main` has nothing on it.** **160 commits** now sit on one branch with no merge. Nothing is broken by that, but the longer it runs the more there is to unpick if something needs reverting. The deploy task merges it.
 
 - **The contact form has never sent a message.** `VITE_WEB3FORMS_KEY` is unset, so submitting reaches the error state and offers the `mailto:` fallback — which is the designed behaviour, not a bug, but it means the success path has only ever been seen in tests. Sending one real message is a step in the deploy task.
 
