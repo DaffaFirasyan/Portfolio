@@ -96,7 +96,14 @@ export default function Hero() {
               name={profile.name}
               width={800}
               height={800}
-              className="w-full max-w-xs"
+              // max-w-md, not the max-w-xs this used to be. Measured at 1280:
+              // the column offers 432px and the card was stopping at 320,
+              // leaving 112px of it unused for the one image the hero is built
+              // around. The cap still exists rather than being removed, because
+              // below `md` the layout stacks and the column becomes the whole
+              // content width — a portrait that fills 719px on a tablet is a
+              // different problem, not a fix.
+              className="w-full max-w-md"
             />
           </div>
         </div>

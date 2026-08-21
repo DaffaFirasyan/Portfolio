@@ -36,9 +36,10 @@ export const certificates: Certificate[] = [
   },
   {
     id: 'web-developer',
-    // TODO(owner): confirm the exact title and issuer on this scan.
+    // TODO(owner): the exact title on the scan is still unconfirmed, as is the
+    // issue date below.
     title: 'Web Developer',
-    issuer: 'TODO(owner)',
+    issuer: 'BNSP',
     issueDate: '2025-01',
     imageUrl: '/certificates/web-developer.webp',
     thumbnailUrl: '/certificates/thumb-web-developer.webp',
