@@ -123,6 +123,24 @@ informasi salah tepat di bawah scan yang membantahnya. Tidak ada yang mengurut
 berdasarkan tanggal; dinding sertifikat dikelompokkan per `category` dan
 mengikuti urutan array.
 
+### 1.6b Publikasi (`profile.publication`, opsional)
+
+| Field | Isi | Catatan |
+|---|---|---|
+| `title` | Judul paper lengkap | ambil dari Crossref, bukan dari CV |
+| `authors` | Semua penulis, urut publikasi | Anda harus jadi nama pertama — dijaga invariant |
+| `venue` | Bentuk pendek, misal `ICADEIS 2026` | yang dibaca sekilas |
+| `venueFull` | Nama konferensi lengkap | untuk sitasi |
+| `publisher` | Misal `IEEE Xplore` | — |
+| `doi` | DOI polos, **tanpa** `https://doi.org/` | dijaga format `10.xxxx/...` |
+| `url` | Harus persis `https://doi.org/<doi>` | dijaga invariant |
+| `year` | Tahun terbit | — |
+
+Kalau field ini tidak ada, kartunya tidak dirender sama sekali — About tetap
+jalan tanpa publikasi. Untuk mengambil metadata resmi:
+`https://api.crossref.org/works/<doi>`. **IEEE Xplore menolak fetch otomatis**,
+jadi jangan ambil dari sana.
+
 ### 1.7 Site (`src/data/site.ts`)
 
 `url` (origin saja, tanpa garis miring di akhir), `title`, `description`,

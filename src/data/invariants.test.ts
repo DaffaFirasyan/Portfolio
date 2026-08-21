@@ -183,6 +183,38 @@ describe('profile', () => {
       expect(() => new URL(social.url), social.label).not.toThrow();
     }
   });
+
+  it('keeps the publication link, the doi and the author order honest', () => {
+    const paper = profile.publication;
+    // Optional by design: About renders the card only when there is one, so an
+    // absent paper is a valid state rather than a failure.
+    if (!paper) return;
+
+    // A bare DOI, prefix and suffix. Storing the resolver URL in `doi` would
+    // render "https://doi.org/10.1109/..." as the citable identifier, which is
+    // not what a citation wants.
+    expect(paper.doi, 'doi should be bare, no https://doi.org/ prefix').toMatch(
+      /^10\.\d{4,9}\/\S+$/,
+    );
+
+    // The two must agree. They are separate fields precisely so the card can
+    // show one and link the other, which is also how they drift apart.
+    expect(paper.url).toBe(`https://doi.org/${paper.doi}`);
+
+    // First author, not merely an author. The card prints the list in order,
+    // so an edit that reordered it would quietly change what the page claims
+    // about him — and this is the assertion that would catch it.
+    //
+    // Matched on every word of `profile.name` rather than on equality, and the
+    // first version of this test got that wrong. `profile.name` is the short
+    // form "Daffa Firasyan"; papers and the CV carry the full legal name. They
+    // differ on purpose — profile.ts says why — so equality asserts a
+    // sameness the data has deliberately refused.
+    expect(paper.authors.length).toBeGreaterThan(0);
+    for (const word of profile.name.split(' ')) {
+      expect(paper.authors[0], `first author should be ${profile.name}`).toContain(word);
+    }
+  });
 });
 
 describe('experiences', () => {

@@ -61,12 +61,37 @@ describe('Hero', () => {
 });
 
 describe('About', () => {
-  it('renders every bio paragraph and the avatar with descriptive alt text', () => {
+  it('renders every bio paragraph', () => {
     render(<About />);
     for (const paragraph of profile.bio) {
       expect(screen.getByText(paragraph)).toBeInTheDocument();
     }
-    expect(screen.getByRole('img', { name: new RegExp(profile.name, 'i') })).toBeInTheDocument();
+  });
+
+  // This used to also assert an avatar with descriptive alt text. That image was
+  // the hero's portrait rendered a second time — the same file, twice on one
+  // page — and it is gone. The assertion is replaced rather than deleted,
+  // because the column still owes the reader something and this is what.
+  it('credits the paper in full, in publication order, and links its doi', () => {
+    render(<About />);
+    const paper = profile.publication;
+    if (!paper) return;
+
+    expect(screen.getByRole('heading', { level: 3, name: paper.title })).toBeInTheDocument();
+
+    // Every co-author, not just the owner. The card is his, so the failure this
+    // guards against is quietly dropping the other three — which would turn a
+    // four-author paper into a claim of sole authorship.
+    for (const author of paper.authors) {
+      expect(screen.getByText(new RegExp(author)), author).toBeInTheDocument();
+    }
+
+    // The link points at the DOI resolver and shows the bare DOI, so a reader
+    // can cite it without following it.
+    const link = screen.getByRole('link', { name: new RegExp(paper.doi.replace('.', '\\.')) });
+    expect(link).toHaveAttribute('href', paper.url);
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', expect.stringContaining('noopener'));
   });
 
   it('keeps every bio paragraph as one element, not one per word', () => {

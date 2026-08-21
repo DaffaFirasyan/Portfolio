@@ -29,6 +29,35 @@ export const profile: Profile = {
     { label: 'GitHub', url: 'https://github.com/DaffaFirasyan', icon: 'github' },
     { label: 'LinkedIn', url: 'https://www.linkedin.com/in/daffafirasyan/', icon: 'linkedin' },
   ],
+  // Metadata from Crossref against the DOI, not from the CV. The CV line —
+  // and the Education highlight built from it — carried a shortened title:
+  // "A Controlled Comparative Study of RAG and KG-RAG", stopping before "for
+  // Explainable Asset Maintenance Recommendations". A truncated title in
+  // quotation marks beside a link to the real paper is the kind of small
+  // wrongness a reader who follows the link will notice.
+  //
+  // IEEE Xplore itself refuses automated fetches, which is worth knowing before
+  // trying: `api.crossref.org/works/<doi>` answers with the registered record
+  // and is the better source anyway.
+  publication: {
+    title:
+      'A Controlled Comparative Study of RAG and KG-RAG for Explainable Asset Maintenance Recommendations',
+    // In publication order. He is first author; the other three are his
+    // supervisors and are named because omitting them would imply he was not.
+    authors: [
+      'Raden Daffa Firasyan Adikusumah',
+      'Sinung Suakanto',
+      'Ekky Novriza Alam',
+      'Edi Triono Nuryatno',
+    ],
+    venue: 'ICADEIS 2026',
+    venueFull:
+      'International Conference on Advancement in Data Science, E-learning and Information System',
+    publisher: 'IEEE Xplore',
+    doi: '10.1109/ICADEIS71120.2026.11644554',
+    url: 'https://doi.org/10.1109/ICADEIS71120.2026.11644554',
+    year: 2026,
+  },
   stats: [
     { label: 'Projects', value: 4 },
     { label: 'Certificates', value: 14 },

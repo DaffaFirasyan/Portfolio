@@ -28,6 +28,33 @@ export interface Stat {
   suffix?: string;
 }
 
+/**
+ * A peer-reviewed paper, shown in About.
+ *
+ * `authors` is in publication order and is not decoration: printing a paper
+ * without its co-authors implies sole authorship, and an invariant asserts the
+ * profile's owner is the first name rather than merely present.
+ *
+ * `venue` is the short form a reader scans ("ICADEIS 2026") and `venueFull` the
+ * registered proceedings title, which runs past a hundred characters. Both are
+ * kept because the card shows one and the citation needs the other.
+ *
+ * The link is the DOI resolver, not the publisher's document URL. A DOI is the
+ * persistent identifier — it survives the publisher reorganising their site,
+ * which a `/document/11644554` path does not.
+ */
+export interface Publication {
+  title: string;
+  authors: string[];
+  venue: string;
+  venueFull: string;
+  publisher: string;
+  /** Bare DOI, no `https://doi.org/` prefix. `url` is built from it. */
+  doi: string;
+  url: string;
+  year: number;
+}
+
 export interface Profile {
   name: string;
   shortName: string;
@@ -41,6 +68,8 @@ export interface Profile {
   openToWork: boolean;
   socials: SocialLink[];
   stats: Stat[];
+  /** Optional. About renders the card only when there is one to render. */
+  publication?: Publication;
 }
 
 export type SkillLevel = 'basic' | 'intermediate' | 'advanced';
