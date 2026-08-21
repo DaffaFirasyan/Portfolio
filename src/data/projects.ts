@@ -69,10 +69,11 @@ export const projects: Project[] = [
     title: 'Inventory and Demand Forecasting for a Food MSME',
     category: 'Data',
     year: 2025,
-    // No role stated. It was 'Solo — analysis and build', which I had inferred
-    // and which the owner's account contradicts — the report says the team
-    // chose the approach. Removing it beats naming a part he did not describe.
-    // TODO(owner): add your part if you want it here.
+    // The owner's own words, 2026-08-22. It was briefly 'Solo — analysis and
+    // build', which I had inferred and which his account contradicted: the
+    // report says the team chose the approach. Removed rather than guessed
+    // again, then filled in when he said what it was.
+    role: 'Web developer',
     problem:
       'Animart tracked sales and stock by hand across books and spreadsheets, so the numbers never agreed, and every decision about what to buy next came down to the owner guessing.',
     solution:
