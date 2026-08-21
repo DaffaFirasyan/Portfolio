@@ -280,20 +280,26 @@ The historical note, for context: `scripts/crop-avatar.mjs` has **one number in 
 
 ---
 
-### The search took the orb's slot, and `Orb` is deliberately unimported
+### The ask widget, and the orb that came back
 
-**`src/motion/OrbMark.tsx` and `src/components/reactbits/Orb/Orb.tsx` are in the tree and nothing imports them.** That is a decision, not dead code left by accident, and it is recorded here so nobody deletes it as tidying. The owner approved the orb, then asked for something interactive in the same slot; both were built, and the orb is one import from returning.
+**Both are on the page now, and the conflict that made them exclusive is gone.** The search briefly replaced the orb in Contact's left column, because the two could not share it — measured with the entrance transforms settled, the social links end 15px above where the orb began. Moving the search out of the column and onto the viewport dissolved that: `AskWidget` is fixed to the bottom-right, and `OrbMark` has its slot back.
 
-**They could not share the column.** Measured with the entrance transforms settled: the social links end 15px above where the orb began. There was no room for a panel between them, so it was one or the other.
+**`AskWidget` is a non-modal panel, and that is a decision.** The project's `Dialog` opens modally; modality is wrong here, because this sits beside the page rather than replacing it and a reader should be able to keep scrolling. So it carries the three behaviours modality would otherwise have supplied for free — Escape closes, an outside click closes, and focus moves to the input on open and back to the launcher on close. `aria-modal="false"` says so rather than claiming a modality it does not enforce.
 
-**What replaced it is retrieval over `src/data/`, with no model.** `src/lib/search.ts` builds an index from projects, the paper, experiences, education, skills and certificates, and returns the best-matching *verbatim sentence* plus the entry it came from. It cannot state anything about its author that its author did not write — the guard for that is a test asserting every returned sentence exists in the corpus. It costs **1.17 KB gzip**, the whole feature, and adds no dependency, no key and no request.
+**`lg:right-20`, not `right-6`, and the reason is measured.** The node-rail nav is fixed at `right-8` and vertically centred, occupying 1221–1233px of a 1280px viewport. A 24rem panel anchored 24px from the edge runs straight through it. At `right-20` the panel ends at 1185 and clears it. Below `lg` the rail is hidden, so the tighter inset is free.
+
+**The transcript carries `data-lenis-prevent`.** Lenis reads wheel events on the window, so without it a scrollable panel never receives them — the same trap the project's modal already hit once.
+
+**What it answers with is retrieval over `src/data/`, with no model.** `src/lib/search.ts` builds an index from projects, the paper, experiences, education, skills and certificates, and returns the best-matching *verbatim sentence* plus the entry it came from. It cannot state anything about its author that its author did not write — the guard for that is a test asserting every returned sentence exists in the corpus. It costs **1.17 KB gzip**, the whole feature, and adds no dependency, no key and no request.
 
 **Two ranking faults were found by looking at real output rather than by testing:**
 
 - **"Neo4j" answered with the skills card, above the project actually built with it.** The cause was double counting: the skill card's sentence *is* its keyword list, so the term scored three for the keyword and one more for the same word in the generated sentence. Each term is worth its best placement now, never the sum of them, which removes the artefact without a special case per kind.
 - **"RAG" answered with a conference attendance certificate and never mentioned the publication.** Everything ties at 3 in a corpus this small, so insertion order is the real ranking. It is editorial now: work he built, then the paper, then jobs, then the degree, then skills, then credentials, then the bio last because it is the broadest text here.
 
-A third, smaller: a project matching only on its stack falls back to its first sentence, and that used to be `problem`. Someone who searches a tool wants what was built with it, so the order is `solution`, `outcome`, `problem`.
+A third, found only by opening the widget and reading it: the bio passage was labelled `kind: 'Education'`, and the panel prints the kind above the quote — so a sentence from the About section was captioned **"EDUCATION"**. A small lie, in the one component whose entire purpose is not telling them. It has its own `About` kind now.
+
+A fourth, smaller: a project matching only on its stack falls back to its first sentence, and that used to be `problem`. Someone who searches a tool wants what was built with it, so the order is `solution`, `outcome`, `problem`.
 
 **Sentence splitting cannot be naive here.** `4.73`, `.NET Core 8` and `banjarsarigarut.id` are all real strings in this data and a split on `.` cuts every one of them in half. A break requires the dot to be followed by whitespace and a capital.
 

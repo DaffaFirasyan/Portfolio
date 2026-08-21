@@ -16,7 +16,14 @@ import type { Certificate, Education, Experience, Profile, Project, SkillCategor
  * short strings costs less than the machinery to avoid it would.
  */
 
-export type SourceKind = 'Project' | 'Experience' | 'Skill' | 'Certificate' | 'Education' | 'Paper';
+export type SourceKind =
+  | 'Project'
+  | 'Experience'
+  | 'Skill'
+  | 'Certificate'
+  | 'Education'
+  | 'Paper'
+  | 'About';
 
 export interface Passage {
   /** Which entry this came from, e.g. "AssetMind — Maintenance Decision Support". */
@@ -182,7 +189,11 @@ export function buildIndex({
   // should lose to an entry that is actually about the thing asked for.
   passages.push({
     title: 'About',
-    kind: 'Education',
+    // Its own kind. It read 'Education' at first, and the widget prints the
+    // kind above the quote — so a sentence from the bio was labelled
+    // "EDUCATION", which is a small lie in the one place this thing exists to
+    // avoid telling them.
+    kind: 'About',
     sectionId: 'about',
     sentences: profile.bio.flatMap(sentencesOf),
     keywords: [profile.location, ...profile.roles],
