@@ -3,10 +3,15 @@ import type { Project } from '@/types';
 /**
  * Four projects, three of them featured, chosen by the owner.
  *
- * Two are described from the CV. Two are not in the CV at all and their
- * descriptions are the owner's to write — they are marked `TODO(owner)` rather
- * than invented, because a portfolio that describes work in words its author
- * did not choose is worse than one that says less.
+ * Every description here comes from an account the owner wrote — the CV for the
+ * village portal, his own summaries for the rest. Nothing is invented, which is
+ * why `role` is absent from three of the four and why AssetMind's stack stops
+ * at the three ideas he named. A portfolio that describes work in words its
+ * author did not choose is worse than one that says less.
+ *
+ * AssetMind replaced Dukunify on 2026-08-22. Dukunify had sat here since the
+ * content paste with every field still `TODO(owner)`, and it was the one
+ * visible gap on the page.
  */
 export const projects: Project[] = [
   {
@@ -76,17 +81,37 @@ export const projects: Project[] = [
     featured: true,
   },
   {
-    id: 'dukunify',
-    title: 'Dukunify',
-    category: 'Web',
-    year: 2025,
-    role: 'TODO(owner): your role on this project',
-    // TODO(owner): not in the CV either. Same three sentences to fill.
-    problem: 'TODO(owner): what problem did this solve, and for whom?',
-    solution: 'TODO(owner): how did you solve it, and what did you build?',
-    outcome: 'TODO(owner): what changed as a result — a number if you have one.',
-    stack: ['TODO'],
-    thumbnail: '/projects/dukunify.webp',
+    id: 'assetmind',
+    title: 'AssetMind — Maintenance Decision Support',
+    // The only 'AI' project, which is the point of labelling it that way: the
+    // site calls its owner an AI/ML Engineer and the filter row is where a
+    // reader goes looking for the evidence. A one-item category is a weak
+    // filter and a strong signal; this is the second.
+    category: 'AI',
+    year: 2026,
+    // No role, like Simpel IBS and Animart. This is his final-year research
+    // project, which the Education entry already frames — naming a role here
+    // would be describing the work rather than his part in it.
+    problem:
+      "Palm oil maintenance knowledge sat in SOPs, manuals, past reports and individual mechanics' heads, so the same fault could get a different answer depending on who looked at it.",
+    solution:
+      'A decision support system where an LLM reasons over a knowledge graph linking asset, component, fault, cause and procedure, then explains what each recommendation was drawn from.',
+    // Leads with explainability rather than the headline 4.73, for two reasons.
+    // It is the dimension the problem statement is actually about — a system
+    // that cannot say why is one nobody trusts — and it moved furthest, 0.30
+    // against 0.15 for relevance. It also avoids repeating the Education
+    // highlight, which already carries 4.73 and the 39/39.
+    outcome:
+      'Two prototype iterations took explainability from 4.42 to 4.72 and procedure match from 80% to 92.9%. All 39 functional tests passed.',
+    // TODO(owner): these are the concepts you named, not the tools you built
+    // with. If you want the real stack on the card — Python, whatever graph
+    // store, whatever framework — say the word and it goes in. Nothing here is
+    // guessed, which is why it stops at three.
+    stack: ['LLM', 'KG-RAG', 'Knowledge Graph'],
+    // TODO(owner): a real screenshot. This is a generated placeholder —
+    // Dukunify's thumbnail was a real screenshot of Dukunify and could not
+    // stand in for this.
+    thumbnail: '/projects/assetmind.webp',
     links: {},
     featured: false,
   },

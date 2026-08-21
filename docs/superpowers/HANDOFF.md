@@ -49,7 +49,10 @@ None of this is guessed or invented — the project's standing rule is that a po
 
 | What | Where | State |
 |---|---|---|
-| **Dukunify** — role, problem, solution, outcome, stack | [`src/data/projects.ts:83`](../../src/data/projects.ts) | Every field is a `TODO(owner)` string and `stack` is `['TODO']`. It is `featured: false`, so it shows only as a `ProjectFlow` row. **This is the one visible gap on the page.** |
+| ~~**Dukunify** — five empty fields~~ | — | **Replaced by AssetMind on 2026-08-22.** No `TODO(owner)` copy remains anywhere on the page. See [AssetMind](#assetmind-replaced-dukunify). |
+| **AssetMind's thumbnail** | `public/projects/assetmind.webp` | A generated 800×500 placeholder that says so on its face. Dukunify's file was a real screenshot of Dukunify and could not stand in, so it was deleted. **This is the one visible gap on the page.** |
+| **AssetMind's stack** | [`src/data/projects.ts`](../../src/data/projects.ts) | `['LLM', 'KG-RAG', 'Knowledge Graph']` — the three ideas the owner named, not the tools he built with. Python and the graph store are almost certainly right and are not in evidence, so they are not there. |
+| **`village-portal.webp` is the wrong screenshot** | `public/projects/village-portal.webp` | Byte-identical to `simpel-ibs.webp`, and it shows the SimpelBS homepage. A featured row is displaying another project's site. Needs a real `banjarsarigarut.id` capture at 800×500. |
 | **Animart** — the owner's own part on it | [`src/data/projects.ts:66`](../../src/data/projects.ts) | `role` was deliberately removed rather than guessed: the project report says the team chose the approach, and an earlier inferred "Solo — analysis and build" was wrong. Optional; the meta line reads "Data · 2025" without it. |
 | ~~**Certificate dates** — 7 of 14~~ | — | **Closed 2026-08-22 by deleting the fields**, not by filling them. See [no dates on certificates](#no-dates-on-certificates). |
 | **The `web-developer` certificate title** | [`src/data/certificates.ts:38`](../../src/data/certificates.ts) | Issuer is confirmed **BNSP**. The exact wording on the scan is not. This is now the only unverified string in `src/data/`. |
@@ -176,6 +179,18 @@ Nothing is hidden by the removal: the CV is a download on the page and carries t
 
 **Two inconsistencies were found by reading the data against the page, and both are fixed.** `profile.stats` claimed 8 projects against the 4 in `projects.ts` — a reader counts what is on screen, so the stat came down to 4. And `site.description` called him "an Information Systems student" while `profile.bio` says fresh graduate; it says graduate now, in `site.ts` *and* in the two `index.html` meta tags, because `site.test.ts` asserts the HTML contains the description verbatim and fails if only one moves. That guard was written for exactly this and this is the first time it has been needed.
 
+### AssetMind replaced Dukunify
+
+Dukunify sat in the data from the content paste with all five of its fields still `TODO(owner)` — the one place on the page where placeholder copy was actually visible. On 2026-08-22 the owner replaced it with **AssetMind AI Engine**, his final-year research project: an LLM decision support system for palm oil asset maintenance using KG-RAG, presented at ICADEIS 2026 and published in IEEE Xplore.
+
+**It is the only `category: 'AI'` project, and that is deliberate.** A one-item filter chip is a weak filter and a strong signal: the site calls its owner an AI/ML Engineer, and the filter row is where a reader goes looking for the evidence. Until this landed, all three featured projects were Laravel web portals.
+
+**The outcome line leads with explainability, not with the headline 4.73.** Two reasons: it is the dimension the problem statement is actually about — a maintenance system that cannot say *why* is one nobody trusts — and it moved furthest across the two prototype iterations, 0.30 against 0.15 for relevance. It also avoids repeating the Education highlight, which already carries 4.73, 92.9% and the 39/39.
+
+**The `AI & Retrieval` skills now point at something.** That whole category had no `relatedProjectIds` at all, because the only AI project on the page was the unwritten Dukunify slot — so hovering RAG, KG-RAG, Knowledge Graphs or LLM Applications dimmed the entire Projects section and highlighted nothing. All four link to `assetmind` now, read off its own description rather than assumed. NLP, Vector Embeddings and Sentence Transformers stay unlinked: they are evidenced for the Pertamina work, which is an experience entry, not a project.
+
+**Worth raising with the owner and not decided:** `featuredMax` is 3 and all three slots are Laravel portals, so featuring AssetMind means demoting one. That is a content judgement, so it was left alone.
+
 ### No dates on certificates
 
 `Certificate` has **no `issueDate` and no `expiryDate`**, by the owner's decision on 2026-08-22, and the fields are gone from the type rather than left optional and empty.
@@ -188,7 +203,7 @@ The YYYY-MM invariant for certificates went with the fields; the compiler enforc
 
 If a date is ever wanted as *data* — for sorting, or a "valid until" badge the scan cannot provide — it comes back as a field. It does not come back to be printed under a picture of itself.
 
-`credentialId` is worth knowing about while here: it is set on one certificate, and **rendered nowhere**. Either surface it in the lightbox or drop it; it is the same shape of dead data that `Skill.icon` was before `lucide-react` arrived.
+**`credentialId` went the same way, same day, for the same reason.** It was set on one certificate and rendered nowhere — the scan carries the number, so the field was a third way of reprinting the image. `credentialUrl` stays available, because it is the one field of this kind that does something a picture cannot: take a reader to the issuer to verify independently. No certificate sets it yet.
 
 ### The hero portrait has a dial, and it is the only thing to turn
 

@@ -7,12 +7,16 @@ import type { Certificate } from '@/types';
  * names — the HackerRank series, BNSP through LSP SDMTIK, Oracle Academy and
  * Huawei all identify themselves on the document.
  *
- * There are no dates here, by the owner's decision, and `Certificate` no longer
- * has a field for one. Every scan states its own date and the lightbox shows
- * the scan at full size, so a caption repeating it was reprinting the image in
- * words — while seven of the fourteen were placeholders that would have shipped
- * as confident misinformation directly beneath a scan that disagreed. The wall
- * groups by `category` and walks in array order, so nothing sorted by them.
+ * There are no dates here and no credential numbers, by the owner's decision,
+ * and `Certificate` no longer has fields for them. Every scan states both, and
+ * the lightbox shows the scan at full size, so the fields were reprinting the
+ * image in words — while seven of the fourteen dates were placeholders that
+ * would have shipped as confident misinformation directly beneath a scan that
+ * disagreed. The wall groups by `category` and walks in array order, so nothing
+ * sorted by any of them.
+ *
+ * `credentialUrl` stays available: it is the one field of this kind that does
+ * something a picture cannot, which is take a reader to the issuer to check.
  */
 export const certificates: Certificate[] = [
   {
@@ -48,7 +52,6 @@ export const certificates: Certificate[] = [
     id: 'hackerrank-python-basic',
     title: 'Python (Basic)',
     issuer: 'HackerRank',
-    credentialId: '939F4E1B4031',
     imageUrl: '/certificates/hackerrank-python-basic.webp',
     thumbnailUrl: '/certificates/thumb-hackerrank-python-basic.webp',
     category: 'course',

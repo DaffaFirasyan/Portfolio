@@ -110,7 +110,6 @@ dibutuhkan.
 | `id` | Slug unik | jadi nama file gambar |
 | `title` | Nama sertifikat | **≤ 72 karakter** |
 | `issuer` | Penerbit | **≤ 40 karakter** |
-| `credentialId` | Nomor kredensial | opsional |
 | `credentialUrl` | Link verifikasi resmi | opsional, tapi menaikkan kredibilitas |
 | `category` | `course` `competition` `workshop` `professional` `bootcamp` | wajib salah satu |
 | `skills` | Skill dari sertifikat itu | **maks 4 item** |

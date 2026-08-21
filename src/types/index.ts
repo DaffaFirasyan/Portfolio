@@ -128,22 +128,26 @@ export type CertificateCategory =
   | 'bootcamp';
 
 /**
- * No dates. Every scan carries its own issue and expiry date, legible in the
- * lightbox at full size, so repeating them in the caption was duplicating the
- * image — and seven of the fourteen were placeholders that would have shipped
- * as confident misinformation next to a scan that contradicted them. The one
- * `expiryDate` in the data was never rendered anywhere at all.
+ * No dates, and no `credentialId`. Both were removed on 2026-08-22 for the same
+ * reason: the lightbox shows the scan at full size and the scan states them
+ * itself, so the fields were reprinting the image in words. Seven of the
+ * fourteen dates were still placeholders that would have contradicted the scan
+ * they sat under, and `expiryDate` and `credentialId` were each set on exactly
+ * one certificate and rendered nowhere at all.
  *
- * Nothing sorted by them either; the wall groups by `category` and walks in
- * array order. If a date is ever needed as *data* — for sorting, or a "valid
- * until" badge the scan cannot provide — it comes back as a field. It does not
- * come back to be printed under a picture of itself.
+ * Nothing sorted by any of them; the wall groups by `category` and walks in
+ * array order. `credentialUrl` stays because it is the one field of this kind
+ * that does something a picture cannot — it takes a reader to the issuer to
+ * verify independently.
+ *
+ * If a date is ever needed as *data* — for sorting, or a "valid until" badge
+ * the scan cannot provide — it comes back as a field. It does not come back to
+ * be printed under a picture of itself.
  */
 export interface Certificate {
   id: string;
   title: string;
   issuer: string;
-  credentialId?: string;
   credentialUrl?: string;
   imageUrl: string;
   thumbnailUrl: string;
