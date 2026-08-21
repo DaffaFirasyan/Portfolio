@@ -11,12 +11,24 @@
  * change how large the person looks is to show more or less of them. `ZOOM`
  * decides that: it is how much of the photo's width gets cut away.
  *
- *   ZOOM = 1.00  the whole subject, head to hips   — head renders ~123px
- *   ZOOM = 1.15  current setting                   — head renders ~141px
- *   ZOOM = 1.32  head and chest only               — head renders ~162px
+ *   ZOOM = 1.00  current setting, the photo as supplied  — head renders ~129px
+ *   ZOOM = 1.15  a little tighter                        — head renders ~149px
+ *   ZOOM = 1.32  head and chest only                     — head renders ~171px
  *
  * Higher means the person is bigger and more of them is cut off. The head is
  * always kept; what goes is the arms at the sides and the body below.
+ *
+ * Those numbers were re-measured on 2026-08-22 against the current source and
+ * are not the ones this file used to quote. They move whenever `SOURCE` does,
+ * because ZOOM is a fraction of the source's own width — the same 1.15 gave
+ * ~141px against the previous photo. Re-measure after changing the source
+ * rather than trusting the table.
+ *
+ * At 1.00 nothing is cut from the width at all: the crop is the whole trimmed
+ * photo with 71px taken off the bottom to make the card's aspect. Anything
+ * below about 1.045 lands in the same place, because the height runs out first
+ * and the clamp below takes over. So 1.00 means "the photo as the owner framed
+ * it", which is exactly what he asked for.
  *
  * Change the number, run `npm run avatar`, and reload the page. The output is
  * always 320x446 whatever you choose, so nothing else in the project needs
@@ -27,12 +39,12 @@ import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import sharp from 'sharp';
 
-const ZOOM = 0.75;
+const ZOOM = 1.0;
 
 // ─────────────────────────────────────────────────────────────────────────────
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const SOURCE = join(root, 'Konten_Asli', 'gambar', 'profil', 'fotoprofil.webp');
+const SOURCE = join(root, 'Konten_Asli', 'gambar', 'profil', 'fotoprofil (1).png');
 const OUTPUT = join(root, 'public', 'profile', 'avatar.webp');
 
 /** ProfileCard's own aspect ratio, and the size it renders at in the hero. */

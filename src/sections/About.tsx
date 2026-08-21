@@ -13,11 +13,22 @@ export default function About() {
       <div className="grid gap-10 md:grid-cols-12">
         <div className="md:col-span-5">
           <Reveal>
+            {/* 320x446, which is what the file actually is. It said 800x800
+                until 2026-08-22 — a square reservation for a 0.717 portrait,
+                so the browser held the wrong box until the image arrived and
+                then reflowed this column. Nothing failed and nothing looked
+                obviously wrong, which is why it survived a CLS pass that took
+                the desktop score from 0.245; the numbers here simply never
+                matched the asset the crop script writes.
+
+                This is also the same file the hero's ProfileCard renders, and
+                the owner has called that redundant. If this image is replaced,
+                these two numbers go with it. */}
             <img
               src={profile.avatarUrl}
-              alt={`${profile.name} at work`}
-              width={800}
-              height={800}
+              alt={`${profile.name}, portrait`}
+              width={320}
+              height={446}
               loading="lazy"
               decoding="async"
               className="w-full rounded-xl border border-edge"

@@ -16,6 +16,11 @@ export const skillCategories: SkillCategory[] = [
       { name: 'Django', icon: 'server', level: 'intermediate' },
       { name: '.NET Core 8', icon: 'server', level: 'intermediate' },
       { name: 'Flask', icon: 'server', level: 'intermediate' },
+      // Added 2026-08-22. It was on AssetMind's chip row and nowhere in this
+      // section, so a reader who filtered by skill could not find the framework
+      // a featured card names. `level` is the owner's call and this is a guess
+      // held deliberately low — one word to change.
+      { name: 'FastAPI', icon: 'server', level: 'intermediate', relatedProjectIds: ['assetmind'] },
       { name: 'Vue.js', icon: 'component', level: 'intermediate' },
       { name: 'React', icon: 'component', level: 'intermediate' },
       { name: 'TypeScript', icon: 'code', level: 'intermediate' },
@@ -76,6 +81,11 @@ export const skillCategories: SkillCategory[] = [
       { name: 'MySQL', icon: 'database', level: 'advanced', relatedProjectIds: ['village-portal'] },
       { name: 'PostgreSQL', icon: 'database', level: 'intermediate' },
       { name: 'SQL Server', icon: 'database', level: 'intermediate' },
+      // Same gap as FastAPI, same day. `database` rather than the `share-2`
+      // that marks Knowledge Graphs above: within this card the icon says what
+      // kind of thing it is, and Neo4j is a store. What makes it a *graph*
+      // store is already said by the skill it sits beside in AI & Retrieval.
+      { name: 'Neo4j', icon: 'database', level: 'intermediate', relatedProjectIds: ['assetmind'] },
       { name: 'Docker', icon: 'box', level: 'intermediate' },
       { name: 'Git & GitHub', icon: 'git-branch', level: 'advanced' },
       { name: 'Vercel', icon: 'triangle', level: 'intermediate' },
