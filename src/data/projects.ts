@@ -60,14 +60,17 @@ export const projects: Project[] = [
     title: 'Inventory and Demand Forecasting for a Food MSME',
     category: 'Data',
     year: 2025,
-    role: 'Solo — analysis and build',
+    // No role stated. It was 'Solo — analysis and build', which I had inferred
+    // and which the owner's account contradicts — the report says the team
+    // chose the approach. Removing it beats naming a part he did not describe.
+    // TODO(owner): add your part if you want it here.
     problem:
-      'A food MSME ordered stock on instinct, so fast-moving items ran out while slow ones sat until they spoiled, and nobody could say which was about to happen next week.',
+      'Animart tracked sales and stock by hand across books and spreadsheets, so the numbers never agreed, and every decision about what to buy next came down to the owner guessing.',
     solution:
-      'A web decision support system that tracks inventory and forecasts demand from past sales, turning a guess about next week into a number the owner can order against.',
+      'A web system where a point of sale records each sale, stock falls automatically by recipe as menus sell, and a simple moving average projects short-term demand from that history.',
     outcome:
-      'Built as a case study with Animart, covering stock management and demand prediction in one interface.',
-    stack: ['Python', 'Web', 'Forecasting'],
+      'Stock now follows each sale instead of a stocktake, and a dashboard turns the history into reorder quantities. Accepted in user testing.',
+    stack: ['PHP', 'Laravel', 'MySQL', 'JavaScript', 'CSS'],
     thumbnail: '/projects/animart.webp',
     links: {},
     featured: true,
