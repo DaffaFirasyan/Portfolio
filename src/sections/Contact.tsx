@@ -3,7 +3,7 @@ import ContactForm from '@/components/ui/ContactForm';
 import { shellProps } from '@/data/sections';
 import { profile } from '@/data/profile';
 import Reveal from '@/motion/Reveal';
-import SplineRobot from '@/motion/SplineRobot';
+import OrbMark from '@/motion/OrbMark';
 import Sparks from '@/motion/Sparks';
 import Typed from '@/motion/Typed';
 
@@ -88,10 +88,11 @@ export default function Contact() {
                   between them and the footer line is 415px, and this is 400px.
                   pointer-events-none because it is absolutely positioned across
                   the column and must never intercept a click meant for the
-                  links or the address above it — the robot does not need real
-                  pointer events, since the component forwards window ones. */}
+                  links or the address above it — the orb does not need real
+                  pointer events, since it reads the window and normalises
+                  against its own rect. */}
               <div className="pointer-events-none absolute inset-x-0 -bottom-32 hidden h-[25rem] overflow-hidden lg:block">
-                <SplineRobot />
+                <OrbMark />
               </div>
             </div>
           </Reveal>

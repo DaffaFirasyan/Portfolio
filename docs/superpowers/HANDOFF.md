@@ -20,9 +20,10 @@ This file exists so a session that remembers nothing can pick the work up withou
 |---|---|---|
 | Eagerly | `react` 57.15, `index` 50.07, `gsap` 50.27, `motion` 39.94, `lenis` 5.39, `icons` 2.31, runtime 0.51 | **205.6 KB JS** + 11.1 KB CSS |
 | On the hero, desktop only | `Galaxy` 15.99, `SplashCursor` 6.04 | 22 KB |
-| On approach to Contact, desktop only | `react-spline` 571.22, `physics` 733.92, `opentype` 50.62, plus `ui`/`gaussian-splat-compression`/`process`/`boolean`/`navmesh`/`howler` | ~1.4 MB |
+| On approach to Contact, desktop only | `Orb` 3.07 | 3 KB |
+| Shared by `Galaxy` and `Orb` | `Triangle` (ogl) 12.91 | 13 KB |
 
-The eager 216.7 KB is inside spec §12.3's 250 KB budget. The Spline robot is several times outside it, knowingly — see [its own section](#the-spline-robot-at-the-foot-of-contact). Fonts add about 130 KB of woff2 on top, already compressed.
+The eager 216.6 KB is inside spec §12.3's 250 KB budget, and **everything lazy now fits in 25 KB.** Until 2026-08-22 that line read 1.4 MB, because the Spline robot sat behind it — see [what replaced it](#the-orb-at-the-foot-of-contact-and-the-robot-it-replaced). Fonts add about 130 KB of woff2 on top, already compressed.
 
 Two animation libraries with overlapping capability, `gsap` and `motion`, are 44% of the eager bundle. That is the single largest reduction still available and nobody has taken it.
 
@@ -65,7 +66,7 @@ None of this is guessed or invented — the project's standing rule is that a po
 1. **Deploy.** [Contact & launch](plans/2026-08-18-contact-and-launch.md) Task 10 is written and unstarted. It needs a Web3Forms key and a Vercel account, so it is the owner's to run; the plan says exactly what to do. It also merges this branch, which is the other reason to get to it.
 2. **Check the certificate scans before they go public, by eye.** Identity numbers, dates of birth, wet signatures and personal QR codes must be covered. The owner has confirmed they checked (*"Soal privasi sudah saya pastikan aman"*), but **no test can check this and none pretends to** — it is a look at fourteen images, and the only chance to do it is before the files are public.
 3. **Re-measure Lighthouse.** See [the performance pass](#the-performance-pass) for where it stands and what is already known to be costing points. Run it against `npm run preview` on port 4173, in incognito — a run against the dev server measures an artefact ten times heavier and scored 27.
-4. **Replace the Spline scene.** It is Spline's own sample robot, the same asset the 21st.dev demo points at. A recognisable template on a portfolio argues against the portfolio.
+4. ~~**Replace the Spline scene.**~~ **Done 2026-08-22** — it is an `ogl` shader now, 1,459 KB gzip lighter. See [the orb](#the-orb-at-the-foot-of-contact-and-the-robot-it-replaced).
 
 ### `Konten_Asli/` is gitignored, and must stay that way
 
@@ -103,7 +104,7 @@ Enough of a map to orient without reading everything.
 | `types/` | Every content interface, plus `SectionMeta`, `SectionNavProps`, `Site`, `Technology` |
 | `lib/` | All pure and tested directly: `scroll`, `filter`, `cycle`, `rail` (node geometry), `group` (`groupByCategory`, `CATEGORY_ORDER`), `validate` (contact fields), `web3forms` (the submit call), `token` (`cssToken` — canvas cannot read `var()`), `skillIcon` (kebab-case data key → lucide component, explicit table not a derived lookup) |
 | `hooks/` | `useActiveSection`, `useScrolledPast`, `useMotionAllowed`, `useOnScreen`, `useLenis` — the last is a **module singleton**, see the traps |
-| `motion/` | The wrapper layer, and the only place React Bits is touched: `Reveal` (takes `fill`), `Heading`, `Surface` (the one hover language), `Backdrop`, `Chip`, `Dialog` (takes `wide`), `Counter`, `BlurIn`, `Shine`, `RotatingRole`, `Grain`, `StarButton`, `Typed`, `Marquee`, `Sparks`, `PulseDot`, `AvatarCard`, `LogoMarquee`, `ProjectFlow`, `SplashCursor`, `SplineRobot` (`@splinetool/react-spline`, the only npm-backed wrapper here and by far the most expensive — see its own section) |
+| `motion/` | The wrapper layer, and the only place React Bits is touched: `Reveal` (takes `fill`), `Heading`, `Surface` (the one hover language), `Backdrop`, `Chip`, `Dialog` (takes `wide`), `Counter`, `BlurIn`, `Shine`, `RotatingRole`, `Grain`, `StarButton`, `Typed`, `Marquee`, `Sparks`, `PulseDot`, `AvatarCard`, `LogoMarquee`, `ProjectFlow`, `SplashCursor`, `OrbMark` (the `ogl` shader at the foot of Contact, which replaced a 1.4 MB Spline scene) |
 | `highlight/` | `SkillHighlightProvider` and `useSkillHighlight` — the skill-to-project cross-highlight |
 | `nav/` | `NodeRailNav` (in use), `PillNavAdapter` (kept unimported as the second implementation that proves the seam), `Navbar` (owns the hooks) |
 | `sections/` | The seven sections. Governed: no React Bits imports |
@@ -257,7 +258,32 @@ The historical note, for context: `scripts/crop-avatar.mjs` has **one number in 
 
 `ProfileCard`'s holographic layers are tuned for the demo's stock portrait. On an actual photograph they washed the skin out — the owner's words were that his face had gone very pale. `SHINE` is 0.32 and `GLARE_LIGHTNESS` 62 now, and the portrait sits at `zIndex: 6`, **above** the glare layers rather than under them. This is the second time this component has had to be edited for the same reason: `mix-blend-mode: luminosity` came out earlier because it tinted a face blue-violet. Anything added to that card gets checked against the real photo, not the placeholder silhouette.
 
-## The Spline robot at the foot of Contact
+## The orb at the foot of Contact, and the robot it replaced
+
+**As of 2026-08-22 this is an `ogl` shader, and the Spline robot is gone.** The numbers are the argument:
+
+| | gzip |
+|---|---|
+| Spline, across nine chunks (`physics` 733.92, `react-spline` 571.22, `opentype` 50.62, `ui`, `gaussian-splat-compression`, `process`, `boolean`, `navmesh`, `howler`) | **1,462.53 KB** |
+| Plus a scene fetched from `prod.spline.design` | 1,349,622 bytes |
+| `Orb` + `Galaxy` + shared `ogl` | **19.31 KB** |
+
+**A saving of 1,459 KB gzip, about 98.7%**, plus roughly 930ms of main thread and the ~28 Lighthouse points the robot cost wherever it ran. `prod.spline.design` also leaves this page's critical path, and it was a third party with no error hook — `SplineProps` extends the div's HTML attributes, so its `onError` is the DOM media handler and never fires for a failed scene fetch.
+
+**`ogl` came out of `Galaxy` and became a shared chunk.** It was inlined into `Galaxy` at 15.99 KB when nothing else needed it; with two consumers Rolldown hoisted it, so `Galaxy` is 3.33 KB now and `Orb` 3.07 KB against a 12.91 KB `Triangle` chunk they share. Adding a third ogl component would cost only its own shader.
+
+**Three edits were needed before vendoring `Orb`**, each for a fault this project had already paid for once. Every prop was in the effect's dependency array while being read inside the render loop anyway, so any prop change rebuilt the WebGL context — the same shape as `SplashCursor`'s `BACK_COLOR`. It listened on its own container, so it only woke once the pointer was already inside its box, which is the behaviour the owner rejected on the robot in as many words; it reads the window and normalises against its own rect now, the fix `Galaxy` needed for a different reason. And `Orb.css` was dropped: six lines the caller can say in Tailwind, one of which made a stacking context nobody asked for.
+
+**`EvilEye` was read and rejected, on one line.** Its shader ends `gl_FragColor = vec4(color, 1.0)` — alpha hardcoded to 1.0 — *despite* a renderer configured with `alpha: true` and `clearColor(0, 0, 0, 0)`. It can only ever be an opaque rectangle, measured against a page background of `#0a0c10`, and the owner had already rejected a frame around the robot. This is the `SplashCursor` lesson exactly: **the renderer's configuration is not evidence of transparency; the last line of the fragment shader is.** `Orb` emits `vec4(col.rgb * col.a, col.a)` and composites with no box.
+
+**What the browser pane could and could not prove**, recorded because it is the same wall every WebGL change here hits. Verified: the chunk loads, the canvas mounts at 528×400, the context is live, `gl.getError()` is 0, and zero requests go to Spline. Not verifiable: what it looks like. `Orb` draws only from `requestAnimationFrame`, which measured **0 frames in one second** here, so an empty framebuffer is what a working shader also produces. That reading was nearly reported as a defect.
+
+---
+
+### History: the Spline robot (removed 2026-08-22)
+
+Everything below describes what is no longer on the page. It is kept because the findings outlived it.
+
 
 Added 2026-08-19 in the slot the rotating `CircularText` badge held. `CircularText` and its `CircularBadge` wrapper were deleted, following what already happened to `ElectricBorder` and `CurvedLoop` when they were replaced.
 
