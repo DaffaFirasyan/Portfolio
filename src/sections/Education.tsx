@@ -174,8 +174,12 @@ export default function Education() {
       >
         {shown && (
           <div className="p-6">
+            {/* Issuer alone. The date used to follow it, and the scan directly
+                below states its own — so the caption was reprinting part of the
+                picture it captions. Who awarded it is the one thing the image
+                does not always make scannable at a glance. */}
             <p className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
-              {`${shown.issuer} · ${shown.issueDate}`}
+              {shown.issuer}
             </p>
             <h2 className="mt-2 font-display text-h2 font-bold break-words text-primary">
               {shown.title}

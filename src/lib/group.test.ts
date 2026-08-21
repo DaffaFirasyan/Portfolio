@@ -5,7 +5,6 @@ const make = (id: string, category: Certificate['category']): Certificate => ({
   id,
   title: `${id} title`,
   issuer: 'Issuer',
-  issueDate: '2025-01',
   imageUrl: `/certificates/${id}.webp`,
   thumbnailUrl: `/certificates/thumb-${id}.webp`,
   category,

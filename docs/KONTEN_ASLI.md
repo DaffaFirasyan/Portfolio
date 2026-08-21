@@ -102,12 +102,19 @@ mati. Jangan diisi placeholder.
 | `id` | Slug unik | jadi nama file gambar |
 | `title` | Nama sertifikat | **≤ 72 karakter** |
 | `issuer` | Penerbit | **≤ 40 karakter** |
-| `issueDate` | Format **`YYYY-MM`** | wajib format ini |
-| `expiryDate` | `YYYY-MM` | opsional |
 | `credentialId` | Nomor kredensial | opsional |
 | `credentialUrl` | Link verifikasi resmi | opsional, tapi menaikkan kredibilitas |
 | `category` | `course` `competition` `workshop` `professional` `bootcamp` | wajib salah satu |
 | `skills` | Skill dari sertifikat itu | **maks 4 item** |
+
+**Sertifikat tidak punya field tanggal sama sekali** — `issueDate` dan
+`expiryDate` dihapus dari tipe `Certificate` pada 2026-08-22 atas keputusan
+Anda. Alasannya: setiap scan sudah mencantumkan tanggalnya sendiri dan lightbox
+menampilkan scan itu ukuran penuh, jadi caption bertanggal hanya mengulang isi
+gambar — dan tujuh dari empat belas masih placeholder yang akan tampil sebagai
+informasi salah tepat di bawah scan yang membantahnya. Tidak ada yang mengurut
+berdasarkan tanggal; dinding sertifikat dikelompokkan per `category` dan
+mengikuti urutan array.
 
 ### 1.7 Site (`src/data/site.ts`)
 
@@ -190,7 +197,8 @@ Yang **tidak boleh** gagal dan harus diperbaiki isinya:
 - batas karakter terlampaui
 - `relatedProjectIds` menunjuk id project yang tidak ada
 - file gambar yang disebut data tidak ada di `public/`
-- format tanggal bukan `YYYY-MM`
+- format tanggal bukan `YYYY-MM` (berlaku untuk `experiences`; sertifikat sudah
+  tidak punya tanggal)
 
 Lalu:
 

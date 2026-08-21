@@ -10,7 +10,7 @@ This file exists so a session that remembers nothing can pick the work up withou
 
 **Branch:** `feat/foundation-and-content-layer`, **160 commits** ahead of `main`. Nothing is merged; `main` still sits at the first plan document.
 
-**State (2026-08-22):** 331 tests pass across 45 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean.
+**State (2026-08-22):** 330 tests pass across 45 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean.
 
 **The real content has landed.** Profile, education, experience, projects, skills, certificates and every asset are the owner's own, pasted through `src/data/` and `public/` exactly as spec §11 criterion 3 promised — no component was touched to do it. What is still unfilled is listed under [Still the owner's to fill](#still-the-owners-to-fill).
 
@@ -51,8 +51,8 @@ None of this is guessed or invented — the project's standing rule is that a po
 |---|---|---|
 | **Dukunify** — role, problem, solution, outcome, stack | [`src/data/projects.ts:83`](../../src/data/projects.ts) | Every field is a `TODO(owner)` string and `stack` is `['TODO']`. It is `featured: false`, so it shows only as a `ProjectFlow` row. **This is the one visible gap on the page.** |
 | **Animart** — the owner's own part on it | [`src/data/projects.ts:66`](../../src/data/projects.ts) | `role` was deliberately removed rather than guessed: the project report says the team chose the approach, and an earlier inferred "Solo — analysis and build" was wrong. Optional; the meta line reads "Data · 2025" without it. |
-| **Certificate dates** — 7 of 14 | [`src/data/certificates.ts`](../../src/data/certificates.ts) | Still on the placeholder `issueDate: '2025-01'`. They sort and display fine; they are simply not true yet. |
-| **The `web-developer` certificate title** | [`src/data/certificates.ts:39`](../../src/data/certificates.ts) | Issuer is confirmed **BNSP**. The exact wording on the scan is not. |
+| ~~**Certificate dates** — 7 of 14~~ | — | **Closed 2026-08-22 by deleting the fields**, not by filling them. See [no dates on certificates](#no-dates-on-certificates). |
+| **The `web-developer` certificate title** | [`src/data/certificates.ts:38`](../../src/data/certificates.ts) | Issuer is confirmed **BNSP**. The exact wording on the scan is not. This is now the only unverified string in `src/data/`. |
 | **`site.url`** | [`src/data/site.ts:4`](../../src/data/site.ts) | `https://daffa-firasyan.vercel.app` — a guess at the deploy target. Canonical URL, OG tags and JSON-LD all read from it, and `site.test.ts` guards it against drift, so changing it is one line. |
 
 ### Then, in order
@@ -160,10 +160,21 @@ Landed 2026-08-21/22 across five commits, from the owner's CV and his own accoun
 
 **Two certificate test regexes broke on real titles**, both for the same underlying reason: a real string is not a pattern. `Python (Basic)` contains regex groups, and `Web Developer` is a substring of `Junior Web Developer — …`, so a `.includes` match hit the wrong row. Both are function matchers now.
 
-**Two things in the data are still inconsistent with the page, and both are the owner's call rather than bugs:**
+**Two inconsistencies were found by reading the data against the page, and both are fixed.** `profile.stats` claimed 8 projects against the 4 in `projects.ts` — a reader counts what is on screen, so the stat came down to 4. And `site.description` called him "an Information Systems student" while `profile.bio` says fresh graduate; it says graduate now, in `site.ts` *and* in the two `index.html` meta tags, because `site.test.ts` asserts the HTML contains the description verbatim and fails if only one moves. That guard was written for exactly this and this is the first time it has been needed.
 
-- `profile.stats` claims **8 projects** while `projects.ts` holds 4. It may well be true of his work overall, but a reader counts what is on screen. Either the number comes down or more projects go in.
-- `site.description` calls him "an Information Systems student"; `profile.bio` says fresh graduate. The description is what search results and link previews show.
+### No dates on certificates
+
+`Certificate` has **no `issueDate` and no `expiryDate`**, by the owner's decision on 2026-08-22, and the fields are gone from the type rather than left optional and empty.
+
+The reason is that the lightbox shows the scan at full size and **every scan states its own date**, so a caption printing it was reprinting part of the picture it captions. Seven of the fourteen were still placeholder `2025-01` values, which would have shipped as confident misinformation sitting directly beneath an image that contradicted them — the worst version of a wrong date, not the mildest.
+
+Nothing broke, because nothing depended on them: the wall groups by `category` and walks in array order, so **no sort used the date** despite an old comment in `certificates.ts` claiming it did. `expiryDate` existed on exactly one certificate and was rendered nowhere at all. The lightbox caption is now the issuer alone, which is the one thing a scan does not always make scannable at a glance.
+
+The YYYY-MM invariant for certificates went with the fields; the compiler enforces their absence now, which is stricter than the test was. **Experience dates are untouched** and still checked.
+
+If a date is ever wanted as *data* — for sorting, or a "valid until" badge the scan cannot provide — it comes back as a field. It does not come back to be printed under a picture of itself.
+
+`credentialId` is worth knowing about while here: it is set on one certificate, and **rendered nowhere**. Either surface it in the lightbox or drop it; it is the same shape of dead data that `Skill.icon` was before `lucide-react` arrived.
 
 ### The hero portrait has a dial, and it is the only thing to turn
 

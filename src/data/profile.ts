@@ -30,7 +30,7 @@ export const profile: Profile = {
     { label: 'LinkedIn', url: 'https://www.linkedin.com/in/daffafirasyan/', icon: 'linkedin' },
   ],
   stats: [
-    { label: 'Projects', value: 8 },
+    { label: 'Projects', value: 4 },
     { label: 'Certificates', value: 14 },
     { label: 'Years coding', value: 4, suffix: '+' },
   ],

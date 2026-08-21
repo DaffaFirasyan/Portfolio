@@ -27,7 +27,7 @@ Query the registry — `npm view <pkg> version`. Versions recalled from memory w
 
 ```bash
 npm run dev        # dev server
-npm test           # vitest, currently 331 tests across 45 files
+npm test           # vitest, currently 330 tests across 45 files
 npm run lint       # eslint, includes the import boundary
 npm run build      # tsc --noEmit && vite build
 npm run avatar     # re-crop the hero portrait; one ZOOM constant, fixed 320x446 output

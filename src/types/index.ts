@@ -127,12 +127,22 @@ export type CertificateCategory =
   | 'professional'
   | 'bootcamp';
 
+/**
+ * No dates. Every scan carries its own issue and expiry date, legible in the
+ * lightbox at full size, so repeating them in the caption was duplicating the
+ * image — and seven of the fourteen were placeholders that would have shipped
+ * as confident misinformation next to a scan that contradicted them. The one
+ * `expiryDate` in the data was never rendered anywhere at all.
+ *
+ * Nothing sorted by them either; the wall groups by `category` and walks in
+ * array order. If a date is ever needed as *data* — for sorting, or a "valid
+ * until" badge the scan cannot provide — it comes back as a field. It does not
+ * come back to be printed under a picture of itself.
+ */
 export interface Certificate {
   id: string;
   title: string;
   issuer: string;
-  issueDate: string;
-  expiryDate?: string;
   credentialId?: string;
   credentialUrl?: string;
   imageUrl: string;

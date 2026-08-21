@@ -294,12 +294,12 @@ describe('certificates', () => {
     );
   });
 
-  it('uses YYYY-MM dates', () => {
-    for (const c of certificates) {
-      expect(c.issueDate, `${c.id}.issueDate`).toMatch(MONTH);
-      if (c.expiryDate) expect(c.expiryDate, `${c.id}.expiryDate`).toMatch(MONTH);
-    }
-  });
+  // The YYYY-MM date check that stood here is gone with the fields it guarded.
+  // Certificates carry no dates at all now: every scan states its own, the
+  // lightbox shows the scan, and seven of the fourteen were placeholders that
+  // would have contradicted the image they sat under. `Certificate` has no
+  // date field, so this is enforced by the compiler rather than by a test.
+  // Experience dates are unaffected and still checked above.
 
   it('never carries a present-but-invalid credential url', () => {
     for (const c of certificates) {
