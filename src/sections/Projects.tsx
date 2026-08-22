@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import SectionShell from '@/components/layout/SectionShell';
-import FeaturedProject from '@/components/ui/FeaturedProject';
+import ProjectTile from '@/components/ui/ProjectTile';
 import { shellProps } from '@/data/sections';
 import { projects } from '@/data/projects';
 import { useSkillHighlight } from '@/highlight/SkillHighlight';
@@ -9,7 +9,7 @@ import type { Project } from '@/types';
 import { ALL, categoriesOf, filterByCategory } from '@/lib/filter';
 import Chip from '@/motion/Chip';
 import Dialog from '@/motion/Dialog';
-import ProjectFlow from '@/motion/ProjectFlow';
+import FocusGrid, { FocusItem } from '@/motion/FocusGrid';
 import Reveal from '@/motion/Reveal';
 
 export default function Projects() {
@@ -20,16 +20,32 @@ export default function Projects() {
   const categories = useMemo(() => categoriesOf(projects), []);
   const visible = useMemo(() => filterByCategory(projects, category), [category]);
 
-  // Featuring is a judgement about the whole body of work, so it is dropped the
-  // moment a filter narrows that body. Inside "3 of 8 match Web" a featured row
-  // would claim an importance it does not have, and with a single match the
-  // page would show one enormous row above an empty grid.
-  const split = category === ALL;
-  const featured = useMemo(() => (split ? visible.filter((p) => p.featured) : []), [visible, split]);
-  const rest = useMemo(
-    () => (split ? visible.filter((p) => !p.featured) : visible),
-    [visible, split],
+  // Featuring is a judgement about the whole body of work, so the *claim* is
+  // dropped the moment a filter narrows that body — inside "2 of 4 match Web" a
+  // featured badge asserts an importance it does not have. What is no longer
+  // dropped is the projects themselves: they are one grid now, so there is
+  // nothing to split apart, only a marker and a cell width to stop applying.
+  const promoted = category === ALL;
+
+  // Featured first while unfiltered, each group keeping its data order.
+  // "Promoted, not merely reordered: they lead the section" is asserted by
+  // projects-filter.test.tsx, and it is the reason featuring is visible at all
+  // — a badge on a tile in the middle of a grid claims far less than a tile at
+  // the front of one. Under a filter the order is left exactly as the data has
+  // it, which the same file asserts separately.
+  const ordered = useMemo(
+    () =>
+      promoted
+        ? [...visible].sort((a, b) => Number(b.featured) - Number(a.featured))
+        : visible,
+    [visible, promoted],
   );
+
+  // Featured tiles take two of three columns, alternating, so the row always
+  // sums to three: 2+1, then 2+1. The non-featured project lands in a single
+  // cell, which is the smallest slot and the honest one.
+  const spanOf = (project: Project, index: number) =>
+    promoted && project.featured && index % 2 === 0;
 
   return (
     <SectionShell {...shellProps('projects')}>
@@ -64,43 +80,37 @@ export default function Projects() {
           </button>
         </div>
       ) : (
-      <>
-      {featured.length > 0 && (
-        <div className="mb-10 space-y-4">
-          {featured.map((p, index) => (
-            <Reveal key={p.id} delay={0.06 * index}>
-              <FeaturedProject
-                project={p}
-                index={index}
-                dimmed={isDimmed(p.id)}
-                onOpen={setSelected}
-              />
-            </Reveal>
+        // One grid for every project, at three columns. The old section used a
+        // different *component* per tier — 323px rows for featured, 76px flow
+        // rows for the rest — which is why it read as two unrelated things and
+        // ran to 1,720px for four projects.
+        <FocusGrid className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {ordered.map((p, index) => (
+            // The span lives on this wrapper, not on Reveal. When Reveal
+            // animates it renders AnimatedContent as its outermost element and
+            // only forwards `className` to an inner div — so a col-span passed
+            // to Reveal would land one level below the grid and do nothing.
+            <div key={p.id} className={spanOf(p, index) ? 'md:col-span-2' : undefined}>
+              <Reveal
+                delay={0.05 * index}
+                // fill, because these are grid items: without it the Reveal
+                // wrappers collapse and the tile stops filling its cell.
+                fill
+              >
+                <FocusItem index={index} className="h-full">
+                  <ProjectTile
+                    project={p}
+                    index={index}
+                    wide={spanOf(p, index)}
+                    promoted={promoted}
+                    dimmed={isDimmed(p.id)}
+                    onOpen={setSelected}
+                  />
+                </FocusItem>
+              </Reveal>
+            </div>
           ))}
-        </div>
-      )}
-
-      {/* The quieter projects, as rows that show their screenshot on hover.
-          They were tiles: five of them at 285px each took 1425px, 57% of the
-          section, for the tier that is meant to be the quiet one. Rows put
-          every name on screen at once and hold the image back until a reader
-          reaches for it, which is the curiosity the tiles never created.
-
-          Each row is an article with an h3 inside, so the cross-highlight can
-          dim them one by one and a screen reader can still navigate the
-          projects by heading. The vendored component was edited for both;
-          without that, five of eight projects lost their heading and the
-          highlight could only dim the whole block. */}
-      <ProjectFlow
-        items={rest.map((p) => ({
-          id: p.id,
-          title: p.title,
-          image: p.thumbnail,
-          dimmed: isDimmed(p.id),
-          onSelect: () => setSelected(p),
-        }))}
-      />
-      </>
+        </FocusGrid>
       )}
 
       {/* One dialog for the whole section rather than one per card. */}
