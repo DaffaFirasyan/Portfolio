@@ -8,7 +8,6 @@ import Contact from '@/sections/Contact';
 import { profile } from '@/data/profile';
 import { SkillHighlightProvider } from '@/highlight/SkillHighlight';
 import Marquee from '@/motion/Marquee';
-import AskWidget from '@/components/ui/AskWidget';
 import SplashCursor from '@/motion/SplashCursor';
 import Navbar from '@/nav/Navbar';
 
@@ -51,12 +50,6 @@ export default function App() {
           would be the same sentence twice in a footer ten lines tall, and the
           name is already the h1 at the top of the page. The year stays
           computed so it cannot go stale. */}
-      {/* Outside the sections and outside SkillHighlightProvider: it is fixed
-          to the viewport rather than belonging to any one section, and it must
-          survive the whole page rather than the part that happens to be on
-          screen. */}
-      <AskWidget />
-
       <footer className="overflow-hidden border-t border-edge py-10">
         <Marquee text={`© ${new Date().getFullYear()} ${profile.name} · Built with React`} />
       </footer>

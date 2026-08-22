@@ -280,36 +280,21 @@ The historical note, for context: `scripts/crop-avatar.mjs` has **one number in 
 
 ---
 
-### The ask widget, and the orb that came back
+### The orb, and the ask widget that was built and removed
 
-**Both are on the page now, and the conflict that made them exclusive is gone.** The search briefly replaced the orb in Contact's left column, because the two could not share it — measured with the entrance transforms settled, the social links end 15px above where the orb began. Moving the search out of the column and onto the viewport dissolved that: `AskWidget` is fixed to the bottom-right, and `OrbMark` has its slot back.
+**The orb is what is on the page.** `OrbMark` sits in Contact's left column, an `ogl` shader in the slot the Spline robot held.
 
-**`AskWidget` is a non-modal panel, and that is a decision.** The project's `Dialog` opens modally; modality is wrong here, because this sits beside the page rather than replacing it and a reader should be able to keep scrolling. So it carries the three behaviours modality would otherwise have supplied for free — Escape closes, an outside click closes, and focus moves to the input on open and back to the launcher on close. `aria-modal="false"` says so rather than claiming a modality it does not enforce.
+**A retrieval widget was built beside it on 2026-08-22 and deleted the same day, at the owner's decision: the answers were not accurate enough.** He is right, and the reason is worth keeping because it is a property of the approach rather than a bug in the implementation. Keyword retrieval over roughly thirty-five short passages can answer *"Neo4j"* well and *"what does he think about X"* not at all — there is no paraphrase, no synonym, no inference. Every gap has to be closed by hand: `name` was invisible until a profile passage was added, and `who is he` tokenised to nothing at all because every word in it is a stop word. Each fix worked and each revealed the next hole. A wrong answer about its author is worse than no widget, and on a small corpus a keyword index produces those steadily.
 
-**`lg:right-20`, not `right-6`, and the reason is measured.** The node-rail nav is fixed at `right-8` and vertically centred, occupying 1221–1233px of a 1280px viewport. A 24rem panel anchored 24px from the edge runs straight through it. At `right-20` the panel ends at 1185 and clears it. Below `lg` the rail is hidden, so the tighter inset is free.
+**Do not rebuild this as-is if it comes up again.** The honest options are an LLM behind a serverless function — a key, a per-request cost, and an abuse surface on a static site that currently has no backend at all — or nothing. The middle option is the one that was tried.
 
-**The transcript carries `data-lenis-prevent`.** Lenis reads wheel events on the window, so without it a scrollable panel never receives them — the same trap the project's modal already hit once.
+Recoverable from git if wanted: `88a1991` built it, `800c842` made it a floating panel, `a66be1a` added the profile passage and the animations, `b4c5b0e` removed it.
 
-**What it answers with is retrieval over `src/data/`, with no model.** `src/lib/search.ts` builds an index from projects, the paper, experiences, education, skills and certificates, and returns the best-matching *verbatim sentence* plus the entry it came from. It cannot state anything about its author that its author did not write — the guard for that is a test asserting every returned sentence exists in the corpus. It costs **1.17 KB gzip**, the whole feature, and adds no dependency, no key and no request.
+**What the attempt left behind is worth knowing**, because two of them were faults in this project rather than in the widget:
 
-**Two ranking faults were found by looking at real output rather than by testing:**
-
-- **"Neo4j" answered with the skills card, above the project actually built with it.** The cause was double counting: the skill card's sentence *is* its keyword list, so the term scored three for the keyword and one more for the same word in the generated sentence. Each term is worth its best placement now, never the sum of them, which removes the artefact without a special case per kind.
-- **"RAG" answered with a conference attendance certificate and never mentioned the publication.** Everything ties at 3 in a corpus this small, so insertion order is the real ranking. It is editorial now: work he built, then the paper, then jobs, then the degree, then skills, then credentials, then the bio last because it is the broadest text here.
-
-A third, found only by opening the widget and reading it: the bio passage was labelled `kind: 'Education'`, and the panel prints the kind above the quote — so a sentence from the About section was captioned **"EDUCATION"**. A small lie, in the one component whose entire purpose is not telling them. It has its own `About` kind now.
-
-A fourth, smaller: a project matching only on its stack falls back to its first sentence, and that used to be `problem`. Someone who searches a tool wants what was built with it, so the order is `solution`, `outcome`, `problem`.
-
-**"What his name" returned nothing, and the reason was a hole rather than a bug.** The index knew every project he built and not the name of the person who built them — there was no passage for the profile at all. There is one now, carrying name, roles, tagline, location, email and availability, and its keywords are the words people *type* rather than the words the data uses: `name`, `contact`, `hire`, `available`, `based`, `cv`. None of those appear in the prose, so without them the question misses however good the ranking is.
-
-**Some perfectly ordinary questions tokenise to nothing at all.** "who is he", "what does he do" — every single word is a stop word, so the query empties and the honest-miss path answered them with silence. They are also the first things anyone types. A query that survives tokenising with nothing left is treated as asking for the introduction now; a query with real terms that simply matches nothing still gets an honest empty result, and a test pins both halves of that.
-
-**One overclaim of mine was corrected in the same pass.** The panel said answers were "quoted from this page", and that is not true of all of them: the profile line, the certificates and the skill cards are assembled from fields with a fixed frame, because "his name is X" is not a sentence anyone had written down. It says answers "come from this page's own content" now. The guarantee is real but narrower than the first wording claimed — every *fact* is from `src/data/`, and nothing is composed at runtime beyond those frames.
-
-**The transcript hides its scrollbar and still scrolls.** `@utility no-scrollbar` sets `scrollbar-width: none` and hides the WebKit pseudo-element; `overflow-y` stays `auto`. Measured with seven exchanges in it: 2,690px of content in a 324px window, a 0px scrollbar gutter, and scrollTop movable to both ends. Worth knowing before reusing it — hiding a scrollbar removes the only cue that a region scrolls, which is fine for a transcript the reader is filling themselves and not fine for content they have to discover.
-
-**Sentence splitting cannot be naive here.** `4.73`, `.NET Core 8` and `banjarsarigarut.id` are all real strings in this data and a split on `.` cuts every one of them in half. A break requires the dot to be followed by whitespace and a capital.
+- **`search.test.ts` had `home` missing from its list of reachable sections** — the hero's own id. That guard would have passed a link to a section that does not exist just as happily.
+- **An overclaim in my own copy.** The panel said answers were "quoted from this page"; the profile line, the certificates and the skill cards were assembled from fields with a fixed frame, because "his name is X" is not a sentence anyone had written down. Narrower guarantees need narrower words.
+- Sentence splitting in this corpus cannot be naive: `4.73`, `.NET Core 8` and `banjarsarigarut.id` are all real strings here, and a split on `.` cuts every one of them in half.
 
 ### History: the Spline robot (removed 2026-08-22)
 
