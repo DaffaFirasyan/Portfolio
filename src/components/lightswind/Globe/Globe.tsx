@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import createGlobe from 'cobe';
 
 /**
@@ -117,6 +117,23 @@ const Globe: React.FC<GlobeProps> = ({
   autoRotate = true,
   autoRotateSpeed = 0.003,
 }) => {
+  // Markers by value, not by identity, and this is a crash fix rather than a
+  // tidy-up.
+  //
+  // `markers` is in the effect's dependency array below, and callers naturally
+  // write it as an inline array literal — a new identity on every render. This
+  // component's own wrapper did exactly that, with a comment two lines above it
+  // warning against the same mistake for colours. The result: every re-render
+  // destroyed the globe and rebuilt it, and `createGlobe` re-samples the map at
+  // `mapSamples` points. On the page that meant `useOnScreen` firing on every
+  // IntersectionObserver callback while scrolling, each one rebuilding a 60,000
+  // point map on the main thread, until the tab stopped responding entirely.
+  //
+  // Depending on the serialised value instead makes an inline literal free, so
+  // no caller can reintroduce it.
+  const markersKey = JSON.stringify(markers);
+  const stableMarkers = useMemo(() => markers, [markersKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const globeRef = useRef<ReturnType<typeof createGlobe> | null>(null);
 
@@ -180,7 +197,7 @@ const Globe: React.FC<GlobeProps> = ({
         glowColor: resolvedGlowColor,
         opacity: 1,
         offset: [0, 0],
-        markers: markers,
+        markers: stableMarkers,
         onRender: (state: Record<string, number>) => {
           // Smooth zoom interpolation (lerp) for high-fps fluid zooming
           currentScaleRef.current +=
@@ -342,7 +359,7 @@ const Globe: React.FC<GlobeProps> = ({
     zoomSensitivity,
     autoRotate,
     autoRotateSpeed,
-    markers,
+    stableMarkers,
   ]);
 
   return (

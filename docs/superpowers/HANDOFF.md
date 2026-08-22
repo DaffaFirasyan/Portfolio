@@ -318,6 +318,16 @@ The two markers are Bandung and Jakarta: the city `profile.location` names, and 
 
 **Cost: a 7.33 KB chunk including cobe.** The eager bundle is untouched. It is slightly more than the orb's share only because `ogl` stopped being shared between two consumers and folded back into `Galaxy`.
 
+**It shipped broken for one commit, and the bug is the most instructive in this file.** Scrolling into Contact turned the page blank and unresponsive.
+
+`markers` sits in that component's effect dependency array, and `GlobeMark` passed it as an **inline array literal** — a new identity on every render — directly beneath a comment I had written warning that exactly this rebuilds the globe. `useOnScreen` calls `setOnScreen` on *every* IntersectionObserver callback, and those fire continuously while scrolling. So each scroll tick re-rendered, re-created the array, and made `createGlobe` re-sample a **60,000 point map** on the main thread. Enough to lock a tab by itself.
+
+**Fixed in two places on purpose.** `MARKERS` is hoisted to module scope in the wrapper, which is correct usage; and `Globe` now depends on the serialised markers rather than the array identity, so no future caller can reintroduce it by writing the natural thing. `Globe.test.tsx` counts builds across re-renders and was proved by reverting the fix: **6 renders produced 6 rebuilds.**
+
+**A theory that was measured and rejected.** It looked like the rebuild loop might also be exhausting the browser's WebGL context limit, which would explain the *blank* rather than merely the freeze. It does not: this browser handed out **24** live contexts without complaint. The rebuild loop alone is the confirmed cause; the context story is not supported and is not in the code as an explanation.
+
+**What the blank did reveal is separate and worse: nothing in this project caught an error at all.** There was no boundary anywhere, so a throw in any component — including an `aria-hidden` decoration — unmounted the entire page. `src/motion/DecorationBoundary.tsx` now wraps the globe and the starfield. Its fallback is `null`, deliberately: a reader who never knew the globe existed should not be shown an apology for it. It does not retry, and it logs rather than swallows, because a decoration that fails silently stays broken for months. **Do not wrap anything a reader came for.**
+
 **What the pane could and could not prove, again.** Verified: the chunk loads, the canvas mounts at 528×400, the context is live, `gl.getError()` is 0. Not verifiable: what it looks like. cobe draws only from `requestAnimationFrame`, which measures **0 frames per second** here, so an empty framebuffer is exactly what a working globe also produces. That reading was nearly filed as a defect for the second time.
 
 ### The ask widget that was built and removed

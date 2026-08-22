@@ -1,9 +1,27 @@
 import { lazy, Suspense, useRef } from 'react';
 
+import DecorationBoundary from '@/motion/DecorationBoundary';
 import { useMotionAllowed } from '@/hooks/useMotionAllowed';
 import { useOnScreen } from '@/hooks/useOnScreen';
 
 const Globe = lazy(() => import('@/components/lightswind/Globe/Globe'));
+
+/**
+ * Module scope, so the identity never changes.
+ *
+ * Inline, this froze the page. `useOnScreen` sets state on every
+ * IntersectionObserver callback, so scrolling re-renders this constantly, and a
+ * fresh array each time rebuilt the globe — re-sampling a 60,000 point map per
+ * scroll tick until the tab stopped responding. `Globe` no longer tears down on
+ * a changed marker identity either, so this is belt and braces.
+ *
+ * Bandung is the city `profile.location` names; Jakarta is where both
+ * internships were.
+ */
+const MARKERS = [
+  { location: [-6.9175, 107.6191] as [number, number], size: 0.09 },
+  { location: [-6.2088, 106.8456] as [number, number], size: 0.06 },
+];
 
 /**
  * The globe at the foot of Contact, where the orb stood.
@@ -38,27 +56,25 @@ export default function GlobeMark() {
   return (
     <div ref={host} aria-hidden="true" className="h-full w-full">
       {onScreen && (
-        <Suspense fallback={null}>
-          <Globe
-            // Hex strings, not RGB tuples. A tuple literal is a new array on
-            // every render, and every prop here is in the effect's dependency
-            // array — so tuples would tear down and rebuild the globe on each
-            // render, which means re-sampling the map.
-            baseColor="#2A3340"
-            markerColor="#F5A524"
-            glowColor="#1A2230"
-            markers={[
-              { location: [-6.9175, 107.6191], size: 0.09 }, // Bandung
-              { location: [-6.2088, 106.8456], size: 0.06 }, // Jakarta
-            ]}
-            dark={1}
-            diffuse={1.1}
-            mapBrightness={4}
-            enableZoom={false}
-            autoRotate
-            autoRotateSpeed={0.0025}
-          />
-        </Suspense>
+        <DecorationBoundary name="globe">
+          <Suspense fallback={null}>
+            <Globe
+              // Hex strings, not RGB tuples, for the same identity reason
+              // MARKERS is hoisted: every prop here is in the component's effect
+              // dependency array.
+              baseColor="#2A3340"
+              markerColor="#F5A524"
+              glowColor="#1A2230"
+              markers={MARKERS}
+              dark={1}
+              diffuse={1.1}
+              mapBrightness={4}
+              enableZoom={false}
+              autoRotate
+              autoRotateSpeed={0.0025}
+            />
+          </Suspense>
+        </DecorationBoundary>
       )}
     </div>
   );
