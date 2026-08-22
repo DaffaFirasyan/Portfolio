@@ -129,7 +129,29 @@ The timeline rule that forced absolutely positioned dots outside their `Reveal` 
 
 Everything below was decided in conversation, not in a plan document, after the owner said the page still read as flat. It is recorded here because nothing else records it — and because several of the decisions were reversals.
 
-**The hero avatar is `ProfileCard`, and it needs a cut-out portrait.** It anchors the image to the bottom of the card and lets the gradient show around it, so an opaque square renders as a pasted block with a seam across the card. Spec §5 carries the requirement; the placeholder is a transparent silhouette so the wrong shape is obvious in development. `mix-blend-mode: luminosity` was removed from the vendored component — it tinted the portrait into the card's hue and would have rendered a real face in blue-violet. `showUserInfo={false}` does **not** suppress the name and title upstream; the flag closes before them, and they are gated now.
+**The hero avatar is Aceternity's Comet Card as of 2026-08-22**, and React Bits' `ProfileCard` is deleted. Recover it from `a217fc3~1` if ever wanted.
+
+Comet Card is a **tilt-and-glare wrapper, not a card** — it renders children with spring-smoothed 3D rotation, a lift, and a moving highlight. The card inside is this project's, built from its own tokens, so no vendored styling has to be fought. `ProfileCard` was the opposite: a finished identity widget carrying name, title, handle, status, a contact button and a holographic gradient, of which the page used the photograph and nothing else.
+
+**It was installed by hand, not by `npx shadcn add`.** The CLI would have fought four things at once: there is no `components.json`, components live under `src/components/` rather than `components/ui/`, there is no `@/lib/utils` holding `cn`, and Tailwind v4 is configured from CSS with no JS config to edit. Every third-party component here arrives the same way — copied in, read, owned.
+
+**It needs no new dependency**, and it made the bundle *smaller*: `motion/react` was already eager at 39.94 KB for the counters and the rotating role, and `index` fell from 49.83 to 47.16 KB because ProfileCard was much the larger component.
+
+**Upstream's glare had to come down before this could touch a face.** It paints white at 0.9 alpha through `mix-blend-overlay` at 0.6 — stronger than the setting the owner had already asked to reduce once, in as many words: his skin went white. It is a `glare` prop now, defaulting to 0.22 of upstream's.
+
+**Two upstream details in the demo were not copied.** Its card is a `<button>` with an `aria-label` and no action, which announces itself as a control and then does nothing; this is a plain `div`. And its image carries `loading="lazy"` — on the one image the LCP is measured against, which is the case Lighthouse warns about by name and which this project already shipped once.
+
+**The aspect ratio is exact, not approximate.** The portrait is 2000×2666, a ratio of 0.750, and the frame is `aspect-[3/4]`. Measured on the built page: `object-cover` crops **nothing**. `hero-avatar.test.ts` fails if the file and Hero's declared ratio drift apart.
+
+**The width had to be restored deliberately.** Comet Card adds a 12px frame either side, so at the old `max-w-xs` the portrait rendered 294px against ProfileCard's 388px — smaller than the size the owner settled after several rounds. `max-w-[26rem]` puts it back to 390px.
+
+**And the swap retired a bug by construction.** ProfileCard sized itself from `height: 80svh` and an aspect ratio, consulting its container never, and pushed the document 94px sideways at exactly 753px. The Comet card takes its width from its container, and measured at 753 the page overflow is 0.
+
+**A caption was built and removed within the hour.** The demo has a name row along the bottom; putting the owner's name there prints it a second time directly beside the page's `h1`, which *is* his name. `AvatarCard.test.tsx` had asserted since long before this component existed that the card contributes no heading and no second copy of the name, and it caught it immediately. Guards written for one component kept the next one honest.
+
+**The import boundary now covers `components/aceternity/` as well as `components/reactbits/`.** It did not, which would have let a section import the new directory directly and quietly reopened the seam the rule exists to hold shut. Proved by breaking it.
+
+**The portrait still has to be a cut-out.** It anchors the image to the bottom of the card and lets the gradient show around it, so an opaque square renders as a pasted block with a seam across the card. Spec §5 carries the requirement; the placeholder is a transparent silhouette so the wrong shape is obvious in development. `mix-blend-mode: luminosity` was removed from the vendored component — it tinted the portrait into the card's hue and would have rendered a real face in blue-violet. `showUserInfo={false}` does **not** suppress the name and title upstream; the flag closes before them, and they are gated now.
 
 **The technology strip is `LogoLoop` with seventeen logos as path data** in `src/data/technologies.ts`. Java and C# are from devicon because simple-icons removed them, which is why `viewBox` is per logo.
 

@@ -25,14 +25,22 @@ export default tseslint.config(
             {
               // The bare forms (no trailing segment) cover a barrel import such as
               // `@/components/reactbits`, which the `/**` globs alone do not match.
+              // Every vendored third-party directory, not just React Bits.
+              // `aceternity/` was added on 2026-08-22 and the rule did not
+              // cover it, which would have let a section import it directly and
+              // quietly reopened the seam this rule exists to hold shut.
               group: [
                 '**/components/reactbits',
                 '**/components/reactbits/**',
                 '@/components/reactbits',
                 '@/components/reactbits/**',
+                '**/components/aceternity',
+                '**/components/aceternity/**',
+                '@/components/aceternity',
+                '@/components/aceternity/**',
               ],
               message:
-                'Sections must not import React Bits directly. Use a primitive from src/motion/ instead (spec §3.2).',
+                'Sections must not import vendored components directly. Use a primitive from src/motion/ instead (spec §3.2).',
             },
           ],
         },

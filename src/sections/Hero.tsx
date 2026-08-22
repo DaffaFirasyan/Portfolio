@@ -118,7 +118,13 @@ export default function Hero() {
               // this ratio disagrees with it.
               width={320}
               height={427}
-              className="w-full max-w-xs"
+              // max-w-[26rem], not the max-w-xs this carried under ProfileCard.
+              // That component rendered the portrait at the card's full 388px;
+              // the Comet card adds a 12px frame either side, so at 320px the
+              // person came out 294px wide — noticeably smaller than the size
+              // the owner settled after several rounds of tuning. 416px puts
+              // the portrait back to ~390px, which is where it was.
+              className="w-full max-w-[26rem]"
             />
           </div>
         </div>
