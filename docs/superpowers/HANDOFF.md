@@ -165,6 +165,14 @@ The interaction is Aceternity's **Focus Cards**, vendored as a *mechanic* rather
 
 **The height claim was over-promised and the real number is worth recording.** The estimate given before building was ~600px. It came out at **1,335px against 1,720px — 22% off**, not the ~65% implied. The gap is that roughly 490px of that section is `SectionShell`'s own padding, the heading and the filter row, none of which a grid change can touch, and each tile carries ~200px of text below its image before any crop is chosen. The crops were letterboxed twice for this: at `aspect-[21/9]` the wide tile alone rendered 299px of image and the section came out at 1,569px, which was barely worth doing.
 
+**The bento became one lead plus a row of three on the same day, and that is the better shape.** The first arrangement alternated 2+1 / 2+1, which is balanced and says nothing: two double-width tiles read as two leads competing, on a site whose own title claims one thing and where exactly one project proves it. **AssetMind leads now** — full grid width, image beside the text rather than above it, which is where the height actually was. The other three take a column each in one row.
+
+Measured at 1280: the lead is 1,078px wide and 337px tall with a 539×337 image; the three are 331px each. **Section 1,720px → 1,237px, 22.1% of the page → 16.9%.**
+
+**The lead's tall image is `md` and up only, and that was a mistake first.** Below `md` everything stacks, so "beside the text" describes nothing and `min-h-[13rem]` was simply a taller image — the mobile section went *up*, 1,962px to 2,096px. It takes the same flat crop as the others there now, and mobile is 2,020px.
+
+**Which project leads is decided in `src/data/projects.ts` by array order, never in the section.** `Projects.tsx` puts featured first and otherwise renders the array as it finds it, so moving an entry in the data file is the whole mechanism. That keeps an editorial decision in the place this project keeps editorial decisions.
+
 **Two things about the grid are load-bearing and easy to undo by accident.** Featured projects must *lead* the section while unfiltered — `projects-filter.test.tsx` asserts "promoted, not merely reordered" — while a filtered set keeps pure data order, which the same file asserts separately. And the `md:col-span-2` sits on a plain wrapper `div`, never on `Reveal`: when `Reveal` animates it renders `AnimatedContent` as its outermost element and forwards `className` only to an inner div, so a span passed to `Reveal` lands one level below the grid and silently does nothing.
 
 **~~The quiet project tier is `FlowingMenu` rows~~** that reveal a screenshot on hover, at 75px each against 285px as tiles. The three `featured` projects stay editorial rows above them.

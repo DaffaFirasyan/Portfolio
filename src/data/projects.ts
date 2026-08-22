@@ -13,11 +13,55 @@ import type { Project } from '@/types';
  * still `TODO(owner)`; the featured tier held three Laravel builds on a site
  * whose own title claims AI/ML. Both were the same gap seen from two sides.
  *
- * The featured three are 01 village portal, 02 Simpel IBS, 03 AssetMind, in
- * array order. Leading with AssetMind instead is a one-line move if the AI
- * claim should be the first thing a scanning reader meets.
+ * **AssetMind is first, and deliberately.** The site's own title claims AI/ML
+ * and this is the only project that proves it — an IEEE paper, a knowledge
+ * graph, a real evaluation. It leads the grid as a full-width tile; the rest
+ * follow in a row of three.
+ *
+ * Order is expressed here rather than as a special case in the section, because
+ * which project leads is a content decision. `Projects.tsx` puts featured first
+ * and otherwise renders the array as it finds it, so moving an entry in this
+ * file is the whole mechanism.
  */
 export const projects: Project[] = [
+  {
+    id: 'assetmind',
+    title: 'AssetMind — Maintenance Decision Support',
+    // The only 'AI' project, which is the point of labelling it that way: the
+    // site calls its owner an AI/ML Engineer and the filter row is where a
+    // reader goes looking for the evidence. A one-item category is a weak
+    // filter and a strong signal; this is the second.
+    category: 'AI',
+    year: 2026,
+    // No role, like Simpel IBS and Animart. This is his final-year research
+    // project, which the Education entry already frames — naming a role here
+    // would be describing the work rather than his part in it.
+    problem:
+      "Palm oil maintenance knowledge sat in SOPs, manuals, past reports and individual mechanics' heads, so the same fault could get a different answer depending on who looked at it.",
+    solution:
+      'A decision support system where an LLM reasons over a knowledge graph linking asset, component, fault, cause and procedure, then explains what each recommendation was drawn from.',
+    // Leads with explainability rather than the headline 4.73, for two reasons.
+    // It is the dimension the problem statement is actually about — a system
+    // that cannot say why is one nobody trusts — and it moved furthest, 0.30
+    // against 0.15 for relevance. It also avoids repeating the Education
+    // highlight, which already carries 4.73 and the 39/39.
+    outcome:
+      'Two prototype iterations took explainability from 4.42 to 4.72 and procedure match from 80% to 92.9%. All 39 functional tests passed.',
+    // Six of the eighteen the owner listed, chosen so each names a different
+    // layer rather than a different package: language, API, orchestration,
+    // model, graph store, embeddings. Uvicorn, Pydantic, pytest, httpx and the
+    // langchain-* adapters are all real and all implied by the six that are
+    // here — a chip row is a summary, and one that lists a test runner beside
+    // a 70B model tells a reader less, not more.
+    //
+    // Neo4j earns its place over anything else competing for the slot: the
+    // knowledge graph is the whole claim of this project, and it is the only
+    // chip that says the graph is real rather than a diagram.
+    stack: ['Python', 'FastAPI', 'LangChain', 'Llama 3.3 70B', 'Neo4j', 'Sentence Transformers'],
+    thumbnail: '/projects/assetmind.webp',
+    links: {},
+    featured: true,
+  },
   {
     id: 'village-portal',
     title: 'Village Profile and MSME Commerce Portal',
@@ -88,43 +132,5 @@ export const projects: Project[] = [
     // own title claims AI/ML. Of the three this was the weakest technically —
     // a moving average — so it is the one that moved.
     featured: false,
-  },
-  {
-    id: 'assetmind',
-    title: 'AssetMind — Maintenance Decision Support',
-    // The only 'AI' project, which is the point of labelling it that way: the
-    // site calls its owner an AI/ML Engineer and the filter row is where a
-    // reader goes looking for the evidence. A one-item category is a weak
-    // filter and a strong signal; this is the second.
-    category: 'AI',
-    year: 2026,
-    // No role, like Simpel IBS and Animart. This is his final-year research
-    // project, which the Education entry already frames — naming a role here
-    // would be describing the work rather than his part in it.
-    problem:
-      "Palm oil maintenance knowledge sat in SOPs, manuals, past reports and individual mechanics' heads, so the same fault could get a different answer depending on who looked at it.",
-    solution:
-      'A decision support system where an LLM reasons over a knowledge graph linking asset, component, fault, cause and procedure, then explains what each recommendation was drawn from.',
-    // Leads with explainability rather than the headline 4.73, for two reasons.
-    // It is the dimension the problem statement is actually about — a system
-    // that cannot say why is one nobody trusts — and it moved furthest, 0.30
-    // against 0.15 for relevance. It also avoids repeating the Education
-    // highlight, which already carries 4.73 and the 39/39.
-    outcome:
-      'Two prototype iterations took explainability from 4.42 to 4.72 and procedure match from 80% to 92.9%. All 39 functional tests passed.',
-    // Six of the eighteen the owner listed, chosen so each names a different
-    // layer rather than a different package: language, API, orchestration,
-    // model, graph store, embeddings. Uvicorn, Pydantic, pytest, httpx and the
-    // langchain-* adapters are all real and all implied by the six that are
-    // here — a chip row is a summary, and one that lists a test runner beside
-    // a 70B model tells a reader less, not more.
-    //
-    // Neo4j earns its place over anything else competing for the slot: the
-    // knowledge graph is the whole claim of this project, and it is the only
-    // chip that says the graph is real rather than a diagram.
-    stack: ['Python', 'FastAPI', 'LangChain', 'Llama 3.3 70B', 'Neo4j', 'Sentence Transformers'],
-    thumbnail: '/projects/assetmind.webp',
-    links: {},
-    featured: true,
   },
 ];

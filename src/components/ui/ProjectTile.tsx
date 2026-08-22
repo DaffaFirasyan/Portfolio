@@ -6,8 +6,12 @@ interface ProjectTileProps {
   project: Project;
   /** Position among the visible projects, for the ordinal and the focus index. */
   index: number;
-  /** Featured tiles are wider. Dropped when a filter narrows the set. */
-  wide: boolean;
+  /**
+   * The one tile that spans the whole grid. Its image sits *beside* the text
+   * rather than above it, which is the only reason a lead tile is not simply
+   * a taller tile. Dropped when a filter narrows the set.
+   */
+  lead: boolean;
   /** True while the set is unfiltered, so featuring is a claim worth making. */
   promoted: boolean;
   dimmed: boolean;
@@ -40,7 +44,7 @@ interface ProjectTileProps {
 export default function ProjectTile({
   project,
   index,
-  wide,
+  lead,
   promoted,
   dimmed,
   onOpen,
@@ -51,9 +55,13 @@ export default function ProjectTile({
     <Surface className="h-full p-3">
       <article
         data-dimmed={dimmed ? 'true' : undefined}
-        className={`flex h-full flex-col transition-opacity duration-150 ${
-          dimmed ? 'opacity-40' : 'opacity-100'
-        }`}
+        // The lead tile turns into two columns at md, which is the whole point
+        // of it: stacked, a full-width tile is the tallest thing in the section
+        // for no gain, because its image simply gets wider and taller together.
+        // Side by side, the image height is set by the text beside it instead.
+        className={`flex h-full transition-opacity duration-150 ${
+          lead ? 'flex-col md:flex-row md:items-stretch md:gap-5' : 'flex-col'
+        } ${dimmed ? 'opacity-40' : 'opacity-100'}`}
       >
         {/* The image is a second control opening the same dialog as the title.
             Siblings rather than nested, since a button cannot contain a link
@@ -64,7 +72,7 @@ export default function ProjectTile({
           type="button"
           onClick={open}
           aria-label={`View ${project.title} case study`}
-          className="block w-full overflow-hidden rounded-lg"
+          className={`block overflow-hidden rounded-lg ${lead ? 'w-full md:w-1/2 md:shrink-0' : 'w-full'}`}
         >
           <img
             src={project.thumbnail}
@@ -83,10 +91,27 @@ export default function ProjectTile({
             // The wide crop is flatter than the narrow one on purpose. It is
             // roughly twice as wide, so an equal ratio would make it twice as
             // tall, and the row would inherit that.
-            className={`w-full object-cover ${wide ? 'aspect-[24/7]' : 'aspect-[16/7]'}`}
+            // The lead image fills its half rather than holding a ratio: beside
+            // a text column its height is whatever the text needs, so a fixed
+            // aspect would either letterbox it or drive the row taller.
+            //
+            // Only from `md` though, and that was a measured mistake first.
+            // Below `md` the lead stacks like everything else, so "beside the
+            // text" describes nothing and `min-h-[13rem]` was simply a taller
+            // image: the mobile section went from 1,962px to 2,096px. It takes
+            // the same flat crop as the others there.
+            //
+            // The others keep that flat crop, measured — a grid row stretches
+            // to its tallest cell, so one generous ratio raises every tile.
+            className={`w-full object-cover ${
+              lead
+                ? 'aspect-[16/7] md:aspect-auto md:h-full md:min-h-[13rem]'
+                : 'aspect-[16/7]'
+            }`}
           />
         </button>
 
+        <div className={lead ? 'flex flex-1 flex-col md:min-w-0' : 'contents'}>
         <p className="mt-2 flex items-baseline gap-2">
           <span className="font-display text-xl font-extrabold text-accent/55">
             {String(index + 1).padStart(2, '0')}
@@ -125,7 +150,7 @@ export default function ProjectTile({
         {/* mt-auto pins the stack and the control to the bottom, so tiles of
             different text lengths still line up along their base. */}
         <ul className="mt-auto flex flex-wrap gap-1.5 pt-2.5">
-          {project.stack.slice(0, wide ? 6 : 4).map((s) => (
+          {project.stack.slice(0, lead ? 6 : 4).map((s) => (
             <li key={s}>
               <Chip size="sm">{s}</Chip>
             </li>
@@ -160,6 +185,7 @@ export default function ProjectTile({
               Live demo
             </a>
           )}
+        </div>
         </div>
       </article>
     </Surface>

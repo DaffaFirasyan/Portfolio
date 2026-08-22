@@ -41,11 +41,18 @@ export default function Projects() {
     [visible, promoted],
   );
 
-  // Featured tiles take two of three columns, alternating, so the row always
-  // sums to three: 2+1, then 2+1. The non-featured project lands in a single
-  // cell, which is the smallest slot and the honest one.
-  const spanOf = (project: Project, index: number) =>
-    promoted && project.featured && index % 2 === 0;
+  // One lead, then a row of three. The first project spans the whole grid and
+  // lays its image beside its text; the rest take a column each.
+  //
+  // This replaced an alternating 2+1 / 2+1 bento, and the reason is hierarchy:
+  // two double-width tiles read as two leads competing, where the site's own
+  // title claims one thing and exactly one project proves it. Which project
+  // leads is decided in `src/data/projects.ts` by array order, not here.
+  //
+  // Under a filter every tile is equal. A lead tile in a set of two would be
+  // claiming a rank inside a subset that does not have one, which is the same
+  // reasoning that drops the Featured marker.
+  const isLead = (index: number) => promoted && index === 0;
 
   return (
     <SectionShell {...shellProps('projects')}>
@@ -90,7 +97,7 @@ export default function Projects() {
             // animates it renders AnimatedContent as its outermost element and
             // only forwards `className` to an inner div — so a col-span passed
             // to Reveal would land one level below the grid and do nothing.
-            <div key={p.id} className={spanOf(p, index) ? 'md:col-span-2' : undefined}>
+            <div key={p.id} className={isLead(index) ? 'md:col-span-3' : undefined}>
               <Reveal
                 delay={0.05 * index}
                 // fill, because these are grid items: without it the Reveal
@@ -101,7 +108,7 @@ export default function Projects() {
                   <ProjectTile
                     project={p}
                     index={index}
-                    wide={spanOf(p, index)}
+                    lead={isLead(index)}
                     promoted={promoted}
                     dimmed={isDimmed(p.id)}
                     onOpen={setSelected}
