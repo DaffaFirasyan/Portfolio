@@ -8,24 +8,27 @@ This file exists so a session that remembers nothing can pick the work up withou
 
 ## Where the work stands
 
-**Branch:** `feat/foundation-and-content-layer`, **160 commits** ahead of `main`. Nothing is merged; `main` still sits at the first plan document.
+**Branch:** `main`, **191 commits**, and **pushed to GitHub for the first time on 2026-08-22**. `feat/foundation-and-content-layer` is merged; nothing is unmerged. Remote is `https://github.com/DaffaFirasyan/Portfolio.git`, **public**, `main` as default. Verified after the push: local and remote both at `9c258f0`, and `Konten_Asli/` on the remote holds **only `README.md`** — the unredacted scans and the raw CV stayed out, which is what `.gitignore` has been protecting all along.
 
-**State (2026-08-22):** 330 tests pass across 45 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean.
+Until that push, 191 commits existed on exactly one disk with no remote and no backup. That is no longer the largest risk in this project.
 
-**The real content has landed.** Profile, education, experience, projects, skills, certificates and every asset are the owner's own, pasted through `src/data/` and `public/` exactly as spec §11 criterion 3 promised — no component was touched to do it. What is still unfilled is listed under [Still the owner's to fill](#still-the-owners-to-fill).
+**State (2026-08-22):** 344 tests pass across 48 files. `npm run lint`, `npx tsc --noEmit`, and `npm run build` all exit 0. Working tree clean.
+
+**All content is the owner's own and nothing is a placeholder** — profile, education, three engineering roles, four projects, fourteen certificates, the IEEE paper, and every asset. `grep -rn "TODO(owner)" src/` returns nothing. What remains is deployment, not content; see [Then, in order](#then-in-order).
 
 **Bundle, gzip, measured on this commit:**
 
 | Loaded | Chunks | gzip |
 |---|---|---|
-| Eagerly | `react` 57.15, `index` 50.07, `gsap` 50.27, `motion` 39.94, `lenis` 5.39, `icons` 2.31, runtime 0.51 | **205.6 KB JS** + 11.1 KB CSS |
+| Eagerly | `react` 57.15, `gsap` 50.27, `index` 46.76, `motion` 39.94, `lenis` 5.39, `icons` 2.31, runtime 0.51 | **202.3 KB JS** + 11.2 KB CSS |
 | On the hero, desktop only | `Galaxy` 15.99, `SplashCursor` 6.04 | 22 KB |
-| On approach to Contact, desktop only | `Orb` 3.07 | 3 KB |
-| Shared by `Galaxy` and `Orb` | `Triangle` (ogl) 12.91 | 13 KB |
+| On approach to Contact, desktop only | `Globe` 7.36 (includes `cobe`) | 7 KB |
 
-The eager 216.6 KB is inside spec §12.3's 250 KB budget, and **everything lazy now fits in 25 KB.** Until 2026-08-22 that line read 1.4 MB, because the Spline robot sat behind it — see [what replaced it](#the-orb-at-the-foot-of-contact-and-the-robot-it-replaced). Fonts add about 130 KB of woff2 on top, already compressed.
+The eager 213.5 KB is inside spec §12.3's 250 KB budget, and **everything lazy fits in 29 KB.** Until 2026-08-22 that lazy line read **1.4 MB**, because the Spline robot sat behind it — see [the globe](#the-globe-and-what-stood-in-that-slot-before-it).
 
-Two animation libraries with overlapping capability, `gsap` and `motion`, are 44% of the eager bundle. That is the single largest reduction still available and nobody has taken it.
+Two animation libraries with overlapping capability, `gsap` and `motion`, are 44% of the eager bundle. That is the single largest reduction still available and it was **evaluated and declined** on 2026-08-22: five vendored components use `motion` and four use `gsap`, none are dead, and `CountUp`'s `useSpring` and `ScrollVelocity`'s `useVelocity` have no equal in the other. Both are needed above the fold, so neither can be deferred. The payoff is ~40 KB for a rewrite of nine components that would change how the motion feels. The owner's condition was "only if nothing changes"; it changes things.
+
+**Three UI vendors are in the tree now**, all installed by hand and all governed by the same import boundary: `reactbits/`, `aceternity/` (Comet Card, Focus Cards), `lightswind/` (Globe). None arrived through its own CLI — see each section for why.
 
 | Plan | Covers | Status |
 |---|---|---|
@@ -63,16 +66,28 @@ None of this is guessed or invented — the project's standing rule is that a po
 
 ### Then, in order
 
-1. **Deploy.** [Contact & launch](plans/2026-08-18-contact-and-launch.md) Task 10 is written and unstarted. It also merges this branch, which is the other reason to get to it.
+**It is live.** [https://daffafirasyan-portfolio.vercel.app](https://daffafirasyan-portfolio.vercel.app) — deployed 2026-08-22, from `main` on GitHub.
 
-   **The Web3Forms key exists as of 2026-08-22 and is set locally.** It lives in `.env.local`, which is gitignored and must stay that way — verified with `git check-ignore`, and the key appears in **no tracked file**. It is public by design, so this is not secrecy: Vite inlines it into the client bundle at build time and anyone can read it from the deployed JavaScript. It is kept out of the source because a hardcoded key cannot be rotated without a code change.
+Verified against the running site: `/`, `/robots.txt`, `/sitemap.xml`, `/favicon.svg`, the CV PDF and the OG cover all return **200** with the right content types, and `vercel.json`'s three security headers are being applied (`nosniff`, `strict-origin-when-cross-origin`, `SAMEORIGIN`).
 
-   **Production still needs it separately**, in Vercel under *Settings → Environment Variables*, for Production and Preview. Vite inlines at build time, so **a deployment built before the variable exists will not pick it up** — redeploy after adding it, or the live form will show its error state while the local one works.
+**`VITE_WEB3FORMS_KEY` is set in Vercel and took effect** — the key is inlined in the live bundle, confirmed by fetching `/assets/index-*.js` from the deployed site. That was the step with a real trap in it: Vite inlines env values at *build* time, so a deployment built before the variable exists silently ships without it and the live form shows its error state while the local one works.
 
-   **The form has still never sent a real message.** Confirmed on the built page that it is wired — name, email and message fields, the `botcheck` honeypot present and hidden, and the "not connected to its mail service" fallback copy gone — but wiring is not delivery. Sending one is a step in the deploy task and belongs to the owner, since it puts a message in his inbox.
-2. **Check the certificate scans before they go public, by eye.** Identity numbers, dates of birth, wet signatures and personal QR codes must be covered. The owner has confirmed they checked (*"Soal privasi sudah saya pastikan aman"*), but **no test can check this and none pretends to** — it is a look at fourteen images, and the only chance to do it is before the files are public.
-3. **Re-measure Lighthouse.** See [the performance pass](#the-performance-pass) for where it stands and what is already known to be costing points. Run it against `npm run preview` on port 4173, in incognito — a run against the dev server measures an artefact ten times heavier and scored 27.
-4. ~~**Replace the Spline scene.**~~ **Done 2026-08-22** — it is an `ogl` shader now, 1,459 KB gzip lighter. See [the orb](#the-orb-at-the-foot-of-contact-and-the-robot-it-replaced).
+**`site.url` is reconciled** to the real domain across all four places that must agree — `src/data/site.ts`, `index.html` (canonical, `og:url`, `og:image`, and both JSON-LD fields), `public/robots.txt` and `public/sitemap.xml`. `site.test.ts` enforces that agreement and passes; it is the guard that stops a canonical URL drifting from the sitemap.
+
+**What is genuinely left, all of it the owner's:**
+
+- **Send one real message through the form.** It has never sent one. Wiring is confirmed on the live site — the fields, the `botcheck` honeypot, and the key present in the bundle — but wiring is not delivery, and only he should put a message in his own inbox.
+- **Re-measure Lighthouse against the live URL**, in incognito. Every score on record predates the real content *and* predates removing 1.4 MB of Spline, so the last number here (80 mobile) is stale in both directions.
+- **Look at the fourteen certificate scans.** He has confirmed he checked, and the repo is public so they are already permanent in history — but no test can check redaction and nothing else will catch it.
+- **Revoke the leaked token**, below.
+
+### A security finding from 2026-08-22, and it is the owner's to close
+
+While diagnosing why `git push` failed, `cmdkey /list` showed **a GitHub personal access token stored in plain text as a credential username** on this machine — the target read `git:https://<token>@github.com`. Anything able to run `cmdkey /list` there can read it.
+
+**It must be revoked** at *GitHub → Settings → Developer settings → Personal access tokens*, if that has not happened already. The token value is deliberately **not** written into this file, because the repository is public.
+
+That stale entry is also what broke the push, and the mechanism is worth knowing. Git Credential Manager found a credential, sent the dead token, GitHub rejected it — and because *a* credential was found, GCM never prompted for a fresh login, so no browser window ever appeared and the error looked like a bad password. Clearing the stale `git:https://…@github.com` entries and pushing again is what fixed it.
 
 ### `Konten_Asli/` is gitignored, and must stay that way
 

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://daffa-firasyan.vercel.app/sitemap.xml
+Sitemap: https://daffafirasyan-portfolio.vercel.app/sitemap.xml

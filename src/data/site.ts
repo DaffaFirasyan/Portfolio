@@ -1,7 +1,7 @@
 import type { Site } from '@/types';
 
 export const site: Site = {
-  url: 'https://daffa-firasyan.vercel.app',
+  url: 'https://daffafirasyan-portfolio.vercel.app',
   title: 'Daffa Firasyan — AI/ML Engineer',
   description:
     'Retrieval systems, knowledge graphs and web engineering. Selected projects, certificates and experience from an Information Systems graduate in Bandung.',
