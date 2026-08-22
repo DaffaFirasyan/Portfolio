@@ -3,7 +3,7 @@ import ContactForm from '@/components/ui/ContactForm';
 import { shellProps } from '@/data/sections';
 import { profile } from '@/data/profile';
 import Reveal from '@/motion/Reveal';
-import OrbMark from '@/motion/OrbMark';
+import GlobeMark from '@/motion/GlobeMark';
 import Sparks from '@/motion/Sparks';
 import Typed from '@/motion/Typed';
 
@@ -63,7 +63,7 @@ export default function Contact() {
               </ul>
 
 
-              {/* Back to the orb, and the search that briefly replaced it is a
+              {/* The globe, in the slot the orb and the Spline robot held before it. The search that briefly replaced it is a
                   floating widget now — the two were only ever competing for
                   this column because both were in it.
 
@@ -83,7 +83,7 @@ export default function Contact() {
                   purpose: this one keeps it out of the layout, that one keeps
                   it off the network. */}
               <div className="pointer-events-none absolute inset-x-0 -bottom-32 hidden h-[25rem] overflow-hidden lg:block">
-                <OrbMark />
+                <GlobeMark />
               </div>
             </div>
           </Reveal>

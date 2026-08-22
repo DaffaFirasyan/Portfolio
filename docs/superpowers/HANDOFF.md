@@ -302,7 +302,25 @@ The historical note, for context: `scripts/crop-avatar.mjs` has **one number in 
 
 ---
 
-### The orb, and the ask widget that was built and removed
+### The globe, and what stood in that slot before it
+
+**The slot at the foot of Contact is Lightswind's `Globe` as of 2026-08-22**, on `cobe`. Before it: an `ogl` orb, and before that a 1.4 MB Spline robot. `OrbMark` and `Orb` are deleted — recover from `741ada7~1` if wanted.
+
+**`cobe` is pinned to 0.6.5 and must stay there until the component is rewritten.** This is the sharpest thing in this section. The registry lists `cobe` with no version, so `npm i cobe` installs **2.0.1**, and 2.x **removed `onRender`** — the callback every moving part of that component lives inside. Verified in the installed package rather than assumed: `onRender` appears **zero** times in 2.0.1's bundle and zero times in its types, and 2.x ships **no `requestAnimationFrame` of its own** either, so a caller must drive it through `update()`. On 2.x the globe draws one frame and freezes — no rotation, no drag, no zoom — with nothing thrown and nothing for a test to catch. Bumping that number is a rewrite, not a bump.
+
+Only `cobe` was installed. The registry also lists `clsx` and `tailwind-merge`, which exist solely to build `cn` — two packages for one `join(' ')`.
+
+**`enableZoom` is off, and not as a preference.** The component's wheel handler calls `preventDefault()`, so with zoom on the wheel stops scrolling the page whenever the pointer is over the globe — on the last section before the footer, on a page running Lenis. Dragging to spin still works, which is the interaction worth having.
+
+**Colours are hex strings, never RGB tuples.** Every prop is in that component's effect dependency array, and a tuple literal is a new array identity on every render — which would tear the globe down and re-sample the map each time.
+
+The two markers are Bandung and Jakarta: the city `profile.location` names, and the city both internships were in. Arbitrary dots would be texture; these say something the page already claims.
+
+**Cost: a 7.33 KB chunk including cobe.** The eager bundle is untouched. It is slightly more than the orb's share only because `ogl` stopped being shared between two consumers and folded back into `Galaxy`.
+
+**What the pane could and could not prove, again.** Verified: the chunk loads, the canvas mounts at 528×400, the context is live, `gl.getError()` is 0. Not verifiable: what it looks like. cobe draws only from `requestAnimationFrame`, which measures **0 frames per second** here, so an empty framebuffer is exactly what a working globe also produces. That reading was nearly filed as a defect for the second time.
+
+### The ask widget that was built and removed
 
 **The orb is what is on the page.** `OrbMark` sits in Contact's left column, an `ogl` shader in the slot the Spline robot held.
 

@@ -38,6 +38,10 @@ export default tseslint.config(
                 '**/components/aceternity/**',
                 '@/components/aceternity',
                 '@/components/aceternity/**',
+                '**/components/lightswind',
+                '**/components/lightswind/**',
+                '@/components/lightswind',
+                '@/components/lightswind/**',
               ],
               message:
                 'Sections must not import vendored components directly. Use a primitive from src/motion/ instead (spec §3.2).',
