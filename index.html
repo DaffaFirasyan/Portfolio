@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0c10" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!--
+      The avatar is this page's largest contentful paint, and it was being
+      discovered 880ms late: it is rendered by React, so the browser could not
+      see it until the bundle had downloaded, parsed and run. Measured LCP
+      breakdown was 880ms of load delay against 220ms of actually loading it.
+
+      Naming it here puts it in the initial document, where the preload scanner
+      finds it in the first few bytes. `profile.avatarUrl` is the source of
+      truth and site.test.ts fails if this drifts from it.
+    -->
+    <link
+      rel="preload"
+      as="image"
+      href="/profile/avatar.webp"
+      type="image/webp"
+      fetchpriority="high"
+    />
+
+    <title>Daffa Firasyan — AI/ML Engineer</title>
+    <meta name="description" content="Retrieval systems, knowledge graphs and web engineering. Selected projects, certificates and experience from an Information Systems graduate in Bandung." />
+    <link rel="canonical" href="https://daffa-firasyan.vercel.app/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Daffa Firasyan" />
+    <meta property="og:url" content="https://daffa-firasyan.vercel.app/" />
+    <meta property="og:title" content="Daffa Firasyan — AI/ML Engineer" />
+    <meta property="og:description" content="Retrieval systems, knowledge graphs and web engineering. Selected projects, certificates and experience from an Information Systems graduate in Bandung." />
+    <meta property="og:image" content="https://daffa-firasyan.vercel.app/og/og-cover.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Daffa Firasyan, AI/ML Engineer — portfolio cover showing the name and role on a dark background." />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Daffa Firasyan",
+        "jobTitle": "Full-Stack Developer",
+        "url": "https://daffa-firasyan.vercel.app/",
+        "email": "mailto:firasyan.daffa123@gmail.com",
+        "image": "https://daffa-firasyan.vercel.app/profile/avatar.webp",
+        "sameAs": [
+          "https://github.com/DaffaFirasyan",
+          "https://www.linkedin.com/in/daffafirasyan/"
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

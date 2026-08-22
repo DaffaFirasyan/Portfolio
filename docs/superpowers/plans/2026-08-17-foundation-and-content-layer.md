@@ -6,7 +6,7 @@
 
 **Architecture:** Content lives in `src/data/*.ts` behind types in `src/types/index.ts`. Section components read that data and render semantic HTML — no animation, no React Bits, no hardcoded copy. A single Vitest suite enforces eleven invariants over the data, including a *stress* rule that fails if the skeleton content is too short to exercise the layout. An ESLint boundary rule makes the React Bits isolation from spec §3.2 a CI failure rather than a matter of memory.
 
-**Tech Stack:** Vite 8.2.1, React 19.2.8, TypeScript 7.0.2, Tailwind CSS 4.3.3, Vitest 4.1.10, Testing Library 16.3.2, Fontsource variable fonts 5.3.0. Every version below was resolved from the registry on 2026-08-17; if `npm i` reports a newer one, prefer the newer and note it.
+**Tech Stack:** Vite 8.2.1, React 19.2.8, TypeScript 6.0.3, Tailwind CSS 4.3.3, Vitest 4.1.10, Testing Library 16.3.2, Fontsource variable fonts 5.3.0. Every version below was resolved from the registry on 2026-08-17; if `npm i` reports a newer one, prefer the newer and note it.
 
 **Covers:** Spec phases 0–1. Navigation, motion primitives, and WebGL are out of scope here — they arrive in plans 2 and 3.
 
@@ -70,7 +70,7 @@ The repository already contains `.git`, `.gitignore`, and `docs/`. `npm create v
 - [ ] **Step 2: Install runtime and build dependencies**
 
 ```bash
-npm i react@19.2.8 react-dom@19.2.8 && npm i -D vite@8.2.1 @vitejs/plugin-react@6.0.5 typescript@7.0.2 @types/react@19.2.18 @types/react-dom@19.2.4
+npm i react@19.2.8 react-dom@19.2.8 && npm i -D vite@8.2.1 @vitejs/plugin-react@6.0.5 typescript@6.0.3 @types/react@19.2.18 @types/react-dom@19.2.4 @types/node@22.20.1
 ```
 
 - [ ] **Step 3: Write `tsconfig.json`**
@@ -94,12 +94,17 @@ npm i react@19.2.8 react-dom@19.2.8 && npm i -D vite@8.2.1 @vitejs/plugin-react@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
-    "paths": { "@/*": ["src/*"] }
+    "paths": { "@/*": ["./src/*"] }
   },
   "include": ["src", "vite.config.ts"]
 }
 ```
+
+**TypeScript is pinned to 6.0.3, not the 7.0.2 that `npm view` reports as `latest`.** typescript-eslint 8.67.0 refuses to load under TS 7 — it carries an explicit guard and a peer range of `>=4.8.4 <6.1.0` — and ESLint alone cannot parse TypeScript, so under TS 7 the import boundary in Task 3 would match nothing at all while still exiting 0. TS 7 buys a static portfolio site nothing that would justify that. Revisit when typescript-eslint ships TS 7 support.
+
+`baseUrl` is absent on purpose. TS 7 removes it outright (`TS5102`) and 6.x already deprecates it; omitting it works in both, at the cost of `paths` values needing to be relative — hence `./src/*` rather than `src/*`.
+
+`@types/node` is in the dev dependencies above because `vite.config.ts` sits in `include` and imports `node:url`. Nothing else provides those types, not even transitively through Vite.
 
 - [ ] **Step 4: Write `vite.config.ts`**
 
@@ -216,8 +221,15 @@ export default defineConfig({
 
 Colors are spec §2 / PRD §3.1 verbatim. The three custom text sizes fill gaps in Tailwind's default scale (PRD §3.2 asks for 2rem, 3rem, 4.5rem, 7rem; Tailwind has no 2rem step).
 
+The `@source not` line is load-bearing. Tailwind v4 scans the whole repository by default, and this plan and the spec both name utility classes in prose — without the exclusion, `docs/` generates real CSS, and "this class is in the bundle" stops proving that any component uses it.
+
 ```css
 @import 'tailwindcss';
+
+/* Tailwind v4 scans the whole repository by default. The plan and spec name
+   utility classes in prose, which would otherwise generate real CSS and make
+   "this class is in the bundle" useless as proof that a component uses it. */
+@source not '../docs';
 
 @theme {
   --color-void: #0a0c10;
@@ -329,7 +341,14 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ['**/components/reactbits/**', '@/components/reactbits/**'],
+              // The bare forms (no trailing segment) cover a barrel import such
+              // as `@/components/reactbits`, which the `/**` globs alone miss.
+              group: [
+                '**/components/reactbits',
+                '**/components/reactbits/**',
+                '@/components/reactbits',
+                '@/components/reactbits/**',
+              ],
               message:
                 'Sections must not import React Bits directly. Use a primitive from src/motion/ instead (spec §3.2).',
             },
@@ -381,7 +400,7 @@ git add package.json package-lock.json eslint.config.js && git commit -m "chore:
 - [ ] **Step 1: Install test dependencies**
 
 ```bash
-npm i -D vitest@4.1.10 jsdom@30.0.1 @testing-library/react@16.3.2 @testing-library/jest-dom@7.0.1 @testing-library/user-event@14.6.4
+npm i -D vitest@4.1.10 jsdom@29.0.0 @testing-library/react@16.3.2 @testing-library/jest-dom@7.0.1 @testing-library/user-event@14.6.4
 ```
 
 - [ ] **Step 2: Write `src/test/setup.ts`**
@@ -416,7 +435,13 @@ export default defineConfig({
 
 - [ ] **Step 4: Add vitest globals to `tsconfig.json`**
 
-Add `"types": ["vitest/globals"]` inside `compilerOptions`, directly after the `"paths"` entry.
+Add `"types": ["vitest/globals", "node"]` inside `compilerOptions`, directly after the `"paths"` entry.
+
+`"node"` is defensive rather than strictly required. An explicit `types` array does switch off automatic inclusion of every `@types` package, but Vite's own `dist/node/index.d.ts` opens with `/// <reference types="node" />`, and a direct reference inside an imported declaration file loads regardless of the `types` array. So `node:url` resolves either way today. Keep the entry anyway — depending on a transitive reference inside a dependency's type file to survive minor upgrades is not a bet worth taking.
+
+`/// <reference types="vitest/config" />` at the top of `vite.config.ts` *is* strictly required: without it, `tsc` rejects the `test` block with `TS2769`.
+
+jsdom is pinned one major behind its latest. jsdom 30 requires Node `^22.22.2 || ^24.15.0 || >=26.0.0`; if the local Node is older, npm installs it anyway with only an `EBADENGINE` warning, leaving an unsupported combination that works until it suddenly does not — most likely during the DOM-heavy work in Tasks 13–16. jsdom 29 accepts `^22.13.0`. If the local Node satisfies jsdom 30's range, use 30 instead.
 
 - [ ] **Step 5: Write a throwaway test to prove the runner works**
 
@@ -1651,48 +1676,53 @@ describe('assets', () => {
 Run: `npm test`
 Expected: FAIL — `missing asset: /profile/avatar.webp`.
 
-- [ ] **Step 3: Generate the placeholder images**
-
-Requires ImageMagick 7 (`magick`). Dimensions come from spec §5: project thumbnails 800×500, certificate thumbnails 600×420, certificate full images at their natural ratio, avatar 800×800, logos 256×256.
+- [ ] **Step 3: Install the image tool**
 
 ```bash
-mkdir -p public/projects public/certificates public/education public/profile public/cv && node -e "
-const {execFileSync}=require('child_process');
-const ids=['kg-maintenance-assistant','sentiment-dashboard','campus-room-booking','ocr-invoice-parser','thesis-corpus-explorer','attendance-vision','kos-finder','rainfall-forecast'];
-const certs=['deeplearning-nlp','neo4j-graph-academy','aws-cloud-practitioner','tensorflow-developer','bangkit-ml','dicoding-backend','hackathon-winner','google-data-analytics','docker-fundamentals','ui-ux-workshop','sql-advanced','git-collaboration','english-toefl','python-fundamentals'];
-const gen=(size,out,label)=>execFileSync('magick',['-size',size,'canvas:#12161D','-fill','#8A97A6','-gravity','center','-pointsize','20','-annotate','0',label,out],{stdio:'inherit'});
-for(const id of ids) gen('800x500','public/projects/'+id+'.webp',id);
-for(const id of certs){gen('600x420','public/certificates/thumb-'+id+'.webp',id);gen('1400x1000','public/certificates/'+id+'.webp',id);}
-gen('800x800','public/profile/avatar.webp','avatar');
-gen('256x256','public/education/telkom-university.webp','logo');
-"
+npm i -D sharp@0.35.3
 ```
 
-- [ ] **Step 4: Create the placeholder CV**
+**Do not use ImageMagick.** It is not installed here, and on Windows the `convert` that sits on `PATH` at `C:\WINDOWS\system32\convert` is the FAT-to-NTFS disk utility — a command that silently means something entirely different from what an image script intends. `sharp` is dev-only, needs no external binary, and rasterises SVG, which is what gives the placeholders their labels.
+
+- [ ] **Step 4: Write `scripts/generate-placeholders.mjs`**
+
+The script derives the asset list **from the data files themselves** rather than from a hardcoded array, so it cannot drift from what the invariant checks. The data files are TypeScript, so it strips the type-only import and the type annotation and imports the remainder from a `data:` URL.
+
+Dimensions come from spec §5: project thumbnails 800×500, certificate thumbnails 600×420, certificate full images 1400×1000, avatar 800×800, logos 256×256. Images are WebP quality 80 on `#12161D` with the slug drawn in `#8A97A6`.
+
+The CV placeholder is a hand-written minimal single-page PDF with a correct cross-reference table, so no second dependency is needed. See the committed script for the full source.
+
+- [ ] **Step 5: Add an npm script**
+
+Add to `package.json` scripts: `"placeholders": "node scripts/generate-placeholders.mjs"`.
+
+- [ ] **Step 6: Generate and verify**
 
 ```bash
-magick -size 1240x1754 canvas:white -fill '#333333' -gravity center -pointsize 48 -annotate 0 'CV placeholder' public/cv/daffa-firasyan-cv.pdf
+npm run placeholders
 ```
 
-If ImageMagick reports a PDF delegate error, Ghostscript is missing. Either install it, or drop any existing PDF at that exact path — the invariant checks existence, not contents.
+Verify by reading the files back rather than trusting that they appeared — assert with sharp's `metadata()` that each group has exactly its expected dimensions, and check the RIFF/WEBP magic bytes rather than the extension. For the PDF, confirm it starts with `%PDF-`, ends with `%%EOF`, and that its `startxref` offset points at the literal string `xref`.
 
-- [ ] **Step 5: Run the test**
+Expected: 38 images, 0 mismatches, and a ~570-byte PDF.
+
+- [ ] **Step 7: Run the test**
 
 Run: `npm test`
-Expected: all pass.
+Expected: all pass — 32 existing plus 1 new.
 
-- [ ] **Step 6: Verify the placeholder dimensions are exact**
+- [ ] **Step 8: Prove the invariant is not vacuous**
 
 ```bash
-magick identify -format "%f %wx%h\n" public/projects/kg-maintenance-assistant.webp public/certificates/thumb-deeplearning-nlp.webp
+mv public/certificates/thumb-sql-advanced.webp /tmp/held.webp && npm test; mv /tmp/held.webp public/certificates/thumb-sql-advanced.webp
 ```
 
-Expected: `kg-maintenance-assistant.webp 800x500` and `thumb-deeplearning-nlp.webp 600x420`.
+Expected: the run without the file fails with `missing asset: /certificates/thumb-sql-advanced.webp`, and the run after restoring passes.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 9: Commit**
 
 ```bash
-git add public/ src/data/invariants.test.ts && git commit -m "feat: add placeholder assets and asset existence invariant"
+git add public/ scripts/ package.json package-lock.json src/data/invariants.test.ts && git commit -m "feat: add placeholder assets and asset existence invariant"
 ```
 
 ---
@@ -2491,6 +2521,14 @@ git add src/App.tsx src/App.test.tsx && git commit -m "feat: assemble the one-pa
 - The page renders all seven sections with every string sourced from `src/data/`.
 - No file under `src/sections/` imports from `src/components/reactbits/`.
 - Replacing skeleton content with real content requires editing only `src/data/` and `public/`.
+
+## Amended After Execution
+
+The Task 13–15 snippets below pass a section's `id`, `index`, `label` and `title` to `SectionShell` as literals. That shipped, then was refactored — the final code does not look like those snippets.
+
+Two problems with the literal form. The heading copy lived in a component, so changing it violated the last bullet above. And the number and nav label were duplicated between the section and `SECTIONS`, which navigation reads in plan 2 — two facts that happened to agree, with nothing keeping them agreeing.
+
+`src/data/sections.ts` now carries a `title` per entry and exports `shellProps(id)`, which returns all four and throws when the metadata is missing. Sections call `<SectionShell {...shellProps('about')} >`. The hero has no entry title and `shellProps('home')` throws by design — it renders the page's `h1`, not a numbered header.
 
 ## Not In This Plan
 

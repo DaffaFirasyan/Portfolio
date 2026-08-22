@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://daffa-firasyan.vercel.app/sitemap.xml

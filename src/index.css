@@ -1,0 +1,101 @@
+@import 'tailwindcss';
+
+/* Tailwind v4 scans the whole repository by default. The plan and spec name
+   utility classes in prose, which would otherwise generate real CSS and make
+   "this class is in the bundle" useless as proof that a component uses it. */
+@source not '../docs';
+
+@theme {
+  --color-void: #0a0c10;
+  --color-surface: #12161d;
+  --color-elevated: #1a2029;
+  --color-edge: #232c38;
+  --color-primary: #e8edf2;
+  --color-muted: #8a97a6;
+  --color-accent: #f0a32e;
+  --color-accent-2: #5ec8d8;
+  /* Errors need a colour that is not also the link and active-nav colour.
+     #ff6b6b on --color-void is about 6.5:1, above the 4.5:1 AA asks of text. */
+  --color-danger: #ff6b6b;
+
+  --font-display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
+  --font-sans: 'Geist Variable', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  --text-h2: 2rem;
+  --text-display-sm: 3rem;
+  --text-display: 4.5rem;
+  --text-display-lg: 7rem;
+
+  /* StarBorder renders animate-star-movement-{top,bottom} and shipped its
+     config as Tailwind v3 JavaScript, which v4 does not read. No duration
+     here on purpose: the component writes animationDuration inline. */
+  --animate-star-movement-bottom: star-movement-bottom linear infinite alternate;
+  --animate-star-movement-top: star-movement-top linear infinite alternate;
+
+  /* Marks the current role on the timeline. Deliberately slow, and only
+     transform and opacity so it composites — it costs no main-thread work,
+     unlike the canvas border it replaced. */
+  --animate-pulse-ring: pulse-ring 3s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  70% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@keyframes star-movement-bottom {
+  0% {
+    transform: translate(0%, 0%);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-100%, 0%);
+    opacity: 0;
+  }
+}
+
+@keyframes star-movement-top {
+  0% {
+    transform: translate(0%, 0%);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(100%, 0%);
+    opacity: 0;
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-void);
+    color: var(--color-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent-2);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

@@ -176,6 +176,15 @@ Jumlah record: **8 projek** (PRD §5.1 mengizinkan 4–9), **14 sertifikat** (8 
 
 Kalau grid selamat di kondisi ini, konten asli hanya bisa lebih ringan. Arah sebaliknya juga diuji manual: 1 projek, 0 sertifikat, filter tanpa hasil.
 
+**Batas aturan stress — baca sebelum menempel konten asli.** Aturan stress bekerja untuk field yang penulisnya karang sendiri: judul projek, `problem`, `tagline`, bio. Ia tidak bekerja untuk **nama diri yang datang dari luar**, yaitu `certificate.issuer` dan `experience.organization`. "Coursera" tidak bisa dipanjangkan jadi 36 karakter; itu namanya.
+
+Saat konten asli masuk, dua bagian assertion ini kemungkinan besar gagal:
+
+- `certificates … stresses the layout on title, issuer and skill count` — bagian `issuer`
+- `experiences … stresses the layout on role, organization and highlights` — bagian `organization`
+
+Itu bukan tanda datanya salah. Yang benar dilakukan: **hapus dua bagian assertion tersebut**, bukan memaksa nama institusi memanjang dan bukan menurunkan plafonnya. Plafon 40 tetap berguna — ia menjamin layout selamat kalau memang ada penerbit sepanjang itu. Yang gugur hanya kewajiban membuktikannya lewat data contoh.
+
 ### 4.2 Invarian Dijaga Tes, Bukan Runtime
 
 Validator runtime seperti Zod menambah beban bundle untuk data yang sepenuhnya statis — tidak sepadan dengan target §1.2. Diganti satu suite Vitest yang gagal keras bila:
@@ -201,6 +210,7 @@ Mengikuti PRD §6, dengan D7 menggantikan aturan rasio sertifikat.
 
 | Aset | Dimensi | Target ukuran |
 |---|---|---|
+| Foto profil | 800×800, **latar dihapus, PNG/WebP beralfa** | < 150 KB |
 | Thumbnail projek | 800×500 (16:10), tetap | < 120 KB |
 | Thumbnail sertifikat | 600×420 (10:7), letterbox | < 60 KB |
 | Sertifikat penuh | rasio asli, sisi terpanjang ≤ 1600px | < 250 KB |
@@ -210,6 +220,8 @@ Mengikuti PRD §6, dengan D7 menggantikan aturan rasio sertifikat.
 Semua WebP dengan fallback JPG, `loading="lazy"` kecuali elemen LCP, `decoding="async"`, `width`/`height` eksplisit di JSX.
 
 Skeleton memakai gambar placeholder pada dimensi persis di atas, supaya perilaku CLS yang terukur sekarang adalah perilaku yang asli nanti.
+
+**Foto profil harus dipotong dari latarnya.** `ProfileCard` di hero menambatkan foto ke dasar kartu dan membiarkan gradiennya terlihat di sekeliling — foto persegi berlatar utuh terbaca sebagai kotak yang ditempel, dengan garis sambung melintang di tengah kartu. Ditemukan 2026-08-18 dari tangkapan layar pemilik. Placeholder-nya kini siluet transparan supaya bentuk yang salah ketahuan saat pengembangan, bukan setelah deploy.
 
 **Privasi:** nomor induk, tanggal lahir, tanda tangan basah, dan QR yang memuat data pribadi ditutup sebelum sertifikat diunggah (PRD §6.1). Ini diperiksa manual sebelum Fase 10, bukan oleh tes.
 
