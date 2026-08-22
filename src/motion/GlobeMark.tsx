@@ -1,8 +1,7 @@
-import { lazy, Suspense, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 
 import DecorationBoundary from '@/motion/DecorationBoundary';
 import { useMotionAllowed } from '@/hooks/useMotionAllowed';
-import { useOnScreen } from '@/hooks/useOnScreen';
 
 const Globe = lazy(() => import('@/components/lightswind/Globe/Globe'));
 
@@ -37,6 +36,16 @@ const MARKERS = [
  * footer, on a page using Lenis smooth scroll. Dragging to spin still works,
  * which is the interaction worth having.
  *
+ * **It cannot appear below 1024px, and that is layout rather than choice.** Its
+ * container in Contact is `hidden lg:block`, because Contact only becomes two
+ * columns at `lg` — below that there is no left column for an absolutely
+ * positioned globe to occupy and it would sit on top of the form. The
+ * consequence is worth stating plainly because it looks like a bug: a
+ * `display: none` ancestor has zero area, an element with zero area never
+ * reports as intersecting, so the observer below **never fires** and the globe
+ * never mounts. On a browser window even one pixel under 1024 it is simply
+ * absent, with nothing logged and nothing broken.
+ *
  * The gate is the same three flags every other surface here carries: `animate`
  * because a continuous render loop is what reduced-motion asks you not to run,
  * `webgl` because there is no fallback worth shipping, and `hover` because
@@ -47,15 +56,55 @@ const MARKERS = [
 export default function GlobeMark() {
   const { animate, webgl, hover } = useMotionAllowed();
   const host = useRef<HTMLDivElement>(null);
-  // Below the fold by construction — Contact is the last section on a
-  // nine-screen page — so there is nothing to fail towards by waiting.
-  const onScreen = useOnScreen(host, '300px', false);
+  const [ready, setReady] = useState(false);
+
+  /**
+   * Mounts once on approach and never unmounts, and that is a leak fix rather
+   * than a preference.
+   *
+   * `useOnScreen` was here first, and it toggles — so scrolling past Contact
+   * and back unmounted and remounted the globe, and React hands a *new*
+   * `<canvas>` to each mount. **cobe never releases its WebGL context**: its
+   * `destroy()` stops the render loop, and `loseContext` appears nowhere in
+   * the package, verified rather than assumed. So every remount stranded a
+   * live context on a discarded canvas until the browser began evicting the
+   * oldest — measured on the built page as "Too many active WebGL contexts",
+   * with Galaxy's and the film grain's contexts already dead while the page
+   * still looked fine.
+   *
+   * Latching `ready` means one canvas and one context for the life of the
+   * page. The observer disconnects on the first hit, so it stops costing
+   * callbacks too. `SplineRobot` reached this same shape for this same reason.
+   *
+   * Releasing the context in cleanup was the other candidate repair, and it is
+   * the one this project has already been burnt by: `SplashCursor` called
+   * `loseContext()` on a canvas React reuses across StrictMode's
+   * mount/cleanup/mount, and the second mount got a dead context and drew
+   * nothing for the life of the page.
+   */
+  useEffect(() => {
+    if (!animate || !webgl || !hover) return;
+    const el = host.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setReady(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '300px' },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [animate, webgl, hover]);
 
   if (!animate || !webgl || !hover) return null;
 
   return (
     <div ref={host} aria-hidden="true" className="h-full w-full">
-      {onScreen && (
+      {ready && (
         <DecorationBoundary name="globe">
           <Suspense fallback={null}>
             <Globe
