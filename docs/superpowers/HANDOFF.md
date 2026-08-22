@@ -63,7 +63,13 @@ None of this is guessed or invented — the project's standing rule is that a po
 
 ### Then, in order
 
-1. **Deploy.** [Contact & launch](plans/2026-08-18-contact-and-launch.md) Task 10 is written and unstarted. It needs a Web3Forms key and a Vercel account, so it is the owner's to run; the plan says exactly what to do. It also merges this branch, which is the other reason to get to it.
+1. **Deploy.** [Contact & launch](plans/2026-08-18-contact-and-launch.md) Task 10 is written and unstarted. It also merges this branch, which is the other reason to get to it.
+
+   **The Web3Forms key exists as of 2026-08-22 and is set locally.** It lives in `.env.local`, which is gitignored and must stay that way — verified with `git check-ignore`, and the key appears in **no tracked file**. It is public by design, so this is not secrecy: Vite inlines it into the client bundle at build time and anyone can read it from the deployed JavaScript. It is kept out of the source because a hardcoded key cannot be rotated without a code change.
+
+   **Production still needs it separately**, in Vercel under *Settings → Environment Variables*, for Production and Preview. Vite inlines at build time, so **a deployment built before the variable exists will not pick it up** — redeploy after adding it, or the live form will show its error state while the local one works.
+
+   **The form has still never sent a real message.** Confirmed on the built page that it is wired — name, email and message fields, the `botcheck` honeypot present and hidden, and the "not connected to its mail service" fallback copy gone — but wiring is not delivery. Sending one is a step in the deploy task and belongs to the owner, since it puts a message in his inbox.
 2. **Check the certificate scans before they go public, by eye.** Identity numbers, dates of birth, wet signatures and personal QR codes must be covered. The owner has confirmed they checked (*"Soal privasi sudah saya pastikan aman"*), but **no test can check this and none pretends to** — it is a look at fourteen images, and the only chance to do it is before the files are public.
 3. **Re-measure Lighthouse.** See [the performance pass](#the-performance-pass) for where it stands and what is already known to be costing points. Run it against `npm run preview` on port 4173, in incognito — a run against the dev server measures an artefact ten times heavier and scored 27.
 4. ~~**Replace the Spline scene.**~~ **Done 2026-08-22** — it is an `ogl` shader now, 1,459 KB gzip lighter. See [the orb](#the-orb-at-the-foot-of-contact-and-the-robot-it-replaced).
