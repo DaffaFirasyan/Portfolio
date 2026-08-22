@@ -81,8 +81,24 @@ export default function Contact() {
                   further down a screen that is already tall. The `hidden` here
                   and the capability gate inside the component overlap on
                   purpose: this one keeps it out of the layout, that one keeps
-                  it off the network. */}
-              <div className="pointer-events-none absolute inset-x-0 -bottom-32 hidden h-[25rem] overflow-hidden lg:block">
+                  it off the network.
+
+                  `pointer-events-none` used to sit here and had to come off.
+                  The robot and the orb both read the *window* and normalised
+                  against their own rect, so neither needed this box to be
+                  hittable. The globe does: it listens on its own canvas for
+                  mousedown and mousemove, so with pointer events disabled on
+                  an ancestor it could not be dragged at all. The canvas already
+                  carried `cursor: grab` — nothing ever reached it.
+
+                  Measured before removing it, since an absolutely positioned
+                  box could easily be swallowing clicks: it starts 15px *below*
+                  the social links so it covers none of them, and the only
+                  thing it overlaps is 40px of footer, which has no links, no
+                  buttons and nothing focusable — just the credit marquee.
+                  Zoom is off, so the wheel handler returns before
+                  `preventDefault` and the page still scrolls over it. */}
+              <div className="absolute inset-x-0 -bottom-32 hidden h-[25rem] overflow-hidden lg:block">
                 <GlobeMark />
               </div>
             </div>
