@@ -301,6 +301,14 @@ A third, found only by opening the widget and reading it: the bio passage was la
 
 A fourth, smaller: a project matching only on its stack falls back to its first sentence, and that used to be `problem`. Someone who searches a tool wants what was built with it, so the order is `solution`, `outcome`, `problem`.
 
+**"What his name" returned nothing, and the reason was a hole rather than a bug.** The index knew every project he built and not the name of the person who built them — there was no passage for the profile at all. There is one now, carrying name, roles, tagline, location, email and availability, and its keywords are the words people *type* rather than the words the data uses: `name`, `contact`, `hire`, `available`, `based`, `cv`. None of those appear in the prose, so without them the question misses however good the ranking is.
+
+**Some perfectly ordinary questions tokenise to nothing at all.** "who is he", "what does he do" — every single word is a stop word, so the query empties and the honest-miss path answered them with silence. They are also the first things anyone types. A query that survives tokenising with nothing left is treated as asking for the introduction now; a query with real terms that simply matches nothing still gets an honest empty result, and a test pins both halves of that.
+
+**One overclaim of mine was corrected in the same pass.** The panel said answers were "quoted from this page", and that is not true of all of them: the profile line, the certificates and the skill cards are assembled from fields with a fixed frame, because "his name is X" is not a sentence anyone had written down. It says answers "come from this page's own content" now. The guarantee is real but narrower than the first wording claimed — every *fact* is from `src/data/`, and nothing is composed at runtime beyond those frames.
+
+**The transcript hides its scrollbar and still scrolls.** `@utility no-scrollbar` sets `scrollbar-width: none` and hides the WebKit pseudo-element; `overflow-y` stays `auto`. Measured with seven exchanges in it: 2,690px of content in a 324px window, a 0px scrollbar gutter, and scrollTop movable to both ends. Worth knowing before reusing it — hiding a scrollbar removes the only cue that a region scrolls, which is fine for a transcript the reader is filling themselves and not fine for content they have to discover.
+
 **Sentence splitting cannot be naive here.** `4.73`, `.NET Core 8` and `banjarsarigarut.id` are all real strings in this data and a split on `.` cuts every one of them in half. A break requires the dot to be followed by whitespace and a capital.
 
 ### History: the Spline robot (removed 2026-08-22)

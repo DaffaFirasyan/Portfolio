@@ -107,7 +107,7 @@ describe('AskWidget', () => {
     render(<AskWidget />);
     await user.click(screen.getByRole('button', { name: /ask about my work/i }));
 
-    const suggestion = screen.getByRole('button', { name: /what did he build with laravel/i });
+    const suggestion = screen.getByRole('button', { name: /who is he/i });
     await user.click(suggestion);
 
     // Once asked, the empty state is gone and the exchange has replaced it.

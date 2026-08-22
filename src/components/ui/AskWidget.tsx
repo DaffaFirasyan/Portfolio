@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { MessageCircle, Search, X } from 'lucide-react';
 
+import { useMotionAllowed } from '@/hooks/useMotionAllowed';
 import { certificates } from '@/data/certificates';
 import { education } from '@/data/education';
 import { experiences } from '@/data/experiences';
@@ -13,12 +14,18 @@ import { buildIndex, search, type Hit } from '@/lib/search';
  * A floating panel that answers questions about this site, in its owner's own
  * sentences.
  *
- * **It is retrieval, not generation, and the copy says so.** Every sentence it
- * can show is copied out of `src/data/`, so it cannot state something about its
- * author that its author did not write — which on a portfolio is where an
- * invention does the most damage. Each answer names the entry it came from and
- * links to the section holding it, so a reader can go and check. Presenting it
- * as a chat without saying that would be claiming a model that is not here.
+ * **It is retrieval, not generation, and the copy says so.** Every *fact* it
+ * shows comes out of `src/data/`. Most answers are a whole sentence the owner
+ * wrote; a few — the profile line, the certificates, the skill cards — are
+ * assembled from his fields using a fixed frame, because "his name is X" is not
+ * a sentence anyone had written down. Nothing is composed at runtime by
+ * anything but those frames, so it cannot state something about its author that
+ * its author did not say. Each answer names the entry it came from and links to
+ * the section holding it, so a reader can go and check.
+ *
+ * The distinction matters enough to keep the wording honest: the panel says
+ * answers *come from* this page, not that they are *quoted from* it, because
+ * the second would not be true of all of them.
  *
  * Questions work without any parsing: the tokeniser drops stop words, so "what
  * did he build with Laravel?" reduces to `built, laravel` and searches exactly
@@ -32,10 +39,10 @@ import { buildIndex, search, type Hit } from '@/lib/search';
  * open and returns to the launcher on close.
  */
 const SUGGESTIONS = [
-  'What did he build with Laravel?',
+  'Who is he?',
   'Tell me about the AI research',
-  'Where has he worked?',
-  'Does he know Neo4j?',
+  'What did he build with Laravel?',
+  'How do I contact him?',
 ];
 
 interface Exchange {
@@ -46,6 +53,10 @@ interface Exchange {
 
 export default function AskWidget() {
   const panelId = useId();
+  // Through the hook, never a media query read inside the component — that is
+  // the project's one rule about reduced motion, and the reason is that gating
+  // spread around is gating that gets forgotten somewhere.
+  const { animate } = useMotionAllowed();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [log, setLog] = useState<Exchange[]>([]);
@@ -126,6 +137,7 @@ export default function AskWidget() {
             role="dialog"
             aria-modal="false"
             aria-label="Ask about this portfolio"
+            style={animate ? { animation: 'ask-panel-in 220ms cubic-bezier(0.16, 1, 0.3, 1)' } : undefined}
             className="mb-3 flex h-[min(30rem,70vh)] w-[min(24rem,calc(100vw-3rem))] flex-col rounded-xl border border-edge bg-elevated shadow-2xl"
           >
             <div className="flex items-start justify-between gap-3 border-b border-edge p-4">
@@ -137,7 +149,7 @@ export default function AskWidget() {
                     page, and calling it anything cleverer would be a claim the
                     code does not back. */}
                 <p className="mt-1 text-xs text-muted">
-                  Answers are quoted from this page — no AI, nothing invented.
+                  Answers come from this page's own content — no AI, nothing made up.
                 </p>
               </div>
               <button
@@ -150,7 +162,13 @@ export default function AskWidget() {
               </button>
             </div>
 
-            <div ref={transcript} className="flex-1 space-y-4 overflow-y-auto p-4" data-lenis-prevent>
+            <div
+              ref={transcript}
+              // no-scrollbar hides the indicator only; overflow-y stays auto, so
+              // wheel, touch and keyboard all still scroll it.
+              className="no-scrollbar flex-1 space-y-4 overflow-y-auto p-4"
+              data-lenis-prevent
+            >
               {log.length === 0 && (
                 <div>
                   <p className="text-sm text-muted">Try one of these:</p>
@@ -171,7 +189,10 @@ export default function AskWidget() {
               )}
 
               {log.map((entry) => (
-                <div key={entry.id}>
+                <div
+                  key={entry.id}
+                  style={animate ? { animation: 'ask-message-in 260ms ease-out both' } : undefined}
+                >
                   <p className="ml-auto w-fit max-w-[85%] rounded-lg bg-accent px-3 py-2 text-sm font-medium text-void">
                     {entry.question}
                   </p>

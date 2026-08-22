@@ -175,6 +175,53 @@ export function buildIndex({
     });
   }
 
+  // Who he is. This was missing entirely, and "what his name" therefore
+  // answered with nothing — the index knew every project he built and not the
+  // name of the person who built them.
+  //
+  // The keywords are the words people actually type at a box like this rather
+  // than the words the data uses. Nobody asks "what is your tagline"; they ask
+  // for a name, an email, whether he is available, where he is. None of those
+  // words appear in the prose, so without them here the question misses.
+  passages.push({
+    title: profile.name,
+    kind: 'About',
+    sectionId: 'home',
+    sentences: [
+      // Assembled from fields, not written by anything. Every value in here is
+      // a string out of `profile`; the frame around them is fixed.
+      `${profile.name} — ${profile.roles.join(', ')}, based in ${profile.location}.`,
+      profile.tagline,
+      profile.openToWork
+        ? `He is open to work, and reachable at ${profile.email}.`
+        : `He is not looking for work right now. His address is ${profile.email}.`,
+    ],
+    keywords: [
+      profile.name,
+      profile.shortName,
+      profile.location,
+      profile.email,
+      ...profile.roles,
+      'name',
+      'called',
+      'contact',
+      'email',
+      'reach',
+      'hire',
+      'hiring',
+      'available',
+      'availability',
+      'job',
+      'based',
+      'live',
+      'cv',
+      'resume',
+      'about',
+      'himself',
+      'intro',
+    ],
+  });
+
   // Insertion order is the tie-break, because the sort is stable and a small
   // corpus ties constantly — "RAG" scores 3 against the paper, the AI skills
   // card, AssetMind and a conference certificate all at once. So the order
@@ -260,7 +307,29 @@ function scorePassage(passage: Passage, terms: string[]): { sentence: string; sc
  */
 export function search(index: Passage[], query: string, limit = 3): Hit[] {
   const terms = [...new Set(tokenise(query))];
-  if (terms.length === 0) return [];
+
+  // Some entirely reasonable questions are made of nothing but stop words:
+  // "who is he", "what does he do", "how are you". Every one of those tokenises
+  // to an empty list, and answering them with silence is worse than useless —
+  // they are the first things a person types at a box like this.
+  //
+  // So a question that survives tokenising with nothing left is treated as
+  // asking for the introduction, which is what all three of those want. A
+  // query with real terms in it that simply matches nothing still gets an
+  // honest empty result; this fallback cannot fire for those.
+  if (terms.length === 0) {
+    if (query.trim() === '') return [];
+    const intro = index.find((p) => p.sectionId === 'home');
+    return intro
+      ? [{
+          title: intro.title,
+          kind: intro.kind,
+          sectionId: intro.sectionId,
+          sentence: intro.sentences[0],
+          score: 0,
+        }]
+      : [];
+  }
 
   return index
     .map((passage) => ({ passage, ...scorePassage(passage, terms) }))

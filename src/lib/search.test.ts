@@ -69,11 +69,40 @@ describe('search', () => {
     // least-bad row for anything at all.
     expect(search(index, 'kubernetes rust blockchain')).toEqual([]);
     expect(search(index, '')).toEqual([]);
-    expect(search(index, 'the and of')).toEqual([]);
+  });
+
+  it('answers a question made only of stop words with the introduction', () => {
+    // "who is he", "what does he do" — every word is a stop word, so these
+    // tokenise to nothing at all, and they are the first things anyone types.
+    // Silence is the wrong answer; the intro is what all of them want.
+    for (const q of ['who is he', 'what does he do', 'the and of']) {
+      const [top] = search(index, q);
+      expect(top, `"${q}" answered with nothing`).toBeDefined();
+      expect(top.sectionId).toBe('home');
+    }
+
+    // The fallback must not rescue a query that has real terms and simply
+    // matches nothing — that is the case where an honest miss is the answer.
+    expect(search(index, 'kubernetes')).toEqual([]);
+  });
+
+  it('answers the questions people actually open this thing to ask', () => {
+    // None of these words appear in the prose. Before the profile was indexed,
+    // "what is his name" returned nothing at all — the index knew every
+    // project he built and not the name of the person who built them.
+    for (const q of ['what is his name', 'how do I contact him', 'is he available', 'where is he based']) {
+      const hits = search(index, q);
+      expect(hits.length, `"${q}" answered with nothing`).toBeGreaterThan(0);
+    }
   });
 
   it('gives every hit a section a reader can actually get to', () => {
-    const sections = new Set(['about', 'projects', 'skills', 'experience', 'education', 'contact']);
+    // 'home' is the hero's id — see Hero.tsx. It was missing from this list
+    // when the list was written, which meant the guard would have passed a
+    // link to a section that does not exist just as happily.
+    const sections = new Set([
+      'home', 'about', 'projects', 'skills', 'experience', 'education', 'contact',
+    ]);
     for (const hit of search(index, 'developer', 10)) {
       expect(sections, `${hit.title} points at "${hit.sectionId}"`).toContain(hit.sectionId);
     }
