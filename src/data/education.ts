@@ -8,7 +8,7 @@ export const education: Education[] = [
     field: 'Information Systems',
     startYear: 2022,
     endYear: 2026,
-    gpa: '3.64 / 4.00',
+    gpa: '3.65 / 4.00 (Cumlaude)',
     highlights: [
       'Final project: an LLM decision support system using RAG and KG-RAG, scoring 4.73/5 with 92.9% procedure match and 39/39 functional tests passed.',
       // The quoted title here used to be the CV's shortened one, which stopped
