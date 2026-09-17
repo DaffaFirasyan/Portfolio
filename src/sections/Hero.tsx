@@ -1,4 +1,4 @@
-import { profile } from '@/data/profile';
+import { useLanguage } from '@/context/LanguageContext';
 import Backdrop from '@/motion/Backdrop';
 import BlurIn from '@/motion/BlurIn';
 import Counter from '@/motion/Counter';
@@ -17,8 +17,9 @@ import AvatarCard from '@/motion/AvatarCard';
 const STEP = 0.08;
 
 export default function Hero() {
+  const { profile, t } = useLanguage();
   const status = profile.openToWork
-    ? `${profile.location} — Open to work`
+    ? `${profile.location} — ${t.openToWork}`
     : profile.location;
 
   return (
@@ -62,14 +63,14 @@ export default function Hero() {
                   href="#projects"
                   className="inline-flex min-h-11 items-center rounded-full bg-accent px-5 text-sm font-semibold text-void"
                 >
-                  View projects
+                  {t.viewProjects}
                 </a>
                 <a
                   href={profile.cvUrl}
                   download
                   className="inline-flex min-h-11 items-center rounded-full border border-edge px-5 text-sm font-semibold text-muted"
                 >
-                  Download CV
+                  {t.downloadCv}
                 </a>
               </div>
             </Reveal>

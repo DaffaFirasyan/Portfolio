@@ -1,6 +1,6 @@
 import SectionShell from '@/components/layout/SectionShell';
-import { shellProps } from '@/data/sections';
-import { EXPERIENCE_TYPE_LABEL, experiences } from '@/data/experiences';
+import { shellPropsFrom } from '@/data/sections';
+import { useLanguage } from '@/context/LanguageContext';
 import Chip from '@/motion/Chip';
 import PulseDot from '@/motion/PulseDot';
 import Reveal from '@/motion/Reveal';
@@ -8,15 +8,30 @@ import Reveal from '@/motion/Reveal';
 /** Seconds between one entry arriving and the next. */
 const STEP = 0.06;
 
-function formatMonth(value: string): string {
+function formatMonth(value: string, lang: 'en' | 'id'): string {
   const [year, month] = value.split('-');
-  const name = new Date(Number(year), Number(month) - 1).toLocaleString('en-US', {
-    month: 'short',
-  });
+  const name = new Date(Number(year), Number(month) - 1).toLocaleString(
+    lang === 'id' ? 'id-ID' : 'en-US',
+    {
+      month: 'short',
+    },
+  );
   return `${name} ${year}`;
 }
 
-function Body({ entry, current }: { entry: (typeof experiences)[number]; current: boolean }) {
+function Body({
+  entry,
+  current,
+  typeLabel,
+  presentLabel,
+  lang,
+}: {
+  entry: ReturnType<typeof useLanguage>['experiences'][number];
+  current: boolean;
+  typeLabel: string;
+  presentLabel: string;
+  lang: 'en' | 'id';
+}) {
   const content = (
     <>
       <h3 className="font-display text-lg font-bold break-words text-primary">{entry.role}</h3>
@@ -24,12 +39,12 @@ function Body({ entry, current }: { entry: (typeof experiences)[number]; current
       <p className="mt-1">
         <span className="text-accent-2">{entry.organization}</span>
         <span className="ml-2 font-mono text-xs uppercase tracking-[0.12em] text-muted">
-          {EXPERIENCE_TYPE_LABEL[entry.type]}
+          {typeLabel}
         </span>
       </p>
 
       <p className="mt-2 font-mono text-xs uppercase tracking-[0.12em] text-muted">
-        {`${formatMonth(entry.startDate)} — ${current ? 'Present' : formatMonth(entry.endDate)}`}
+        {`${formatMonth(entry.startDate, lang)} — ${current ? presentLabel : formatMonth(entry.endDate, lang)}`}
       </p>
 
       <p className="mt-3 max-w-[68ch] text-muted">{entry.summary}</p>
@@ -61,8 +76,11 @@ function Body({ entry, current }: { entry: (typeof experiences)[number]; current
 }
 
 export default function Experience() {
+  const { experiences, experienceTypeLabel, sections, t, language } = useLanguage();
+  const shell = shellPropsFrom(sections, 'experience');
+
   return (
-    <SectionShell {...shellProps('experience')}>
+    <SectionShell {...shell}>
       {/* No rule and no dots down the left. With the entries in reverse order
           the sequence is already obvious from the dates, so the rule spent
           horizontal space restating it — and a ruled timeline is the layout
@@ -118,7 +136,13 @@ export default function Experience() {
               </div>
 
               <Reveal delay={STEP * index}>
-                <Body entry={e} current={current} />
+                <Body
+                  entry={e}
+                  current={current}
+                  typeLabel={experienceTypeLabel[e.type]}
+                  presentLabel={t.present}
+                  lang={language}
+                />
               </Reveal>
             </li>
           );

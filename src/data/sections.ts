@@ -35,3 +35,12 @@ export function shellProps(id: string): ShellProps {
   }
   return { id: meta.id, index: meta.index, label: meta.label, title: meta.title };
 }
+
+export function shellPropsFrom(sections: SectionMeta[], id: string): ShellProps {
+  const meta = sections.find((section) => section.id === id);
+  if (meta?.title) {
+    return { id: meta.id, index: meta.index, label: meta.label, title: meta.title };
+  }
+  return shellProps(id);
+}
+

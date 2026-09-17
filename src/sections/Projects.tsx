@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react';
 
 import SectionShell from '@/components/layout/SectionShell';
 import ProjectTile from '@/components/ui/ProjectTile';
-import { shellProps } from '@/data/sections';
-import { projects } from '@/data/projects';
+import { shellPropsFrom } from '@/data/sections';
+import { useLanguage } from '@/context/LanguageContext';
 import { useSkillHighlight } from '@/highlight/SkillHighlight';
 import type { Project } from '@/types';
 import { ALL, categoriesOf, filterByCategory } from '@/lib/filter';
@@ -13,12 +13,14 @@ import FocusGrid, { FocusItem } from '@/motion/FocusGrid';
 import Reveal from '@/motion/Reveal';
 
 export default function Projects() {
+  const { projects, sections, t } = useLanguage();
   const { isDimmed } = useSkillHighlight();
   const [category, setCategory] = useState(ALL);
   const [selected, setSelected] = useState<Project | null>(null);
 
-  const categories = useMemo(() => categoriesOf(projects), []);
-  const visible = useMemo(() => filterByCategory(projects, category), [category]);
+  const shell = shellPropsFrom(sections, 'projects');
+  const categories = useMemo(() => categoriesOf(projects), [projects]);
+  const visible = useMemo(() => filterByCategory(projects, category), [projects, category]);
 
   // Featuring is a judgement about the whole body of work, so the *claim* is
   // dropped the moment a filter narrows that body — inside "2 of 4 match Web" a
@@ -55,7 +57,7 @@ export default function Projects() {
   const isLead = (index: number) => promoted && index === 0;
 
   return (
-    <SectionShell {...shellProps('projects')}>
+    <SectionShell {...shell}>
       <ul className="mb-8 flex flex-wrap gap-2">
         {categories.map((name) => (
           <li key={name}>
@@ -66,7 +68,7 @@ export default function Projects() {
               className="rounded-full"
             >
               <Chip className={name === category ? 'border-accent text-accent' : undefined}>
-                {name}
+                {name === ALL ? t.all : name}
               </Chip>
             </button>
           </li>
@@ -77,13 +79,13 @@ export default function Projects() {
         // Never a blank area. An empty grid reads as a broken page rather than
         // as an answer, so it says what happened and offers the way back.
         <div className="rounded-xl border border-edge bg-surface p-8 text-center">
-          <p className="text-muted">{`No projects in ${category} yet.`}</p>
+          <p className="text-muted">{t.noProjectsYet(category)}</p>
           <button
             type="button"
             onClick={() => setCategory(ALL)}
             className="mt-4 inline-flex min-h-11 items-center rounded-full border border-accent px-5 text-sm font-semibold text-accent"
           >
-            Show all projects
+            {t.showAllProjects}
           </button>
         </div>
       ) : (
@@ -152,20 +154,20 @@ export default function Projects() {
             <dl className="mt-6 space-y-4">
               <div>
                 <dt className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
-                  Problem
+                  {t.problem}
                 </dt>
                 <dd className="mt-1 max-w-[68ch] text-muted">{selected.problem}</dd>
               </div>
               <div>
                 <dt className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
-                  Approach
+                  {t.solution}
                 </dt>
                 <dd className="mt-1 max-w-[68ch] text-muted">{selected.solution}</dd>
               </div>
               {selected.outcome && (
                 <div>
                   <dt className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
-                    Outcome
+                    {t.outcome}
                   </dt>
                   <dd className="mt-1 max-w-[68ch] text-accent-2">{selected.outcome}</dd>
                 </div>
@@ -188,7 +190,7 @@ export default function Projects() {
                   rel="noopener noreferrer"
                   className="inline-flex min-h-11 items-center text-sm text-accent"
                 >
-                  Repository
+                  {t.repository}
                 </a>
               )}
               {selected.links.demo && (
@@ -198,7 +200,7 @@ export default function Projects() {
                   rel="noopener noreferrer"
                   className="inline-flex min-h-11 items-center text-sm text-accent"
                 >
-                  Live demo
+                  {t.liveDemo}
                 </a>
               )}
               <button
@@ -206,7 +208,7 @@ export default function Projects() {
                 onClick={() => setSelected(null)}
                 className="ml-auto inline-flex min-h-11 items-center rounded-full border border-edge px-5 text-sm font-semibold text-muted"
               >
-                Close
+                {t.close}
               </button>
             </div>
           </div>

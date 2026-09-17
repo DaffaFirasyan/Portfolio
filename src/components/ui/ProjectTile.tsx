@@ -1,4 +1,5 @@
 import type { Project } from '@/types';
+import { useLanguage } from '@/context/LanguageContext';
 import Chip from '@/motion/Chip';
 import Surface from '@/motion/Surface';
 
@@ -49,6 +50,7 @@ export default function ProjectTile({
   dimmed,
   onOpen,
 }: ProjectTileProps) {
+  const { t } = useLanguage();
   const open = () => onOpen(project);
 
   return (
@@ -163,7 +165,7 @@ export default function ProjectTile({
             onClick={open}
             className="inline-flex min-h-11 items-center font-semibold text-accent"
           >
-            View case study →
+            {t.viewCaseStudy} →
           </button>
           {project.links.repo && (
             <a

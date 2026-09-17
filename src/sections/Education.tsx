@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import SectionShell from '@/components/layout/SectionShell';
-import { shellProps } from '@/data/sections';
-import { education } from '@/data/education';
+import { shellPropsFrom } from '@/data/sections';
 import { certificates } from '@/data/certificates';
+import { useLanguage } from '@/context/LanguageContext';
 import type { CertificateCategory } from '@/types';
 import Chip from '@/motion/Chip';
 import Counter from '@/motion/Counter';
@@ -30,9 +30,30 @@ const LABEL_OF = Object.fromEntries(
 const INDEXED = certificates.map((certificate, index) => ({ certificate, index }));
 
 export default function Education() {
+  const { education, sections, t } = useLanguage();
   const [openAt, setOpenAt] = useState<number | null>(null);
   const [category, setCategory] = useState<CertFilter>(CERT_ALL);
   const [imageBroken, setImageBroken] = useState(false);
+
+  const shell = shellPropsFrom(sections, 'education');
+
+  const getCategoryLabel = (name: CertFilter): string => {
+    if (name === CERT_ALL) return t.all;
+    switch (name) {
+      case 'competition':
+        return t.catCompetition;
+      case 'professional':
+        return t.catProfessional;
+      case 'bootcamp':
+        return t.catBootcamp;
+      case 'course':
+        return t.catCourse;
+      case 'workshop':
+        return t.catWorkshop;
+      default:
+        return LABEL_OF[name] ?? name;
+    }
+  };
 
   const step = useCallback((delta: number) => {
     setImageBroken(false);
@@ -61,14 +82,14 @@ export default function Education() {
       : INDEXED.filter(({ certificate }) => certificate.category === category);
 
   return (
-    <SectionShell {...shellProps('education')}>
+    <SectionShell {...shell}>
       {education.map((e) => (
         <Reveal key={e.id}>
           <Surface className="p-6">
             <h3 className="font-display text-lg font-bold text-primary">{e.degree}</h3>
             <p className="text-accent-2">{e.institution}</p>
             <p className="mt-1 font-mono text-xs uppercase tracking-[0.12em] text-muted">
-              {`${e.startYear} — ${e.endYear === 'present' ? 'Present' : e.endYear}${e.gpa ? ` · GPA ${e.gpa}` : ''}`}
+              {`${e.startYear} — ${e.endYear === 'present' ? t.present : e.endYear}${e.gpa ? ` · ${t.gpaLabel} ${e.gpa}` : ''}`}
             </p>
             {e.highlights && (
               <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-muted">
@@ -82,7 +103,7 @@ export default function Education() {
       ))}
 
       <h3 className="mt-12 font-display text-lg font-bold text-primary">
-        Certificates (<Counter value={certificates.length} />)
+        {t.certificatesHeading} (<Counter value={certificates.length} />)
       </h3>
 
       {/* A wall, not a list. Fourteen credentials spread across five
@@ -120,7 +141,7 @@ export default function Education() {
                     : 'border-edge text-muted hover:text-primary'
                 }`}
               >
-                {`${name === CERT_ALL ? 'All' : LABEL_OF[name]} ${count}`}
+                {`${getCategoryLabel(name)} ${count}`}
               </button>
             </li>
           );
@@ -201,7 +222,7 @@ export default function Education() {
               // image cannot reserve its space. Saying what it was beats a
               // broken-image icon.
               <p className="mt-6 rounded-lg border border-edge p-8 text-center text-muted">
-                {`The scan of this certificate could not be loaded. It was issued by ${shown.issuer}.`}
+                {t.scanError(shown.issuer)}
               </p>
             ) : (
               <img
@@ -220,18 +241,18 @@ export default function Education() {
               <button
                 type="button"
                 onClick={() => step(-1)}
-                aria-label="Previous certificate"
+                aria-label={t.previousCertAria}
                 className="inline-flex min-h-11 items-center rounded-full border border-edge px-5 text-sm text-muted"
               >
-                Previous
+                {t.previous}
               </button>
               <button
                 type="button"
                 onClick={() => step(1)}
-                aria-label="Next certificate"
+                aria-label={t.nextCertAria}
                 className="inline-flex min-h-11 items-center rounded-full border border-edge px-5 text-sm text-muted"
               >
-                Next
+                {t.next}
               </button>
               <p className="font-mono text-xs text-muted">
                 {`${(openAt ?? 0) + 1} / ${certificates.length}`}
@@ -244,7 +265,7 @@ export default function Education() {
                   rel="noopener noreferrer"
                   className="inline-flex min-h-11 items-center text-sm text-accent"
                 >
-                  Verify credential
+                  {t.verifyCredential}
                 </a>
               )}
 
@@ -253,7 +274,7 @@ export default function Education() {
                 onClick={() => setOpenAt(null)}
                 className="ml-auto inline-flex min-h-11 items-center rounded-full border border-edge px-5 text-sm font-semibold text-muted"
               >
-                Close
+                {t.close}
               </button>
             </div>
           </div>

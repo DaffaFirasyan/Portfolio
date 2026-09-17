@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
 
-import { profile } from '@/data/profile';
+import { useLanguage } from '@/context/LanguageContext';
 import { validateContact, type ContactErrors, type ContactValues } from '@/lib/validate';
 import { sendContact } from '@/lib/web3forms';
 import StarButton from '@/motion/StarButton';
@@ -13,10 +13,10 @@ const EMPTY: ContactValues = { name: '', email: '', message: '' };
 const CONTROL =
   'mt-2 block min-h-11 w-full rounded-lg border border-edge bg-surface px-4 py-3 text-primary placeholder:text-muted';
 
-function mailtoHref(values: ContactValues): string {
+function mailtoHref(values: ContactValues, email: string): string {
   const subject = encodeURIComponent(`Portfolio message from ${values.name || 'a visitor'}`);
   const body = encodeURIComponent(values.message);
-  return `mailto:${profile.email}?subject=${subject}&body=${body}`;
+  return `mailto:${email}?subject=${subject}&body=${body}`;
 }
 
 function Field({
@@ -55,6 +55,7 @@ function Field({
  * of import.meta.env, so the unconfigured case can be tested.
  */
 export default function ContactForm({ accessKey }: { accessKey: string }) {
+  const { profile, t } = useLanguage();
   const id = useId();
   const [values, setValues] = useState<ContactValues>(EMPTY);
   const [errors, setErrors] = useState<ContactErrors>({});
@@ -135,16 +136,15 @@ export default function ContactForm({ accessKey }: { accessKey: string }) {
       >
         {status === 'sent' && (
           <p className="text-primary">
-            Thanks — your message is on its way. I reply to anything specific, usually within a
-            couple of days.
+            {t.sentMessage}
           </p>
         )}
 
         {status === 'error' && (
           <>
             <p className="text-danger">{failure}</p>
-            <a href={mailtoHref(values)} className="mt-2 inline-block text-sm text-accent">
-              Email me directly instead
+            <a href={mailtoHref(values, profile.email)} className="mt-2 inline-block text-sm text-accent">
+              {t.emailDirectly}
             </a>
           </>
         )}
@@ -156,13 +156,13 @@ export default function ContactForm({ accessKey }: { accessKey: string }) {
           onClick={reset}
           className="inline-flex min-h-11 items-center rounded-full border border-edge px-5 text-sm font-semibold text-muted"
         >
-          Send another message
+          {t.sendAnother}
         </button>
       ) : (
         <form noValidate onSubmit={submit} aria-busy={status === 'sending'} className="space-y-5">
           <Field
             htmlFor={fieldId('name')}
-            label="Name"
+            label={t.nameLabel}
             error={shown('name')}
             errorId={errorId('name')}
           >
@@ -182,7 +182,7 @@ export default function ContactForm({ accessKey }: { accessKey: string }) {
 
           <Field
             htmlFor={fieldId('email')}
-            label="Email"
+            label={t.emailLabel}
             error={shown('email')}
             errorId={errorId('email')}
           >
@@ -202,7 +202,7 @@ export default function ContactForm({ accessKey }: { accessKey: string }) {
 
           <Field
             htmlFor={fieldId('message')}
-            label="Message"
+            label={t.messageLabel}
             error={shown('message')}
             errorId={errorId('message')}
           >
@@ -241,7 +241,7 @@ export default function ContactForm({ accessKey }: { accessKey: string }) {
               disabled
               className="inline-flex min-h-11 items-center rounded-full bg-accent px-6 text-sm font-semibold text-void opacity-60"
             >
-              Sending…
+              {t.sendingButton}
             </button>
           ) : (
             <StarButton
@@ -249,7 +249,7 @@ export default function ContactForm({ accessKey }: { accessKey: string }) {
               type="submit"
               className="inline-flex min-h-11 items-center rounded-full bg-accent px-6 text-sm font-semibold text-void"
             >
-              Send message
+              {t.sendButton}
             </StarButton>
           )}
         </form>

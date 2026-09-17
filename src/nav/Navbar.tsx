@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { profile } from '@/data/profile';
-import { SECTIONS } from '@/data/sections';
+import { useLanguage } from '@/context/LanguageContext';
+import LanguageToggle from '@/components/ui/LanguageToggle';
 import { useActiveSection } from '@/hooks/useActiveSection';
 import { useLenis } from '@/hooks/useLenis';
 import { useScrolledPast } from '@/hooks/useScrolledPast';
@@ -24,7 +24,8 @@ import NodeRailNav from './NodeRailNav';
  * without opening the menu first.
  */
 export default function Navbar() {
-  const { activeId, progress } = useActiveSection(SECTIONS);
+  const { profile, sections } = useLanguage();
+  const { activeId, progress } = useActiveSection(sections);
   const { scrollTo } = useLenis();
   const scrolled = useScrolledPast(80);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -33,7 +34,7 @@ export default function Navbar() {
   // labels only appear on hover, and hover is not something a reader does while
   // reading — so without this the section name is never on screen. Built from
   // the same metadata SectionShell uses, so the two can never disagree.
-  const active = SECTIONS.find((section) => section.id === activeId);
+  const active = sections.find((section) => section.id === activeId);
   const activeLabel = active ? `${String(active.index).padStart(2, '0')} / ${active.label}` : '';
 
   const navigate = useCallback(
@@ -84,6 +85,8 @@ export default function Navbar() {
           </p>
 
           <div className="flex items-center gap-3">
+            <LanguageToggle />
+
             <StarButton
               as="a"
               href={profile.cvUrl}
@@ -116,8 +119,11 @@ export default function Navbar() {
             aria-label="Sections, mobile"
             className="border-b border-edge bg-void px-6 py-4 lg:hidden"
           >
+            <div className="mb-3 flex justify-end">
+              <LanguageToggle />
+            </div>
             <ul className="flex flex-col gap-1">
-              {SECTIONS.map((section) => (
+              {sections.map((section) => (
                 <li key={section.id}>
                   <a
                     href={`#${section.id}`}
@@ -144,7 +150,7 @@ export default function Navbar() {
           rail would be positioned against the viewport at the top of the page
           and against the header everywhere else, jumping on the first scroll. */}
       <NodeRailNav
-        sections={SECTIONS}
+        sections={sections}
         activeId={activeId}
         progress={progress}
         onNavigate={navigate}

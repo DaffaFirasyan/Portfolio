@@ -1,6 +1,6 @@
 import SectionShell from '@/components/layout/SectionShell';
-import { shellProps } from '@/data/sections';
-import { skillCategories } from '@/data/skills';
+import { shellPropsFrom } from '@/data/sections';
+import { useLanguage } from '@/context/LanguageContext';
 import { useSkillHighlight } from '@/highlight/SkillHighlight';
 import { skillIcon } from '@/lib/skillIcon';
 import LogoMarquee from '@/motion/LogoMarquee';
@@ -11,10 +11,12 @@ import Surface from '@/motion/Surface';
 const STEP = 0.06;
 
 export default function Skills() {
+  const { skillCategories, sections } = useLanguage();
   const { activeSkill, setActive, clear } = useSkillHighlight();
+  const shell = shellPropsFrom(sections, 'skills');
 
   return (
-    <SectionShell {...shellProps('skills')}>
+    <SectionShell {...shell}>
       {/* overflow-hidden because the strip is wider than its column by design.
           It sits above the categorised chips rather than replacing them: the
           logos are recognised at a glance, the chips carry the detail and the

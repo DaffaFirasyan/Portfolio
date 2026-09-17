@@ -1,6 +1,6 @@
 import SectionShell from '@/components/layout/SectionShell';
-import { shellProps } from '@/data/sections';
-import { profile } from '@/data/profile';
+import { shellPropsFrom } from '@/data/sections';
+import { useLanguage } from '@/context/LanguageContext';
 import Reveal from '@/motion/Reveal';
 import Surface from '@/motion/Surface';
 
@@ -27,13 +27,14 @@ const STEP = 0.08;
  * link in the project.
  */
 function PublicationCard() {
+  const { profile, t } = useLanguage();
   const paper = profile.publication;
   if (!paper) return null;
 
   return (
     <Surface className="p-6">
       <p className="font-mono text-xs uppercase tracking-[0.12em] text-accent">
-        Published research
+        {t.publishedResearch}
       </p>
 
       {/* h3, not h2: the section heading is the h2 and this sits under it. */}
@@ -49,14 +50,14 @@ function PublicationCard() {
 
       <dl className="mt-4 space-y-2 text-sm">
         <div>
-          <dt className="font-mono text-xs uppercase tracking-[0.12em] text-muted">Venue</dt>
+          <dt className="font-mono text-xs uppercase tracking-[0.12em] text-muted">{t.venue}</dt>
           <dd className="mt-0.5 text-primary">
             {paper.venue}
             <span className="block text-xs text-muted">{paper.venueFull}</span>
           </dd>
         </div>
         <div>
-          <dt className="font-mono text-xs uppercase tracking-[0.12em] text-muted">Published in</dt>
+          <dt className="font-mono text-xs uppercase tracking-[0.12em] text-muted">{t.publishedIn}</dt>
           <dd className="mt-0.5 text-primary">{paper.publisher}</dd>
         </div>
       </dl>
@@ -77,8 +78,11 @@ function PublicationCard() {
 }
 
 export default function About() {
+  const { profile, sections, t } = useLanguage();
+  const shell = shellPropsFrom(sections, 'about');
+
   return (
-    <SectionShell {...shellProps('about')}>
+    <SectionShell {...shell}>
       <div className="grid gap-10 md:grid-cols-12">
         {/* Prose first in the DOM so a phone reads the bio before the
             credentials, and second visually on desktop through `md:order-2`.
@@ -113,16 +117,16 @@ export default function About() {
               <dl className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <dt className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
-                    Location
+                    {t.location}
                   </dt>
                   <dd className="mt-1 text-primary">{profile.location}</dd>
                 </div>
                 <div>
                   <dt className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
-                    Status
+                    {t.status}
                   </dt>
                   <dd className="mt-1 text-primary">
-                    {profile.openToWork ? 'Open to work' : 'Not looking right now'}
+                    {profile.openToWork ? t.openToWork : t.notLooking}
                   </dd>
                 </div>
               </dl>

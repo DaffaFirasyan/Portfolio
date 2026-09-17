@@ -1,7 +1,7 @@
 import SectionShell from '@/components/layout/SectionShell';
 import ContactForm from '@/components/ui/ContactForm';
-import { shellProps } from '@/data/sections';
-import { profile } from '@/data/profile';
+import { shellPropsFrom } from '@/data/sections';
+import { useLanguage } from '@/context/LanguageContext';
 import Reveal from '@/motion/Reveal';
 import GlobeMark from '@/motion/GlobeMark';
 import Sparks from '@/motion/Sparks';
@@ -15,8 +15,11 @@ import Typed from '@/motion/Typed';
 const ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_KEY ?? '';
 
 export default function Contact() {
+  const { profile, sections, t } = useLanguage();
+  const shell = shellPropsFrom(sections, 'contact');
+
   return (
-    <SectionShell {...shellProps('contact')}>
+    <SectionShell {...shell}>
       {/* No `fill` on either Reveal. They are grid items, but each holds a
           column of stacked content rather than a card that must match a
           sibling's height, and h-full on stacked Reveals is what broke the
@@ -32,12 +35,13 @@ export default function Contact() {
           <Reveal fill>
             <div className="relative flex h-full flex-col">
               <Typed
-                text="The fastest way to reach me is email. I read everything and reply to anything specific."
+                key={t.fastestWay}
+                text={t.fastestWay}
                 className="max-w-[48ch] text-muted"
               />
 
               <p className="mt-3 max-w-[48ch] text-muted">
-                If you would rather not use the form, the address is right here.
+                {t.directEmailNotice}
               </p>
 
               <a
@@ -47,7 +51,7 @@ export default function Contact() {
                 {profile.email}
               </a>
 
-              <ul aria-label="Social links" className="mt-8 flex flex-wrap gap-4">
+              <ul aria-label={t.socialLinks} className="mt-8 flex flex-wrap gap-4">
                 {profile.socials.map((social) => (
                   <li key={social.label}>
                     <a
