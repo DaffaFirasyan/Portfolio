@@ -155,7 +155,7 @@ describe('profile', () => {
     );
   });
 
-  it('has three or four roles inside the length limit', () => {
+  it('has three to five roles inside the length limit', () => {
     expect(profile.roles.length).toBeGreaterThanOrEqual(3);
     expect(profile.roles.length).toBeLessThanOrEqual(LIMITS.profile.roles);
     for (const role of profile.roles) {

@@ -24,6 +24,7 @@ export const skillCategories: SkillCategory[] = [
       { name: 'Vue.js', icon: 'component', level: 'intermediate' },
       { name: 'React', icon: 'component', level: 'intermediate' },
       { name: 'TypeScript', icon: 'code', level: 'intermediate' },
+      { name: 'JavaScript', icon: 'code', level: 'advanced' },
       { name: 'C#', icon: 'code', level: 'intermediate' },
     ],
   },
@@ -86,10 +87,14 @@ export const skillCategories: SkillCategory[] = [
       // kind of thing it is, and Neo4j is a store. What makes it a *graph*
       // store is already said by the skill it sits beside in AI & Retrieval.
       { name: 'Neo4j', icon: 'database', level: 'intermediate', relatedProjectIds: ['assetmind'] },
+      { name: 'Business Intelligence', icon: 'chart', level: 'intermediate' },
+      { name: 'ETL & Data Warehouse', icon: 'database', level: 'intermediate' },
+      { name: 'Metabase', icon: 'chart', level: 'intermediate' },
       { name: 'Docker', icon: 'box', level: 'intermediate' },
       { name: 'Git & GitHub', icon: 'git-branch', level: 'advanced' },
       { name: 'Vercel', icon: 'triangle', level: 'intermediate' },
       { name: 'Hostinger', icon: 'triangle', level: 'intermediate', relatedProjectIds: ['village-portal'] },
+      { name: 'Postman', icon: 'wrench', level: 'advanced' },
       { name: 'Swagger UI', icon: 'wrench', level: 'intermediate' },
     ],
   },

@@ -11,6 +11,7 @@ export const profile: Profile = {
     'Full-Stack Developer',
     'AI/ML Engineer',
     'RAG & Knowledge Graphs',
+    'Data Analyst',
     'Information Systems Graduate',
   ],
   tagline:

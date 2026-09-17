@@ -7,7 +7,7 @@ export const LIMITS = {
   // height, measured on the built page at 1280. Paragraphs one and two were
   // already at 407 and 419 of 420, so there was nowhere to put the words
   // except a new paragraph.
-  profile: { tagline: 120, role: 28, bioParagraph: 420, roles: 4, bio: 4 },
+  profile: { tagline: 120, role: 28, bioParagraph: 420, roles: 5, bio: 4 },
   project: { title: 48, problem: 180, solution: 180, outcome: 140, role: 40, stack: 6 },
   experience: { role: 48, organization: 40, summary: 140, highlight: 160, highlights: 4 },
   certificate: { title: 72, issuer: 40, skills: 4 },
