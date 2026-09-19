@@ -46,7 +46,7 @@ describe('LanguageContext', () => {
     );
 
     expect(screen.getByTestId('current-lang')).toHaveTextContent('id');
-    expect(screen.getByTestId('open-to-work')).toHaveTextContent('Terbuka untuk kerja');
+    expect(screen.getByTestId('open-to-work')).toHaveTextContent('Terbuka untuk peluang baru');
     expect(document.documentElement.lang).toBe('id');
   });
 
@@ -61,7 +61,7 @@ describe('LanguageContext', () => {
     await user.click(screen.getByRole('button', { name: 'Switch ID' }));
 
     expect(screen.getByTestId('current-lang')).toHaveTextContent('id');
-    expect(screen.getByTestId('open-to-work')).toHaveTextContent('Terbuka untuk kerja');
+    expect(screen.getByTestId('open-to-work')).toHaveTextContent('Terbuka untuk peluang baru');
     expect(localStorage.getItem('daffa_portfolio_lang')).toBe('id');
     expect(document.documentElement.lang).toBe('id');
 

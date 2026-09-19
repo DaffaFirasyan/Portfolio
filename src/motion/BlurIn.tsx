@@ -34,6 +34,7 @@ export default function BlurIn({ text, className, delay = 60 }: BlurInProps) {
 
   return (
     <BlurText
+      key={text}
       text={text}
       className={className}
       delay={delay}

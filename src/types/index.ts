@@ -63,6 +63,7 @@ export interface Profile {
   bio: string[];
   location: string;
   email: string;
+  whatsapp?: string;
   cvUrl: string;
   avatarUrl: string;
   openToWork: boolean;

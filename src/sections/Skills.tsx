@@ -1,96 +1,216 @@
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+
 import SectionShell from '@/components/layout/SectionShell';
+import MagicCard from '@/components/ui/MagicCard';
 import { shellPropsFrom } from '@/data/sections';
 import { useLanguage } from '@/context/LanguageContext';
 import { useSkillHighlight } from '@/highlight/SkillHighlight';
 import { skillIcon } from '@/lib/skillIcon';
 import LogoMarquee from '@/motion/LogoMarquee';
 import Reveal from '@/motion/Reveal';
-import Surface from '@/motion/Surface';
-
-/** Seconds between one category card arriving and the next. */
-const STEP = 0.06;
 
 export default function Skills() {
-  const { skillCategories, sections } = useLanguage();
+  const { skillCategories, sections, language } = useLanguage();
   const { activeSkill, setActive, clear } = useSkillHighlight();
   const shell = shellPropsFrom(sections, 'skills');
 
+  const [selectedTab, setSelectedTab] = useState<string>('all');
+
+  const totalSkillsCount = skillCategories.reduce((acc, cat) => acc + cat.skills.length, 0);
+
+  const tabs = [
+    {
+      id: 'all',
+      label: language === 'id' ? 'Semua' : 'All',
+      count: totalSkillsCount,
+    },
+    ...skillCategories.map((cat) => ({
+      id: cat.id,
+      label: cat.name,
+      count: cat.skills.length,
+    })),
+  ];
+
+  const activeCategory = skillCategories.find((cat) => cat.id === selectedTab);
+
   return (
     <SectionShell {...shell}>
-      {/* overflow-hidden because the strip is wider than its column by design.
-          It sits above the categorised chips rather than replacing them: the
-          logos are recognised at a glance, the chips carry the detail and the
-          cross-highlight. */}
-      <div className="mb-12 overflow-hidden">
+      {/* Marquee sits above the interactive categorised cards */}
+      <div className="mb-10 overflow-hidden">
         <LogoMarquee />
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {/* `fill` because each Reveal is the grid item here: without it the
-            card inside cannot match the height of the others in its row. It is
-            opt-in precisely because stacked Reveals must not claim height. */}
-        {skillCategories.map((category, index) => (
-          <Reveal key={category.id} delay={STEP * index} fill>
-            <Surface className="h-full p-6">
-              <h3 className="font-display text-lg font-bold text-primary">{category.name}</h3>
+      {/* Morphing Category Pill Navigation */}
+      <Reveal delay={0.05}>
+        <div className="mb-6 flex justify-center">
+          <div
+            role="tablist"
+            aria-label="Skill Categories"
+            className="inline-flex max-w-full flex-wrap items-center justify-center gap-1.5 rounded-full border border-edge/60 bg-surface/50 p-1.5 backdrop-blur-md"
+          >
+            {tabs.map((tab) => {
+              const isSelected = selectedTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  role="tab"
+                  aria-selected={isSelected}
+                  onClick={() => setSelectedTab(tab.id)}
+                  className={`relative flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs sm:text-sm font-medium transition-colors duration-200 outline-none ${
+                    isSelected ? 'text-accent font-semibold' : 'text-muted hover:text-primary'
+                  }`}
+                >
+                  {isSelected && (
+                    <motion.div
+                      layoutId="activeSkillTab"
+                      className="absolute inset-0 rounded-full border border-accent/40 bg-accent/15 shadow-[0_0_15px_rgba(234,179,8,0.15)]"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10">{tab.label}</span>
+                  <span
+                    className={`relative z-10 rounded-full px-1.5 py-0.5 font-mono text-[10px] transition-colors ${
+                      isSelected
+                        ? 'bg-accent/25 text-accent font-bold'
+                        : 'bg-surface/80 text-muted/80 border border-edge/40'
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </Reveal>
 
-              {/* Rows, not wrapped pills. Pills of differing widths flowing
-                  across a narrow column give a ragged right edge no amount of
-                  spacing can tidy, and the longest name the data permits — 24
-                  characters, which `Retrieval-Augmented LLMs` hits exactly —
-                  wrapped *inside* its own pill, so one item in the set was two
-                  lines tall and broke the rhythm outright. A single column
-                  aligns every icon and every name, makes each row the same
-                  height by construction, and hands the whole row width to the
-                  hover target that drives the cross-highlight.
+      {/* MagicCard Container */}
+      <Reveal delay={0.1} fill>
+        <MagicCard className="p-5 sm:p-7 shadow-xl">
+          <AnimatePresence mode="wait">
+            {selectedTab === 'all' ? (
+              <motion.div
+                key="all"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+                className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+              >
+                {skillCategories.map((category) => (
+                  <div key={category.id} className="flex flex-col">
+                    <div className="flex items-center justify-between border-b border-edge/40 pb-2 mb-3">
+                      <h3 className="font-display text-xs sm:text-sm font-bold text-primary flex items-center gap-2">
+                        <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                        {category.name}
+                      </h3>
+                      <span className="rounded-full border border-edge/50 bg-surface/80 px-1.5 py-0.5 font-mono text-[10px] text-muted">
+                        {category.skills.length}
+                      </span>
+                    </div>
 
-                  Still no percentage bars, and `level` stays unrendered: a
-                  self-declared "Python — Advanced" invites exactly the
-                  scepticism this section can least afford, and the projects
-                  lighting up in the grid below are the evidence instead. */}
-              <ul className="mt-4 space-y-0.5">
-                {category.skills.map((skill) => {
-                  const Icon = skillIcon(skill.icon);
-                  // The cross-highlight this drives lands on Projects, which
-                  // can be a full scroll away — nothing here previously said
-                  // "yes, that registered" at the point of the hover itself.
-                  const isActive = activeSkill === skill.name;
+                    <ul className="flex flex-col gap-1.5">
+                      {category.skills.map((skill) => {
+                        const Icon = skillIcon(skill.icon);
+                        const isActive = activeSkill === skill.name;
 
-                  return (
-                    <li key={skill.name}>
-                      {/* A button, and an honest one: clicking gives it focus,
-                          and focus is what keeps the related projects lit. That
-                          also makes the whole thing reachable by keyboard rather
-                          than hover only, which would hide it from anyone not
-                          using a mouse. */}
-                      <button
-                        type="button"
-                        onMouseEnter={() => setActive(skill.name, skill.relatedProjectIds ?? [])}
-                        onFocus={() => setActive(skill.name, skill.relatedProjectIds ?? [])}
-                        onMouseLeave={clear}
-                        onBlur={clear}
-                        className={`flex w-full items-start gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm leading-snug transition-colors duration-150 ${
-                          isActive ? 'bg-accent/10 text-primary' : 'text-muted'
-                        }`}
-                      >
-                        {/* items-start, not items-center, so a name too long
-                            for one line keeps its icon beside the *first* line
-                            instead of drifting to the vertical middle and
-                            breaking the icon column. mt-px optically centres it
-                            on that line. shrink-0 so a long name squeezes the
-                            text, never the icon — a half-width icon would undo
-                            the alignment this layout exists for. */}
-                        {Icon && <Icon aria-hidden="true" className="mt-px h-4 w-4 shrink-0" />}
-                        {skill.name}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </Surface>
-          </Reveal>
-        ))}
-      </div>
+                        return (
+                          <li key={skill.name}>
+                            <button
+                              type="button"
+                              onMouseEnter={() =>
+                                setActive(skill.name, skill.relatedProjectIds ?? [])
+                              }
+                              onFocus={() => setActive(skill.name, skill.relatedProjectIds ?? [])}
+                              onMouseLeave={clear}
+                              onBlur={clear}
+                              className={`group/skill flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs sm:text-sm leading-snug transition-all duration-150 ${
+                                isActive
+                                  ? 'border border-accent/40 bg-accent/10 text-accent shadow-[0_0_12px_rgba(234,179,8,0.15)] font-medium'
+                                  : 'border border-transparent text-muted hover:border-edge/50 hover:bg-surface/80 hover:text-primary'
+                              }`}
+                            >
+                              {Icon && (
+                                <Icon
+                                  aria-hidden="true"
+                                  className={`h-3.5 w-3.5 shrink-0 transition-colors duration-150 ${
+                                    isActive
+                                      ? 'text-accent'
+                                      : 'text-muted group-hover/skill:text-accent'
+                                  }`}
+                                />
+                              )}
+                              <span className="truncate">{skill.name}</span>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                ))}
+              </motion.div>
+            ) : activeCategory ? (
+              <motion.div
+                key={activeCategory.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="flex items-center justify-between border-b border-edge/40 pb-3 mb-5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
+                    <h3 className="font-display text-base font-bold text-primary sm:text-lg">
+                      {activeCategory.name}
+                    </h3>
+                  </div>
+                  <span className="rounded-full border border-edge/60 bg-surface/80 px-2.5 py-0.5 font-mono text-xs text-muted">
+                    {activeCategory.skills.length}{' '}
+                    {language === 'id' ? 'Keahlian' : 'Skills'}
+                  </span>
+                </div>
+
+                <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
+                  {activeCategory.skills.map((skill) => {
+                    const Icon = skillIcon(skill.icon);
+                    const isActive = activeSkill === skill.name;
+
+                    return (
+                      <li key={skill.name}>
+                        <button
+                          type="button"
+                          onMouseEnter={() => setActive(skill.name, skill.relatedProjectIds ?? [])}
+                          onFocus={() => setActive(skill.name, skill.relatedProjectIds ?? [])}
+                          onMouseLeave={clear}
+                          onBlur={clear}
+                          className={`group/skill flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs sm:text-sm leading-snug transition-all duration-150 ${
+                            isActive
+                              ? 'border border-accent/40 bg-accent/10 text-accent shadow-[0_0_15px_rgba(234,179,8,0.2)] font-medium'
+                              : 'border border-edge/50 bg-surface/60 text-muted hover:border-edge-bright hover:bg-surface/90 hover:text-primary'
+                          }`}
+                        >
+                          {Icon && (
+                            <Icon
+                              aria-hidden="true"
+                              className={`h-4 w-4 shrink-0 transition-colors duration-150 ${
+                                isActive
+                                  ? 'text-accent'
+                                  : 'text-muted group-hover/skill:text-accent'
+                              }`}
+                            />
+                          )}
+                          <span className="truncate">{skill.name}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </MagicCard>
+      </Reveal>
     </SectionShell>
   );
 }

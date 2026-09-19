@@ -21,7 +21,10 @@ describe('Navbar', () => {
 
   it('offers the cv without hiding it behind the mobile menu', () => {
     render(<Navbar />);
-    expect(screen.getByRole('link', { name: /cv/i })).toHaveAttribute('href', profile.cvUrl);
+    const cvLink = screen.getByRole('link', { name: /cv/i });
+    expect(cvLink).toHaveAttribute('href', profile.cvUrl);
+    expect(cvLink).toHaveAttribute('target', '_blank');
+    expect(cvLink).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
   it('opens and closes the mobile menu, and closes it with Escape', async () => {

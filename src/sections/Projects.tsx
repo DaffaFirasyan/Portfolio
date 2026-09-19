@@ -7,6 +7,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useSkillHighlight } from '@/highlight/SkillHighlight';
 import type { Project } from '@/types';
 import { ALL, categoriesOf, filterByCategory } from '@/lib/filter';
+import { motion } from 'framer-motion';
 import Chip from '@/motion/Chip';
 import Dialog from '@/motion/Dialog';
 import FocusGrid, { FocusItem } from '@/motion/FocusGrid';
@@ -58,22 +59,47 @@ export default function Projects() {
 
   return (
     <SectionShell {...shell}>
-      <ul className="mb-8 flex flex-wrap gap-2">
-        {categories.map((name) => (
-          <li key={name}>
+      {/* Morphing Pill Category Navigation */}
+      <div className="mb-8 flex flex-wrap items-center gap-1.5 rounded-full border border-edge/60 bg-surface/50 p-1.5 backdrop-blur-md w-fit">
+        {categories.map((name) => {
+          const isSelected = name === category;
+          const count =
+            name === ALL
+              ? projects.length
+              : projects.filter((p) => p.category === name).length;
+
+          return (
             <button
+              key={name}
               type="button"
-              aria-pressed={name === category}
+              aria-pressed={isSelected}
               onClick={() => setCategory(name)}
-              className="rounded-full"
+              className={`relative inline-flex min-h-9 items-center gap-2 rounded-full px-4 py-1.5 text-xs sm:text-sm font-medium transition-colors duration-200 outline-none ${
+                isSelected ? 'text-accent font-semibold' : 'text-muted hover:text-primary'
+              }`}
             >
-              <Chip className={name === category ? 'border-accent text-accent' : undefined}>
-                {name === ALL ? t.all : name}
-              </Chip>
+              {isSelected && (
+                <motion.div
+                  layoutId="activeProjectTab"
+                  className="absolute inset-0 rounded-full border border-accent/40 bg-accent/15 shadow-[0_0_15px_rgba(202,240,248,0.15)]"
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                />
+              )}
+              <span className="relative z-10">{name === ALL ? t.all : name}</span>
+              <span
+                aria-hidden="true"
+                className={`relative z-10 rounded-full px-1.5 py-0.5 font-mono text-[10px] sm:text-[11px] transition-colors ${
+                  isSelected
+                    ? 'bg-accent/25 text-accent font-bold'
+                    : 'bg-surface/80 text-muted/80 border border-edge/40'
+                }`}
+              >
+                {count}
+              </span>
             </button>
-          </li>
-        ))}
-      </ul>
+          );
+        })}
+      </div>
 
       {visible.length === 0 ? (
         // Never a blank area. An empty grid reads as a broken page rather than

@@ -4,7 +4,7 @@ import DecorationBoundary from '@/motion/DecorationBoundary';
 import { useMotionAllowed } from '@/hooks/useMotionAllowed';
 import { useOnScreen } from '@/hooks/useOnScreen';
 
-const Galaxy = lazy(() => import('@/components/reactbits/Galaxy/Galaxy'));
+const WaveBackground = lazy(() => import('@/components/lightswind/WaveBackground/WaveBackground'));
 
 /**
  * The single WebGL surface behind the hero.
@@ -17,7 +17,7 @@ const Galaxy = lazy(() => import('@/components/reactbits/Galaxy/Galaxy'));
  *
  * `hover` was added after measuring, and it is the one that needs explaining
  * because it is not about pointer input. The `webgl` flag tests memory, cores
- * and Save-Data, none of which a phone-emulating audit fakes — so the starfield
+ * and Save-Data, none of which a phone-emulating audit fakes — so the backdrop
  * was running through every mobile Lighthouse run and, more to the point,
  * through every real phone visit that happened to report enough memory. A
  * continuous WebGL loop on a battery-powered device, for a decoration behind
@@ -26,7 +26,7 @@ const Galaxy = lazy(() => import('@/components/reactbits/Galaxy/Galaxy'));
  * and the robot. Phones get the gradient fallback, which is the same thing
  * reduced-motion readers have always seen.
  *
- * ogl sits behind a lazy import so the WebGL code never reaches a visitor whose
+ * WaveBackground sits behind a lazy import so the WebGL code never reaches a visitor whose
  * settings or device rule it out.
  */
 export default function Backdrop() {
@@ -43,26 +43,22 @@ export default function Backdrop() {
 
   return (
     <div ref={host} aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden">
-      {webgl && hover && onScreen ? (
-        // If the starfield fails, the gradient it falls back to is already
+      {webgl && hover ? (
+        // If the fluid wave fails, the gradient it falls back to is already
         // written below — so the boundary hands back the same thing the
         // capability gate does, and a reader cannot tell the difference.
-        <DecorationBoundary name="starfield">
+        //
+        // We pass active={onScreen} so the requestAnimationFrame loop is paused
+        // when off-screen, but the WebGL context and compiled shaders are kept ready.
+        // This eliminates the 794ms shader compilation freeze on scrolling back up.
+        <DecorationBoundary name="wave-background">
           <Suspense fallback={fallback}>
-            <Galaxy
-              density={0.8}
-              starSpeed={0.3}
-              glowIntensity={0.25}
-              saturation={0.2}
-              hueShift={200}
-              twinkleIntensity={0.4}
-              // The starfield drifts with the pointer. That is a hover-only
-              // affordance, so it goes through the same capability gate as
-              // everything else rather than attaching a window listener on a
-              // touch device that can never use it.
-              mouseInteraction={hover}
-              mouseRepulsion={false}
-              transparent
+            <WaveBackground
+              active={onScreen}
+              backdropBlurAmount="sm"
+              colors={['#0a0c10', '#111722', '#7b92a8']}
+              interactive={hover && onScreen}
+              mouseInteraction={hover && onScreen}
             />
           </Suspense>
         </DecorationBoundary>

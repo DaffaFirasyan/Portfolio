@@ -76,7 +76,8 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
       [axis]: offset,
       scale,
       opacity: animateOpacity ? initialOpacity : 1,
-      visibility: 'visible'
+      visibility: 'visible',
+      force3D: true,
     });
 
     const tl = gsap.timeline({
@@ -92,6 +93,7 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
             delay: disappearAfter,
             duration: disappearDuration,
             ease: disappearEase,
+            force3D: true,
             onComplete: () => onDisappearanceComplete?.()
           });
         }
@@ -103,7 +105,8 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
       scale: 1,
       opacity: 1,
       duration,
-      ease
+      ease,
+      force3D: true,
     });
 
     const st = ScrollTrigger.create({

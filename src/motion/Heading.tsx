@@ -34,6 +34,7 @@ export default function Heading({ level, children, className }: HeadingProps) {
   // and writes it as an inline style, which no class can override.
   return (
     <SplitText
+      key={children}
       text={children}
       tag={Tag}
       className={className}

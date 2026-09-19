@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 
 import SectionShell from '@/components/layout/SectionShell';
 import { shellPropsFrom } from '@/data/sections';
@@ -29,8 +31,10 @@ const LABEL_OF = Object.fromEntries(
  */
 const INDEXED = certificates.map((certificate, index) => ({ certificate, index }));
 
+const FEATURED_IDS = ['icadeis-presenter', 'web-developer'];
+
 export default function Education() {
-  const { education, sections, t } = useLanguage();
+  const { education, sections, t, language } = useLanguage();
   const [openAt, setOpenAt] = useState<number | null>(null);
   const [category, setCategory] = useState<CertFilter>(CERT_ALL);
   const [imageBroken, setImageBroken] = useState(false);
@@ -86,10 +90,23 @@ export default function Education() {
       {education.map((e) => (
         <Reveal key={e.id}>
           <Surface className="p-6">
-            <h3 className="font-display text-lg font-bold text-primary">{e.degree}</h3>
-            <p className="text-accent-2">{e.institution}</p>
-            <p className="mt-1 font-mono text-xs uppercase tracking-[0.12em] text-muted">
-              {`${e.startYear} — ${e.endYear === 'present' ? t.present : e.endYear}${e.gpa ? ` · ${t.gpaLabel} ${e.gpa}` : ''}`}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div>
+                <h3 className="font-display text-lg sm:text-xl font-bold text-primary">{e.degree}</h3>
+                <p className="text-accent-2 font-medium">{e.institution}</p>
+              </div>
+              {e.gpa && (
+                <div className="self-start sm:self-auto">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-3.5 py-1 text-xs font-semibold text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
+                    <Sparkles className="h-3.5 w-3.5 text-amber-400" aria-hidden="true" />
+                    <span>{`${t.gpaLabel}: ${e.gpa}`}</span>
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <p className="mt-2 font-mono text-xs uppercase tracking-[0.12em] text-muted">
+              {`${e.startYear} — ${e.endYear === 'present' ? t.present : e.endYear}`}
             </p>
             {e.highlights && (
               <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-muted">
@@ -121,7 +138,8 @@ export default function Education() {
           `index` is the position in the flat certificates array, which is what
           the lightbox steps through with the arrow keys. Filtering must never
           renumber it. */}
-      <ul className="mt-6 flex flex-wrap gap-2">
+      {/* Morphing Pill Category Navigation */}
+      <div className="mt-6 flex flex-wrap items-center gap-1.5 rounded-full border border-edge/60 bg-surface/50 p-1.5 backdrop-blur-md w-fit">
         {[CERT_ALL, ...CATEGORY_ORDER].map((name) => {
           const count =
             name === CERT_ALL
@@ -129,62 +147,122 @@ export default function Education() {
               : certificates.filter((c) => c.category === name).length;
           if (count === 0) return null;
 
+          const isSelected = name === category;
+
           return (
-            <li key={name}>
-              <button
-                type="button"
-                aria-pressed={name === category}
-                onClick={() => setCategory(name)}
-                className={`inline-flex min-h-11 items-center rounded-full border px-4 text-sm transition-colors ${
-                  name === category
-                    ? 'border-accent bg-accent font-semibold text-void'
-                    : 'border-edge text-muted hover:text-primary'
-                }`}
-              >
-                {`${getCategoryLabel(name)} ${count}`}
-              </button>
-            </li>
+            <button
+              key={name}
+              type="button"
+              aria-pressed={isSelected}
+              aria-label={`${getCategoryLabel(name)} ${count}`}
+              onClick={() => setCategory(name)}
+              className={`relative inline-flex min-h-9 items-center gap-2 rounded-full px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-medium transition-colors duration-200 outline-none ${
+                isSelected ? 'text-accent font-semibold' : 'text-muted hover:text-primary'
+              }`}
+            >
+              {isSelected && (
+                <motion.div
+                  layoutId="activeCertTab"
+                  className="absolute inset-0 rounded-full border border-accent/40 bg-accent/15 shadow-[0_0_15px_rgba(234,179,8,0.15)]"
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                />
+              )}
+              <span className="relative z-10">{getCategoryLabel(name)}</span> <span className={`relative z-10 rounded-full px-1.5 py-0.5 font-mono text-[10px] sm:text-[11px] transition-colors ${
+                isSelected
+                  ? 'bg-accent/25 text-accent font-bold'
+                  : 'bg-surface/80 text-muted/80 border border-edge/40'
+              }`}>{count}</span></button>
           );
         })}
-      </ul>
+      </div>
 
       <Reveal>
-        <ul className="mt-6 grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
-          {visible.map(({ certificate: c, index }) => (
-            <li key={c.id}>
-              <button
-                type="button"
-                onClick={() => {
-                  setImageBroken(false);
-                  setOpenAt(index);
-                }}
-                className="group relative block w-full overflow-hidden rounded-lg border border-edge"
-              >
-                <img
-                  src={c.thumbnailUrl}
-                  alt=""
-                  width={600}
-                  height={420}
-                  loading="lazy"
-                  decoding="async"
-                  className="block w-full transition-transform duration-300 group-hover:scale-105"
-                />
+        {/* Compact Rich Credentials Grid */}
+        <AnimatePresence mode="wait">
+          <motion.ul
+            key={category}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.15 }}
+            className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-3"
+          >
+            {visible.map(({ certificate: c, index }) => {
+              const isFeatured = FEATURED_IDS.includes(c.id);
 
-                {/* Present in the accessibility tree at all times — opacity
-                    hides it from sight, not from a screen reader — so the
-                    button is named even while the overlay is invisible. */}
-                <span className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-void via-void/80 to-transparent p-2 text-left opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
-                  <span className="line-clamp-3 text-[11px] font-semibold leading-tight text-primary">
-                    {c.title}
-                  </span>
-                  <span className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted">
-                    {c.issuer}
-                  </span>
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
+              return (
+                <li key={c.id} className="flex">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImageBroken(false);
+                      setOpenAt(index);
+                    }}
+                    aria-label={`${c.title} — ${c.issuer}`}
+                    className={`group relative flex flex-col w-full text-left rounded-lg border p-2 sm:p-2.5 overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${
+                      isFeatured
+                        ? 'border-accent/50 bg-surface/60 shadow-[0_0_12px_rgba(234,179,8,0.08)] hover:border-accent hover:bg-surface/80'
+                        : 'border-edge/60 bg-surface/40 hover:border-edge-bright hover:bg-surface/70'
+                    }`}
+                  >
+                    {/* Top Metadata: Issuer & Featured/Category Tag */}
+                    <div className="flex items-center justify-between gap-1 mb-1.5">
+                      <span className="font-mono text-[9px] uppercase tracking-wider text-muted font-semibold truncate">
+                        {c.issuer}
+                      </span>
+                      {isFeatured ? (
+                        <span className="inline-flex items-center gap-0.5 rounded-full border border-accent/40 bg-accent/20 px-1.5 py-0.2 text-[9px] font-semibold text-accent shrink-0">
+                          <Sparkles className="h-2 w-2" />
+                          <span>{language === 'id' ? 'Unggulan' : 'Featured'}</span>
+                        </span>
+                      ) : (
+                        <span className="font-mono text-[8px] uppercase tracking-wider text-muted/60 shrink-0">
+                          {c.category}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Compact Image Container */}
+                    <div className="relative aspect-[16/10] w-full overflow-hidden rounded border border-edge/50 bg-void/70 mb-2 flex items-center justify-center p-0.5">
+                      <img
+                        src={c.thumbnailUrl}
+                        alt=""
+                        width={320}
+                        height={200}
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-contain transition-transform duration-200 group-hover:scale-105"
+                      />
+                    </div>
+
+                    {/* Certificate Title */}
+                    <h4 className="font-display text-[11px] sm:text-xs font-semibold text-primary line-clamp-2 leading-snug group-hover:text-accent transition-colors flex-1">
+                      {c.title}
+                    </h4>
+
+                    {/* Compact Skill Tags */}
+                    {c.skills && c.skills.length > 0 && (
+                      <ul className="mt-1.5 flex flex-wrap gap-1">
+                        {c.skills.slice(0, 1).map((s) => (
+                          <li key={s}>
+                            <span className="rounded border border-edge/40 bg-surface/80 px-1.5 py-0.2 font-mono text-[9px] text-muted truncate max-w-[120px] inline-block">
+                              {s}
+                            </span>
+                          </li>
+                        ))}
+                        {c.skills.length > 1 && (
+                          <span className="font-mono text-[9px] text-muted/60 self-center">
+                            +{c.skills.length - 1}
+                          </span>
+                        )}
+                      </ul>
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </motion.ul>
+        </AnimatePresence>
       </Reveal>
 
       <Dialog

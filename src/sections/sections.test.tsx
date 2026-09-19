@@ -18,7 +18,10 @@ describe('Hero', () => {
     // correct, it just is not made of U+0020.
     expect(container.textContent?.replace(/\u00A0/g, " ")).toContain(profile.tagline);
     expect(screen.getByRole('link', { name: /view projects/i })).toHaveAttribute('href', '#projects');
-    expect(screen.getByRole('link', { name: /download cv/i })).toHaveAttribute('href', profile.cvUrl);
+    const cvLink = screen.getByRole('link', { name: /download cv/i });
+    expect(cvLink).toHaveAttribute('href', profile.cvUrl);
+    expect(cvLink).toHaveAttribute('target', '_blank');
+    expect(cvLink).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
   it('still exposes the name as the page h1 when animated', () => {
@@ -150,17 +153,12 @@ describe('Skills', () => {
     }
   });
 
-  it('lays the skills out one per row, so no name can wrap beside another', () => {
+  it('renders skills within an interactive tabbed layout with full-width buttons', () => {
     const { container } = render(<Skills />);
 
-    // The reason the pills went: flex-wrap gave a ragged right edge, and the
-    // longest name the limit permits (24 chars) wrapped inside its own pill,
-    // leaving one item in the set two lines tall. jsdom computes no layout,
-    // so this asserts the mechanism that makes wrapping impossible rather
-    // than measuring the result — the browser check is in the commit.
-    for (const list of container.querySelectorAll('.grid ul')) {
-      expect(list.className).not.toMatch(/flex-wrap/);
-    }
+    expect(screen.getByRole('tablist', { name: /skill categories/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('tab').length).toBe(skillCategories.length + 1);
+
     for (const button of container.querySelectorAll('.grid ul button')) {
       expect(button.className).toContain('w-full');
     }

@@ -1,9 +1,11 @@
+import { useState } from 'react';
+import { Copy, Check, MessageCircle } from 'lucide-react';
+
 import SectionShell from '@/components/layout/SectionShell';
 import ContactForm from '@/components/ui/ContactForm';
 import { shellPropsFrom } from '@/data/sections';
 import { useLanguage } from '@/context/LanguageContext';
 import Reveal from '@/motion/Reveal';
-import GlobeMark from '@/motion/GlobeMark';
 import Sparks from '@/motion/Sparks';
 import Typed from '@/motion/Typed';
 
@@ -15,8 +17,19 @@ import Typed from '@/motion/Typed';
 const ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_KEY ?? '';
 
 export default function Contact() {
-  const { profile, sections, t } = useLanguage();
+  const { profile, sections, t, language } = useLanguage();
   const shell = shellPropsFrom(sections, 'contact');
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(profile.email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  };
 
   return (
     <SectionShell {...shell}>
@@ -26,14 +39,8 @@ export default function Contact() {
           hero in the motion plan. */}
       <Sparks>
         <div className="grid gap-12 lg:grid-cols-2">
-          {/* `fill` here, where the note above says neither Reveal takes it.
-              That note held while both columns were plain stacks of content;
-              this one now anchors the robot to its own bottom edge, which
-              needs the column to actually reach the row's full height rather
-              than stopping at its text. It is the case the prop documents — a
-              grid item whose child must match its sibling. */}
-          <Reveal fill>
-            <div className="relative flex h-full flex-col">
+          <Reveal>
+            <div className="relative flex flex-col">
               <Typed
                 key={t.fastestWay}
                 text={t.fastestWay}
@@ -44,12 +51,56 @@ export default function Contact() {
                 {t.directEmailNotice}
               </p>
 
-              <a
-                href={`mailto:${profile.email}`}
-                className="mt-6 inline-block font-display text-2xl font-bold break-words text-accent"
-              >
-                {profile.email}
-              </a>
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <a
+                  href={`mailto:${profile.email}`}
+                  className="font-display text-xl sm:text-2xl font-bold break-words text-accent transition-colors hover:text-accent-bright"
+                >
+                  {profile.email}
+                </a>
+
+                <button
+                  type="button"
+                  onClick={handleCopyEmail}
+                  aria-label={copied ? t.emailCopied : t.copyEmail}
+                  title={copied ? t.emailCopied : t.copyEmail}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all duration-200 ${
+                    copied
+                      ? 'border-emerald-500/60 bg-emerald-500/15 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.2)]'
+                      : 'border-edge/70 bg-surface/50 text-muted hover:border-edge-bright hover:text-primary hover:bg-surface/80'
+                  }`}
+                >
+                  {copied ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 text-emerald-400" />
+                      <span>{t.emailCopied}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5" />
+                      <span>{t.copyEmail}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {profile.whatsapp && (
+                <div className="mt-4">
+                  <a
+                    href={`https://wa.me/62${profile.whatsapp.replace(/^0/, '').replace(/\D/g, '')}?text=${encodeURIComponent(
+                      language === 'id'
+                        ? 'Halo Daffa, saya melihat portofolio Anda dan tertarik untuk berdiskusi lebih lanjut.'
+                        : 'Hi Daffa, I came across your portfolio and would like to connect with you.',
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-400 transition-all duration-200 hover:bg-emerald-500/20 hover:border-emerald-500/70 hover:shadow-[0_0_15px_rgba(16,185,129,0.2)]"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    <span>{t.chatOnWhatsApp}</span>
+                  </a>
+                </div>
+              )}
 
               <ul aria-label={t.socialLinks} className="mt-8 flex flex-wrap gap-4">
                 {profile.socials.map((social) => (
@@ -65,46 +116,6 @@ export default function Contact() {
                   </li>
                 ))}
               </ul>
-
-
-              {/* The globe, in the slot the orb and the Spline robot held before it. The search that briefly replaced it is a
-                  floating widget now — the two were only ever competing for
-                  this column because both were in it.
-
-                  Absolutely positioned, which is the whole point: in flow the
-                  robot that preceded the orb was the tallest thing here and set
-                  the section's height itself. Out of flow it contributes
-                  nothing, so the section ends where the form ends.
-
-                  `-bottom-32` against `SectionShell`'s `py-32` puts its base on
-                  the footer border, and `overflow-hidden` cuts anything past
-                  that line instead of pushing into the footer.
-
-                  lg and up only. Below that it would sit between the social
-                  links and the form, pushing the thing people came to use
-                  further down a screen that is already tall. The `hidden` here
-                  and the capability gate inside the component overlap on
-                  purpose: this one keeps it out of the layout, that one keeps
-                  it off the network.
-
-                  `pointer-events-none` used to sit here and had to come off.
-                  The robot and the orb both read the *window* and normalised
-                  against their own rect, so neither needed this box to be
-                  hittable. The globe does: it listens on its own canvas for
-                  mousedown and mousemove, so with pointer events disabled on
-                  an ancestor it could not be dragged at all. The canvas already
-                  carried `cursor: grab` — nothing ever reached it.
-
-                  Measured before removing it, since an absolutely positioned
-                  box could easily be swallowing clicks: it starts 15px *below*
-                  the social links so it covers none of them, and the only
-                  thing it overlaps is 40px of footer, which has no links, no
-                  buttons and nothing focusable — just the credit marquee.
-                  Zoom is off, so the wheel handler returns before
-                  `preventDefault` and the page still scrolls over it. */}
-              <div className="absolute inset-x-0 -bottom-32 hidden h-[25rem] overflow-hidden lg:block">
-                <GlobeMark />
-              </div>
             </div>
           </Reveal>
 

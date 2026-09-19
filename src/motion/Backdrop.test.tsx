@@ -1,19 +1,19 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { observers } from '@/test/stubs';
 import Backdrop from './Backdrop';
 
-// The real Galaxy builds a WebGL context, which jsdom does not provide. Mocking
-// it keeps these tests about the gating decision rather than about ogl. The
+// The real WaveBackground builds a WebGL context, which jsdom does not provide. Mocking
+// it keeps these tests about the gating decision rather than about WebGL. The
 // props are recorded because the decisions this component makes are expressed
-// as props, and that is the only part of Galaxy testable without a GPU.
-const { galaxyProps } = vi.hoisted(() => ({
-  galaxyProps: [] as Record<string, unknown>[],
+// as props, and that is the only part of WaveBackground testable without a GPU.
+const { waveProps } = vi.hoisted(() => ({
+  waveProps: [] as Record<string, unknown>[],
 }));
 
-vi.mock('@/components/reactbits/Galaxy/Galaxy', () => ({
+vi.mock('@/components/lightswind/WaveBackground/WaveBackground', () => ({
   default: (props: Record<string, unknown>) => {
-    galaxyProps.push(props);
-    return <canvas data-testid="galaxy" />;
+    waveProps.push(props);
+    return <canvas data-testid="wave-background" />;
   },
 }));
 
@@ -52,25 +52,27 @@ function reportVisibility(isIntersecting: boolean) {
   const record = observers.at(-1);
   if (!record) throw new Error('Backdrop registered no IntersectionObserver');
   const target = [...record.targets][0];
-  record.emit([{ target, isIntersecting, intersectionRatio: isIntersecting ? 1 : 0 }]);
+  act(() => {
+    record.emit([{ target, isIntersecting, intersectionRatio: isIntersecting ? 1 : 0 }]);
+  });
 }
 
 describe('Backdrop', () => {
   beforeEach(() => {
     observers.length = 0;
-    galaxyProps.length = 0;
+    waveProps.length = 0;
   });
 
-  it('lets the starfield follow the pointer where a pointer can hover', async () => {
+  it('lets the wave background follow the pointer where a pointer can hover', async () => {
     setCapability({ reduced: false, memory: 16 });
     render(<Backdrop />);
-    await screen.findByTestId('galaxy');
+    await screen.findByTestId('wave-background');
 
-    expect(galaxyProps.at(-1)?.mouseInteraction).toBe(true);
+    expect(waveProps.at(-1)?.mouseInteraction).toBe(true);
   });
 
-  it('renders a static gradient and no starfield on a device that cannot hover', async () => {
-    // This used to assert something weaker — that the starfield still ran but
+  it('renders a static gradient and no wave background on a device that cannot hover', async () => {
+    // This used to assert something weaker — that the backdrop still ran but
     // with its pointer parallax switched off. The gate is stronger now, and
     // measurement is why: `webgl` tests memory, cores and Save-Data, none of
     // which a phone-emulating audit fakes, so a WebGL render loop was running
@@ -82,59 +84,59 @@ describe('Backdrop', () => {
     render(<Backdrop />);
 
     expect(screen.getByTestId('backdrop-fallback')).toBeInTheDocument();
-    await waitFor(() => expect(screen.queryByTestId('galaxy')).toBeNull());
+    await waitFor(() => expect(screen.queryByTestId('wave-background')).toBeNull());
   });
 
-  it('renders the starfield when the device is capable', async () => {
+  it('renders the wave background when the device is capable', async () => {
     setCapability({ reduced: false, memory: 16 });
     render(<Backdrop />);
 
-    expect(await screen.findByTestId('galaxy')).toBeInTheDocument();
+    expect(await screen.findByTestId('wave-background')).toBeInTheDocument();
   });
 
-  it('shows the starfield without waiting to be told it is visible', async () => {
+  it('shows the wave background without waiting to be told it is visible', async () => {
     // The hero is the top of the page, so the backdrop is on screen by
     // construction. If this needed an intersection callback first, a browser
     // that never delivered one would silently lose the backdrop.
     setCapability({ reduced: false, memory: 16 });
     render(<Backdrop />);
 
-    expect(await screen.findByTestId('galaxy')).toBeInTheDocument();
+    expect(await screen.findByTestId('wave-background')).toBeInTheDocument();
     expect(observers.length).toBe(1);
     expect(observers[0].targets.size).toBe(1);
   });
 
-  it('unmounts the starfield once it scrolls out of view', async () => {
+  it('pauses the wave background once it scrolls out of view', async () => {
     setCapability({ reduced: false, memory: 16 });
     render(<Backdrop />);
-    await screen.findByTestId('galaxy');
+    await screen.findByTestId('wave-background');
+    expect(waveProps.at(-1)?.active).toBe(true);
 
     reportVisibility(false);
 
-    // A hidden canvas keeps rendering, so this has to leave the DOM rather
-    // than merely be hidden.
-    await waitFor(() => expect(screen.queryByTestId('galaxy')).toBeNull());
-    expect(screen.getByTestId('backdrop-fallback')).toBeInTheDocument();
+    // Instead of unmounting the WebGL canvas (which forces an expensive shader
+    // recompilation freeze on scroll back), it pauses the animation loop when off-screen.
+    await waitFor(() => expect(waveProps.at(-1)?.active).toBe(false));
   });
 
-  it('brings the starfield back when it returns to view', async () => {
+  it('resumes the wave background when it returns to view', async () => {
     setCapability({ reduced: false, memory: 16 });
     render(<Backdrop />);
-    await screen.findByTestId('galaxy');
+    await screen.findByTestId('wave-background');
 
     reportVisibility(false);
-    await waitFor(() => expect(screen.queryByTestId('galaxy')).toBeNull());
+    await waitFor(() => expect(waveProps.at(-1)?.active).toBe(false));
 
     reportVisibility(true);
-    expect(await screen.findByTestId('galaxy')).toBeInTheDocument();
+    await waitFor(() => expect(waveProps.at(-1)?.active).toBe(true));
   });
 
-  it('renders a static gradient and no starfield under reduced motion', async () => {
+  it('renders a static gradient and no wave background under reduced motion', async () => {
     setCapability({ reduced: true, memory: 16 });
     render(<Backdrop />);
 
     expect(screen.getByTestId('backdrop-fallback')).toBeInTheDocument();
-    await waitFor(() => expect(screen.queryByTestId('galaxy')).toBeNull());
+    await waitFor(() => expect(screen.queryByTestId('wave-background')).toBeNull());
   });
 
   it('renders a static gradient on a device too weak for it', async () => {
@@ -142,7 +144,7 @@ describe('Backdrop', () => {
     render(<Backdrop />);
 
     expect(screen.getByTestId('backdrop-fallback')).toBeInTheDocument();
-    await waitFor(() => expect(screen.queryByTestId('galaxy')).toBeNull());
+    await waitFor(() => expect(screen.queryByTestId('wave-background')).toBeNull());
   });
 
   it('is hidden from assistive technology either way', () => {

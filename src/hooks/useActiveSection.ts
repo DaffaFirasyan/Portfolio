@@ -47,15 +47,27 @@ export function useActiveSection(sections: SectionMeta[]): ActiveSection {
   }, [order]);
 
   useEffect(() => {
+    let ticking = false;
+    let rafId = 0;
+
     const onScroll = () => {
-      setProgress(
-        scrollProgress(window.scrollY, document.body.scrollHeight, window.innerHeight),
-      );
+      if (!ticking) {
+        rafId = window.requestAnimationFrame(() => {
+          setProgress(
+            scrollProgress(window.scrollY, document.body.scrollHeight, window.innerHeight),
+          );
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (rafId) window.cancelAnimationFrame(rafId);
+    };
   }, []);
 
   useEffect(() => {

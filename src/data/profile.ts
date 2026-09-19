@@ -33,6 +33,7 @@ export const profile: Profile = {
   ],
   location: 'Bandung, Indonesia',
   email: 'firasyan.daffa123@gmail.com',
+  whatsapp: '087738992241',
   cvUrl: '/cv/daffa-firasyan-cv.pdf',
   avatarUrl: '/profile/avatar.webp',
   openToWork: true,

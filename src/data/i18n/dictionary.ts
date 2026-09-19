@@ -12,7 +12,7 @@ export const DICTIONARY = {
     openToWork: 'Open to work',
     notLooking: 'Not looking right now',
     viewProjects: 'View projects',
-    downloadCv: 'Download CV',
+    downloadCv: 'View / Download CV',
 
     // About
     publishedResearch: 'Published research',
@@ -70,6 +70,9 @@ export const DICTIONARY = {
       'Thanks — your message is on its way. I reply to anything specific, usually within a couple of days.',
     sendAnother: 'Send another message',
     emailDirectly: 'Email me directly instead',
+    copyEmail: 'Copy email',
+    emailCopied: 'Copied!',
+    chatOnWhatsApp: 'Chat on WhatsApp',
   },
   id: {
     // Navigation & Global
@@ -79,10 +82,10 @@ export const DICTIONARY = {
     builtWith: 'Dibuat dengan React',
 
     // Hero
-    openToWork: 'Terbuka untuk kerja',
-    notLooking: 'Sedang tidak mencari kerja',
+    openToWork: 'Terbuka untuk peluang baru',
+    notLooking: 'Sedang tidak mencari peluang baru',
     viewProjects: 'Lihat proyek',
-    downloadCv: 'Unduh CV',
+    downloadCv: 'Lihat / Unduh CV',
 
     // About
     publishedResearch: 'Publikasi Ilmiah',
@@ -98,10 +101,10 @@ export const DICTIONARY = {
     all: 'Semua',
     noProjectsYet: (cat: string) => `Belum ada proyek di kategori ${cat} saat ini.`,
     showAllProjects: 'Tampilkan semua proyek',
-    viewCaseStudy: 'Lihat studi kasus',
-    problem: 'Masalah',
+    viewCaseStudy: 'Lihat detail proyek',
+    problem: 'Tantangan',
     solution: 'Solusi',
-    outcome: 'Hasil',
+    outcome: 'Dampak',
     stack: 'Teknologi',
     liveSite: 'Kunjungi situs',
     sourceCode: 'Kode sumber',
@@ -111,36 +114,39 @@ export const DICTIONARY = {
 
     // Education & Certificates
     certificatesHeading: 'Sertifikat',
-    verifiedScan: 'Scan sertifikat terverifikasi',
+    verifiedScan: 'Sertifikat terverifikasi',
     verifyCredential: 'Verifikasi kredensial',
     previous: 'Sebelumnya',
     next: 'Berikutnya',
     previousCertAria: 'Sertifikat sebelumnya',
     nextCertAria: 'Sertifikat berikutnya',
     scanError: (issuer: string) =>
-      `Scan sertifikat ini tidak dapat dimuat. Diterbitkan oleh ${issuer}.`,
+      `Gambar sertifikat tidak dapat dimuat. Diterbitkan oleh ${issuer}.`,
     gpaLabel: 'IPK',
     catProfessional: 'Sertifikasi profesional',
     catCourse: 'Kursus',
-    catWorkshop: 'Pelatihan',
+    catWorkshop: 'Workshop',
     catCompetition: 'Kompetisi',
     catBootcamp: 'Bootcamp',
 
     // Contact
     fastestWay:
-      'Cara tercepat menghubungi saya adalah melalui email. Saya membaca setiap pesan dan membalas pesan yang spesifik.',
+      'Cara paling cepat menghubungi saya adalah melalui email. Saya rutin membaca pesan masuk dan siap berdiskusi lebih lanjut.',
     directEmailNotice:
-      'Jika Anda memilih untuk tidak menggunakan formulir, alamat email tertera langsung di sini.',
-    socialLinks: 'Tautan sosial',
+      'Jika Anda lebih nyaman tanpa formulir, silakan kirim email langsung ke alamat di bawah ini.',
+    socialLinks: 'Media sosial & profil',
     nameLabel: 'Nama',
     emailLabel: 'Email',
     messageLabel: 'Pesan',
     sendButton: 'Kirim pesan',
     sendingButton: 'Mengirim…',
     sentMessage:
-      'Terima kasih — pesan Anda sedang dikirim. Saya membalas setiap pesan spesifik, biasanya dalam 1-2 hari kerja.',
+      'Terima kasih — pesan Anda sudah terkirim. Saya akan membalasnya sesegera mungkin, biasanya dalam 1–2 hari kerja.',
     sendAnother: 'Kirim pesan lainnya',
-    emailDirectly: 'Kirim email langsung kepada saya',
+    emailDirectly: 'Kirim email langsung',
+    copyEmail: 'Salin email',
+    emailCopied: 'Tersalin!',
+    chatOnWhatsApp: 'Chat via WhatsApp',
   },
 } as const;
 

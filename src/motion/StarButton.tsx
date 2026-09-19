@@ -10,6 +10,9 @@ interface StarButtonProps {
   href?: string;
   type?: 'button' | 'submit';
   download?: boolean;
+  target?: string;
+  rel?: string;
+  ariaLabel?: string;
   onClick?: () => void;
 }
 
@@ -31,13 +34,24 @@ export default function StarButton({
   href,
   type,
   download,
+  target,
+  rel,
+  ariaLabel,
   onClick,
 }: StarButtonProps) {
   const { animate } = useMotionAllowed();
 
   const control =
     as === 'a' ? (
-      <a href={href} download={download} onClick={onClick} className={className}>
+      <a
+        href={href}
+        download={download}
+        target={target}
+        rel={rel}
+        aria-label={ariaLabel}
+        onClick={onClick}
+        className={className}
+      >
         {children}
       </a>
     ) : (
