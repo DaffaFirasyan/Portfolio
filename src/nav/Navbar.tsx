@@ -24,7 +24,7 @@ import NodeRailNav from './NodeRailNav';
  * without opening the menu first.
  */
 export default function Navbar() {
-  const { profile, sections } = useLanguage();
+  const { profile, sections, language } = useLanguage();
   const { activeId, progress } = useActiveSection(sections);
   const { scrollTo } = useLenis();
   const scrolled = useScrolledPast(80);
@@ -94,7 +94,7 @@ export default function Navbar() {
               rel="noopener noreferrer"
               className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-accent px-4 text-sm font-semibold text-accent transition-colors hover:bg-accent/10"
             >
-              <span>CV</span>
+              <span>{language === 'id' ? 'CV (ID)' : 'CV (EN)'}</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"

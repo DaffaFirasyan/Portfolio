@@ -31,7 +31,7 @@ export const profileId: Profile = {
   location: 'Bandung, Indonesia',
   email: profile.email,
   whatsapp: profile.whatsapp,
-  cvUrl: profile.cvUrl,
+  cvUrl: '/cv/daffa-firasyan-cv-id.pdf',
   avatarUrl: profile.avatarUrl,
   openToWork: true,
   socials: profile.socials,

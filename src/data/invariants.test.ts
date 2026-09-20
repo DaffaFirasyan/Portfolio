@@ -6,6 +6,7 @@ import { LIMITS, longest, STRESS_RATIO } from './constraints';
 import { education } from './education';
 import { experiences } from './experiences';
 import { profile } from './profile';
+import { profileId } from './i18n/id';
 import { projects } from './projects';
 import { SECTIONS, shellProps } from './sections';
 import { site } from './site';
@@ -358,6 +359,7 @@ describe('assets', () => {
     const referenced = [
       profile.avatarUrl,
       profile.cvUrl,
+      profileId.cvUrl,
       site.ogImage,
       ...projects.map((p) => p.thumbnail),
       ...projects.flatMap((p) => p.images ?? []),

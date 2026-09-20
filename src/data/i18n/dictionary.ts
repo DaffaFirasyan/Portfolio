@@ -12,7 +12,10 @@ export const DICTIONARY = {
     openToWork: 'Open to work',
     notLooking: 'Not looking right now',
     viewProjects: 'View projects',
-    downloadCv: 'View / Download CV',
+    downloadCv: 'View / Download CV (EN)',
+    alternateCvNotice: 'Also available:',
+    alternateCvLabel: 'Indonesian CV (ID)',
+    alternateCvUrl: '/cv/daffa-firasyan-cv-id.pdf',
 
     // About
     publishedResearch: 'Published research',
@@ -85,7 +88,10 @@ export const DICTIONARY = {
     openToWork: 'Terbuka untuk peluang baru',
     notLooking: 'Sedang tidak mencari peluang baru',
     viewProjects: 'Lihat proyek',
-    downloadCv: 'Lihat / Unduh CV',
+    downloadCv: 'Lihat / Unduh CV (ID)',
+    alternateCvNotice: 'Tersedia juga:',
+    alternateCvLabel: 'English Resume (EN)',
+    alternateCvUrl: '/cv/daffa-firasyan-cv-en.pdf',
 
     // About
     publishedResearch: 'Publikasi Ilmiah',
