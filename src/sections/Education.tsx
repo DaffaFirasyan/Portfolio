@@ -169,8 +169,8 @@ export default function Education() {
               )}
               <span className="relative z-10">{getCategoryLabel(name)}</span> <span className={`relative z-10 rounded-full px-1.5 py-0.5 font-mono text-[10px] sm:text-[11px] transition-colors ${
                 isSelected
-                  ? 'bg-accent/25 text-accent font-bold'
-                  : 'bg-surface/80 text-muted/80 border border-edge/40'
+                  ? 'bg-accent/15 text-accent font-bold'
+                  : 'bg-surface/80 text-muted border border-edge/40'
               }`}>{count}</span></button>
           );
         })}
@@ -216,7 +216,7 @@ export default function Education() {
                           <span>{language === 'id' ? 'Unggulan' : 'Featured'}</span>
                         </span>
                       ) : (
-                        <span className="font-mono text-[8px] uppercase tracking-wider text-muted/60 shrink-0">
+                        <span className="font-mono text-[8px] uppercase tracking-wider text-muted shrink-0">
                           {c.category}
                         </span>
                       )}
@@ -251,9 +251,11 @@ export default function Education() {
                           </li>
                         ))}
                         {c.skills.length > 1 && (
-                          <span className="font-mono text-[9px] text-muted/60 self-center">
-                            +{c.skills.length - 1}
-                          </span>
+                          <li className="self-center">
+                            <span className="font-mono text-[9px] text-muted">
+                              +{c.skills.length - 1}
+                            </span>
+                          </li>
                         )}
                       </ul>
                     )}

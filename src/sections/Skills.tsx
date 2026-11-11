@@ -72,8 +72,8 @@ export default function Skills() {
                   <span
                     className={`relative z-10 rounded-full px-1.5 py-0.5 font-mono text-[10px] transition-colors ${
                       isSelected
-                        ? 'bg-accent/25 text-accent font-bold'
-                        : 'bg-surface/80 text-muted/80 border border-edge/40'
+                        ? 'bg-accent/15 text-accent font-bold'
+                        : 'bg-surface/80 text-muted border border-edge/40'
                     }`}
                   >
                     {tab.count}
