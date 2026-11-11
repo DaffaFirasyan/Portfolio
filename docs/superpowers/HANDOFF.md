@@ -216,7 +216,7 @@ Measured at 1280: the lead is 1,078px wide and 337px tall with a 539×337 image;
 
 Landed 2026-08-21/22 across five commits, from the owner's CV and his own accounts of each project. **The architectural promise held**: `git show --stat` on `514ff25` and `1fd57e7` touches `src/data/`, `public/`, `index.html` and tests, and not one component. That was spec §11 criterion 3, written before there was any content to test it with, and it is now tested.
 
-**What is on the page:** Raden Daffa Firasyan Adikusumah (short form "Daffa Firasyan" everywhere, and the comment in `profile.ts` says why), Bachelor of Information Systems from Telkom University at 3.64, three engineering roles — Telkom University, Pertamina Hulu Indonesia, Arranet — fourteen certificates, four projects, and the real avatar, CV and OG cover.
+**What is on the page:** Raden Daffa Firasyan Adikusumah (short form "Daffa Firasyan" everywhere, and the comment in `profile.ts` says why), Bachelor of Information Systems from Telkom University at 3.65, Cum Laude, three engineering roles — Telkom University (freelance), Pertamina Hulu Indonesia, PT Sinar Harsa Grasia (formerly written "Arranet" here) — fourteen certificates, four projects, and the real avatar, CV and OG cover.
 
 ### Experience is engineering only, and nothing is current
 
@@ -226,7 +226,7 @@ Three student-organisation roles — media, human-capital and external-relations
 
 Nothing is hidden by the removal: the CV is a download on the page and carries the complete record. The portfolio is the curated subset; the CV is the whole one.
 
-**The consequence to accept is that no role is current.** The timeline ends September 2025 and no pulse dot renders anywhere. That is simply true of a fresh graduate looking for work, and `profile.openToWork` is what says so.
+**The consequence to accept is that no role is current.** The timeline ends January 2026 and no pulse dot renders anywhere. That is simply true of a fresh graduate looking for work, and `profile.openToWork` is what says so.
 
 **Two tests had encoded a fact about the owner's life as an invariant, and it has now been wrong in both directions.** `invariants.test.ts` first insisted on *at most* one current role, which held only while the content was invented — he genuinely held two at once. It was then changed to insist on *at least* one, and removing the organisational roles left zero and failed it. Both versions were making the same mistake as the five deleted stress clauses: asserting something about a person rather than about the data. What survives is the part that is a real invariant — "present" must mean present, so an ongoing entry still needs a real start date — which is vacuous at zero, and correctly so. The companion assertion in `sections-lower.test.tsx` moved from `getAllByText` to `queryAllByText`, because `getAllBy*` throws on an empty result and made zero literally inexpressible.
 
@@ -629,3 +629,11 @@ The short version, because it is what makes the rest trustworthy:
 - **Prove the guard fails.** Nearly every guard here was checked by breaking what it watches — the import boundary, the asset invariant, the honeypot, the band clamp, the metadata drift, the navigation seam, the render loop, the section outline, the CSS-variable-on-canvas bug. A guard nobody has seen fail is a guess.
 - **Measure in a browser, then say the number.** Four visual defects shipped with a green suite before this became habit. Every layout claim in this file has a measurement behind it.
 - **Distrust a measurement that is impossible.** A `fixed` header claiming to be 1128px wide inside a 320px viewport, a page overflow that appears only without a reload, an element at `opacity: 1` that GSAP never touched — each looked like a bug and was not.
+
+## The site is bilingual now (added by the owner, Sept 2026, found 2026-11-11)
+
+Ten commits landed on `origin/main` outside the sessions this file describes: an EN/ID language toggle (`src/context/LanguageContext.tsx`, `src/components/ui/LanguageToggle.tsx`), a complete Indonesian copy of the content in `src/data/i18n/id.ts` plus UI strings in `dictionary.ts`, two CVs (`public/cv/daffa-firasyan-cv-en.pdf` and `-id.pdf`, replacing `daffa-firasyan-cv.pdf`), a `Data Analyst` role, a WhatsApp number in `profile.ts`, and redesigned Education, Skills, Contact and Projects.
+
+**The rule "all copy lives in `src/data/`" now means two files.** Changing English content in `experiences.ts`, `education.ts`, `projects.ts` or `profile.ts` without the matching change in `i18n/id.ts` leaves the Indonesian site stale, and no test catches it. Skills are the exception: `skillCategoriesId` is derived from `skillCategories`.
+
+**On 2026-11-11 the CV was reconciled against the owner's two CVs:** Telkom University is `Freelance` (type `freelance`), not `Contract`; the Telkom highlight keeps WhatsApp and Shopee, which the CV omits but the owner confirmed are real; Bizagi, SAP ERP and Cisco Packet Tracer were removed from Skills because the CV does not list them; Node.js, Next.js, MongoDB, Looker, Pentaho and Jira were added, deliberately without a `level`. The three organisational roles stay off the Experience section by the owner's earlier decision.

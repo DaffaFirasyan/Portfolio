@@ -26,6 +26,8 @@ export const skillCategories: SkillCategory[] = [
       { name: 'TypeScript', icon: 'code', level: 'intermediate' },
       { name: 'JavaScript', icon: 'code', level: 'advanced' },
       { name: 'C#', icon: 'code', level: 'intermediate' },
+      { name: 'Node.js', icon: 'server' },
+      { name: 'Next.js', icon: 'component' },
     ],
   },
   {
@@ -95,6 +97,9 @@ export const skillCategories: SkillCategory[] = [
       { name: 'Vercel', icon: 'triangle', level: 'intermediate' },
       { name: 'Hostinger', icon: 'triangle', level: 'intermediate', relatedProjectIds: ['village-portal'] },
       { name: 'Postman', icon: 'wrench', level: 'advanced' },
+      { name: 'MongoDB', icon: 'database' },
+      { name: 'Looker', icon: 'chart' },
+      { name: 'Pentaho', icon: 'chart' },
       { name: 'Swagger UI', icon: 'wrench', level: 'intermediate' },
     ],
   },
@@ -104,10 +109,8 @@ export const skillCategories: SkillCategory[] = [
     skills: [
       { name: 'Figma', icon: 'pen', level: 'intermediate' },
       { name: 'Visual Paradigm', icon: 'pen', level: 'intermediate' },
-      { name: 'Bizagi', icon: 'pen', level: 'intermediate' },
-      { name: 'SAP ERP', icon: 'wrench', level: 'basic' },
-      { name: 'Cisco Packet Tracer', icon: 'wrench', level: 'basic' },
       { name: 'Research Methods', icon: 'flask', level: 'intermediate' },
+      { name: 'Jira', icon: 'wrench' },
     ],
   },
 ];

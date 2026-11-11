@@ -28,7 +28,7 @@ export const profile: Profile = {
     // the CV: the contract role and its Laravel platform, the admin panel over
     // news and galleries and product listings, the live domain, and the 7,682
     // residents. Nothing here is a sentiment put in his mouth.
-    'Not all of it is research. On a contract at Telkom University I built and deployed the Laravel platform that Banjarsari village runs on: a transparency portal beside a catalogue for its local businesses, with an admin panel through which village staff publish their own news, galleries and product listings. It has been live at banjarsarigarut.id since 2025, for a village of 7,682 people.',
+    'Not all of it is research. As a freelance developer for Telkom University I built and deployed the Laravel platform that Banjarsari village runs on: a transparency portal beside a catalogue for its local businesses, with an admin panel through which village staff publish their own news, galleries and product listings. It has been live at banjarsarigarut.id since 2025, for a village of 7,682 people.',
     'I am looking for work where the hard part is the domain rather than the framework: messy operational data, unclear requirements, and users who will tell you plainly when the output is wrong.',
   ],
   location: 'Bandung, Indonesia',

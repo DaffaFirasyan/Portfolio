@@ -25,7 +25,7 @@ export const profileId: Profile = {
   bio: [
     'Lulusan Sistem Informasi Telkom University yang berfokus pada rekayasa perangkat lunak dan kecerdasan buatan. Untuk tugas akhir, saya merancang sistem rekomendasi pemeliharaan alat berat: menggabungkan LLM dan Knowledge Graph dari riwayat perbaikan agar hasil analisis akurat serta dapat diverifikasi. Proyek ini meraih skor kepuasan 4.73/5, kepatuhan prosedur 92.9%, dan berhasil melewati seluruh 39 uji fungsional.',
     'Pengalaman kerja saya berpusat pada integrasi data dan kebutuhan operasional nyata. Di Pertamina Hulu Indonesia, saya mengembangkan chatbot asisten cerdas untuk 350+ portal internal berbasis .NET Core 8, microservices Python, dan semantic search agar rujukan dokumen selalu transparan. Sebelumnya di PT Sinar Harsa Grasia, saya membangun platform Django untuk memantau data sensor IoT peternakan secara real-time.',
-    'Selain sistem internal, saya juga terbiasa merilis produk web ke lingkungan produksi publik. Melalui proyek kontrak di Telkom University, saya merancang platform Laravel untuk Desa Banjarsari (Garut) yang menggabungkan portal layanan warga dan katalog digital UMKM lokal. Sistem ini sudah live di banjarsarigarut.id sejak 2025 dan aktif melayani kebutuhan informasi serta geliat ekonomi bagi lebih dari 7.600 warga.',
+    'Selain sistem internal, saya juga terbiasa merilis produk web ke lingkungan produksi publik. Sebagai freelancer di Telkom University, saya merancang platform Laravel untuk Desa Banjarsari (Garut) yang menggabungkan portal layanan warga dan katalog digital UMKM lokal. Sistem ini sudah live di banjarsarigarut.id sejak 2025 dan aktif melayani kebutuhan informasi serta geliat ekonomi bagi lebih dari 7.600 warga.',
     'Saya antusias mendalami tantangan rekayasa perangkat lunak dan analitik data: merancang arsitektur sistem yang andal, efisien, serta menghadirkan dampak positif bagi para penggunanya.',
   ],
   location: 'Bandung, Indonesia',
@@ -55,9 +55,9 @@ export const EXPERIENCE_TYPE_LABEL_ID: Record<ExperienceType, string> = {
 export const experiencesId: Experience[] = [
   {
     id: 'telkom-fullstack',
-    role: 'Contract Full-Stack Developer',
+    role: 'Freelance Full-Stack Developer',
     organization: 'Telkom University',
-    type: 'work',
+    type: 'freelance',
     location: 'Bandung',
     startDate: '2025-06',
     endDate: '2026-01',
@@ -65,7 +65,7 @@ export const experiencesId: Experience[] = [
       'Mengembangkan platform web terintegrasi berbasis Laravel untuk layanan publik desa dan katalog e-commerce UMKM lokal.',
     highlights: [
       'Membangun panel admin lengkap untuk kelola berita, galeri desa, struktur organisasi, dan konten dinamis secara mandiri.',
-      'Membuat katalog produk UMKM dengan pencarian, filter kategori, serta fitur import data massal via file Excel.',
+      'Membuat katalog produk UMKM dengan pencarian, filter kategori, import data massal via Excel, dan penjualan lewat WhatsApp serta Shopee.',
       'Merancang dashboard analitik interaktif untuk melacak kunjungan harian warga, produk UMKM terlaris, dan performa konten.',
       'Melakukan deployment produksi di Hostinger, konfigurasi DNS domain banjarsarigarut.id, dan optimasi database MySQL.',
     ],
@@ -131,7 +131,7 @@ export const projectsId: Project[] = [
     title: 'Portal Profil & Katalog UMKM Banjarsari',
     category: 'Web',
     year: 2025,
-    role: 'Contract developer di Telkom University',
+    role: 'Freelance developer di Telkom University',
     problem:
       'Warga dan aparatur desa belum memiliki platform digital terpadu untuk transparansi profil desa maupun wadah promosi produk UMKM lokal.',
     solution:
@@ -205,7 +205,7 @@ export const educationId: Education[] = [
     gpa: '3.65 / 4.00 (Cumlaude)',
     highlights: [
       'Tugas akhir: Sistem pendukung keputusan LLM dengan RAG dan KG-RAG (skor evaluasi 4.73/5, akurasi prosedur 92.9%, lulus 39/39 uji fungsional).',
-      'Penulis pertama publikasi ilmiah mengenai RAG & KG-RAG untuk rekomendasi pemeliharaan aset (dipresentasikan di ICADEIS 2026 & terbit di IEEE).',
+      'Penulis pertama publikasi ilmiah mengenai RAG & KG-RAG untuk rekomendasi pemeliharaan aset (dipresentasikan di ICADEIS 2026 & terbit di IEEE Xplore pada Agustus 2026).',
     ],
     logoUrl: '/education/telkom-university.webp',
   },

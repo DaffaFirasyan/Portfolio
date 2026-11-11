@@ -39,9 +39,9 @@ export const EXPERIENCE_TYPE_LABEL: Record<ExperienceType, string> = {
 export const experiences: Experience[] = [
   {
     id: 'telkom-fullstack',
-    role: 'Contract Full-Stack Developer',
+    role: 'Freelance Full-Stack Developer',
     organization: 'Telkom University',
-    type: 'work',
+    type: 'freelance',
     location: 'Bandung',
     startDate: '2025-06',
     endDate: '2026-01',
@@ -49,7 +49,7 @@ export const experiences: Experience[] = [
       'Built a monolithic Laravel platform pairing a village transparency portal with an e-commerce module for local MSMEs.',
     highlights: [
       'Engineered an admin panel for CRUD over news, multimedia galleries, organizational structures and dynamic content.',
-      'Built a product catalogue with search, category filters and Excel bulk import for efficient product data management.',
+      'Built a product catalogue with search, category filters and Excel bulk import, closing sales through WhatsApp and Shopee.',
       'Designed interactive statistical dashboards to monitor daily visitor traffic, most-viewed products and content metrics.',
       'Deployed and configured the application on Hostinger with domain setup, production configuration and database tuning.',
     ],

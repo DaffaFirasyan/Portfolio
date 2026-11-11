@@ -67,7 +67,7 @@ export const projects: Project[] = [
     title: 'Village Profile and MSME Commerce Portal',
     category: 'Web',
     year: 2025,
-    role: 'Contract developer at Telkom University',
+    role: 'Freelance developer at Telkom University',
     problem:
       'Banjarsari had no single place to find what its administration was doing, who ran it, or what its 7,682 residents were selling — it lived in noticeboards and group chats.',
     solution:

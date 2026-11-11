@@ -17,7 +17,7 @@ export const education: Education[] = [
       // and a truncated title inside quotation marks is worse than none — so
       // the title is dropped rather than clipped. About carries it in full,
       // from Crossref, next to the DOI.
-      'First-authored a paper on RAG and KG-RAG for explainable maintenance, presented at ICADEIS 2026 and published by IEEE.',
+      'First-authored a paper on RAG and KG-RAG for explainable maintenance, presented at ICADEIS 2026 and published in IEEE Xplore in August 2026.',
     ],
     logoUrl: '/education/telkom-university.webp',
   },
