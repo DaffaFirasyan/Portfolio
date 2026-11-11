@@ -95,7 +95,7 @@ export default function Hero() {
                     href={t.alternateCvUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-accent underline underline-offset-4 transition-colors hover:text-accent-bright"
+                    className="-my-1.5 inline-block py-1.5 text-accent underline underline-offset-4 transition-colors hover:text-accent-bright"
                   >
                     {t.alternateCvLabel} ↗
                   </a>

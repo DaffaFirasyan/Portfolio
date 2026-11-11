@@ -47,7 +47,7 @@ export default function LanguageToggle({ className = '' }: LanguageToggleProps) 
         onClick={() => setLanguage('en')}
         aria-pressed={language === 'en'}
         title="English"
-        className={`group relative flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all duration-200 active:scale-95 ${
+        className={`group relative flex items-center gap-1.5 rounded-full px-2.5 py-1.5 transition-all sm:px-3 duration-200 active:scale-95 ${
           language === 'en'
             ? 'bg-accent font-bold text-void shadow-sm shadow-accent/25'
             : 'text-muted hover:bg-white/5 hover:text-primary'
@@ -62,7 +62,7 @@ export default function LanguageToggle({ className = '' }: LanguageToggleProps) 
         onClick={() => setLanguage('id')}
         aria-pressed={language === 'id'}
         title="Bahasa Indonesia"
-        className={`group relative flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all duration-200 active:scale-95 ${
+        className={`group relative flex items-center gap-1.5 rounded-full px-2.5 py-1.5 transition-all sm:px-3 duration-200 active:scale-95 ${
           language === 'id'
             ? 'bg-accent font-bold text-void shadow-sm shadow-accent/25'
             : 'text-muted hover:bg-white/5 hover:text-primary'

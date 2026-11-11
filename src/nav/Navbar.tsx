@@ -84,7 +84,7 @@ export default function Navbar() {
             {activeLabel}
           </p>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <LanguageToggle />
 
             <StarButton
@@ -92,7 +92,9 @@ export default function Navbar() {
               href={profile.cvUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-accent px-4 text-sm font-semibold text-accent transition-colors hover:bg-accent/10"
+              // Below 430px the three controls plus the logo measure 383px and push Menu off the
+              // right edge (measured at 320, 360 and 375). The link moves into the menu instead.
+              className="hidden min-h-11 items-center gap-1.5 rounded-full border border-accent px-4 text-sm font-semibold text-accent transition-colors hover:bg-accent/10 min-[430px]:inline-flex"
             >
               <span>{language === 'id' ? 'CV (ID)' : 'CV (EN)'}</span>
               <svg
@@ -153,6 +155,16 @@ export default function Navbar() {
                   </a>
                 </li>
               ))}
+              <li className="min-[430px]:hidden">
+                <a
+                  href={profile.cvUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex min-h-11 items-center gap-1.5 rounded-lg px-3 font-semibold text-accent"
+                >
+                  {language === 'id' ? 'CV (ID)' : 'CV (EN)'} ↗
+                </a>
+              </li>
             </ul>
           </nav>
         )}
