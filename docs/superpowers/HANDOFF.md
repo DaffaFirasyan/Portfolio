@@ -81,11 +81,11 @@ Verified against the running site: `/`, `/robots.txt`, `/sitemap.xml`, `/favicon
 - **Look at the fourteen certificate scans.** He has confirmed he checked, and the repo is public so they are already permanent in history — but no test can check redaction and nothing else will catch it.
 - **Revoke the leaked token**, below.
 
-### A security finding from 2026-08-22, and it is the owner's to close
+### A security finding from 2026-08-22 — closed 2026-11-11
 
 While diagnosing why `git push` failed, `cmdkey /list` showed **a GitHub personal access token stored in plain text as a credential username** on this machine — the target read `git:https://<token>@github.com`. Anything able to run `cmdkey /list` there can read it.
 
-**It must be revoked** at *GitHub → Settings → Developer settings → Personal access tokens*, if that has not happened already. The token value is deliberately **not** written into this file, because the repository is public.
+**It was revoked** (owner's report, 2026-11-11) and its Credential Manager entry deleted — verified: no entry named after a `ghp_` token remains, and `git ls-remote` still authenticates through the other entries. Had it not been, it would have needed revoking at *GitHub → Settings → Developer settings → Personal access tokens*, if that has not happened already. The token value is deliberately **not** written into this file, because the repository is public.
 
 That stale entry is also what broke the push, and the mechanism is worth knowing. Git Credential Manager found a credential, sent the dead token, GitHub rejected it — and because *a* credential was found, GCM never prompted for a fresh login, so no browser window ever appeared and the error looked like a bad password. Clearing the stale `git:https://…@github.com` entries and pushing again is what fixed it.
 
