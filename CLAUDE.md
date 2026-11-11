@@ -8,7 +8,7 @@ One-page portfolio site. Vite 8 + React 19 + TypeScript 6 + Tailwind 4, tested w
 
 Work is sequenced as plans in `docs/superpowers/plans/`, executed one task at a time. `docs/superpowers/specs/` is the authority on design decisions.
 
-**The site is live at https://daffafirasyan-portfolio.vercel.app** as of 2026-08-22, deploying from `main` on `https://github.com/DaffaFirasyan/Portfolio.git` — a **public** repo. A push to `main` triggers a Vercel rebuild.
+**The site is live at https://daffafirasyan.vercel.app** as of 2026-08-22, deploying from `main` on `https://github.com/DaffaFirasyan/Portfolio.git` — a **public** repo. A push to `main` triggers a Vercel rebuild.
 
 The repository being public matters when adding files: anything committed is permanent in history even if deleted later.
 

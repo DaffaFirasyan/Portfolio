@@ -66,7 +66,7 @@ None of this is guessed or invented — the project's standing rule is that a po
 
 ### Then, in order
 
-**It is live.** [https://daffafirasyan-portfolio.vercel.app](https://daffafirasyan-portfolio.vercel.app) — deployed 2026-08-22, from `main` on GitHub.
+**It is live.** [https://daffafirasyan.vercel.app](https://daffafirasyan.vercel.app) — deployed 2026-08-22, from `main` on GitHub.
 
 Verified against the running site: `/`, `/robots.txt`, `/sitemap.xml`, `/favicon.svg`, the CV PDF and the OG cover all return **200** with the right content types, and `vercel.json`'s three security headers are being applied (`nosniff`, `strict-origin-when-cross-origin`, `SAMEORIGIN`).
 
