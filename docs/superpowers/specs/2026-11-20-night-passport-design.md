@@ -46,6 +46,7 @@ Structure: one centred reading column, hairlines instead of boxes, no cards, no 
 - **Three secret stamps:** catch the shooting star, switch language, open the CV or copy the email.
 - **Stamp effect:** CSS press (reusing the `press` keyframes idea), a short `navigator.vibrate` where available, and an optional sound.
 - **Rewards:** 7 stamps reveal a closing note from the owner and promote the contact call to action. 10 stamps draw a constellation of the owner's initials in the sky.
+- The seven-stamp reward (closing note and a call to write) lives in the passport sheet; the Contact section itself does not change.
 - **No gating.** Every word and the contact path are available without any stamp. Stamps add, never hide.
 - Progress is stored in `localStorage` inside `try/catch`, as an array of stamp ids. No personal data. The page renders correctly when storage is unavailable.
 - Earning a stamp is announced in an `aria-live="polite"` region.
@@ -54,8 +55,8 @@ Structure: one centred reading column, hairlines instead of boxes, no cards, no 
 ## 4. Weight policy (hard limits)
 
 - Tiers: **full**, **lite** (half the stars, 30 fps, no trail), **still** (one frame, redrawn on resize and theme change).
-- Selection: median frame time of the first 60 frames above 24 ms drops one tier; `prefers-reduced-motion` goes straight to still; `navigator.connection.saveData` starts at lite. A tier never moves back up within a visit.
-- Loop pauses when the canvas is offscreen (IntersectionObserver) or the tab is hidden; device pixel ratio capped at 2.
+- Selection: median drawing work (`step` + `draw`) of the first 60 drawn frames above 8 ms drops one tier, measured as work rather than the gap between frames so a 30 Hz power-saver is not mistaken for a slow device, and each tier gets one window; `prefers-reduced-motion` goes straight to still; `navigator.connection.saveData` starts at lite. A tier never moves back up within a visit.
+- Loop pauses while the tab is hidden (a fixed canvas never leaves the viewport, so there is no IntersectionObserver); device pixel ratio is capped at 2 in the full tier and 1 in lite and still.
 - No WebGL, no animation library, no vendored kit. JS stays under about 100 KB gzip. CSS animations stay behind `@media (prefers-reduced-motion: no-preference)` or `motion-reduce:`.
 - Sound: WebAudio oscillators created on first user opt-in (no files), off by default, toggle inside the passport sheet, remembered in `localStorage`.
 - Targets, measured as the median of three production-build runs: Lighthouse mobile Performance ≥ 90, desktop ≥ 95, Accessibility / Best Practices / SEO 100; axe-core clean in dark, light, tablet and phone; no horizontal overflow from 320 to 1440 px; frame time of the full tier measured in the browser.
@@ -66,11 +67,11 @@ Structure: one centred reading column, hairlines instead of boxes, no cards, no 
 src/sky/        engine.ts (pure: seeded stars, layers, constellation paths, tier choice),
                 SkyCanvas.tsx (canvas, loop, visibility, resize)
 src/passport/   stamps.ts (ids, rules), PassportProvider.tsx (state + storage),
-                useDwell.ts (5 s + scrolled-past), Passport.tsx (chip + sheet), sound.ts
+                useStampOnRead.ts (5 s + scrolled-past), Passport.tsx (chip + sheet), sound.ts
 ```
 
 - `App.tsx` mounts `SkyCanvas` once, behind the existing provider tree, and the passport chip.
-- Each `SectionShell` gets a stamp slot at its end and reports its element to `useDwell`.
+- Each `SectionShell` gets a stamp slot at its end and reports its element to `useStampOnRead`.
 - `src/index.css` gets the new tokens; the plate classes (`.plate`, `.stamp`, `.rule`, `.sweep`) are replaced or removed as the new look requires.
 - Documents to update with the build: `DESIGN.md`, `.impeccable/design.json`, `CLAUDE.md` (motion rule becomes "CSS and one canvas 2D sky, no libraries"), `HANDOFF.md`, memory index.
 
@@ -91,3 +92,5 @@ WebGL or 3D, audio files, gyroscope tilt, server-side counters or analytics, lea
 - The design-plate work is still uncommitted on `redesign/design-plate`. The owner commits it before this branch is cut, otherwise the new branch starts from an uncommitted tree.
 - Merging to `main` redeploys the live site; the owner decides when.
 - Not yet checked on a physical phone.
+- The comet only crosses in the full tier, so readers with reduced motion cannot earn the Comet stamp or the ten-stamp reward. The seven-stamp reward and every word of content stay available to them.
+- Constellations are a cluster of the five near-layer stars closest to an anchor star chosen by the project's id, not a hand-drawn shape.

@@ -48,4 +48,18 @@ describe('App', () => {
       '#about',
     );
   });
+
+  it('mounts the decorative sky and the passport chip', () => {
+    localStorage.clear();
+    const { container } = render(<App />);
+    expect(container.querySelector('canvas')).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getByRole('button', { name: /passport 0\/10/i })).toBeInTheDocument();
+  });
+
+  it('gives every section a stamp slot', () => {
+    const { container } = render(<App />);
+    for (const meta of SECTIONS) {
+      expect(container.querySelector(`[data-stamp="${meta.id}"]`), meta.id).not.toBeNull();
+    }
+  });
 });

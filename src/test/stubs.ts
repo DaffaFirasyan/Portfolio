@@ -143,3 +143,12 @@ if (!('fonts' in document)) {
     },
   });
 }
+
+/**
+ * jsdom has no canvas: `getContext` logs "not implemented" and returns
+ * undefined. A stub that says "no 2D context" keeps the log quiet and exercises
+ * the same path a browser without canvas would take. Tests that want to see
+ * drawing spy on this and return a fake context.
+ */
+HTMLCanvasElement.prototype.getContext = (() =>
+  null) as unknown as typeof HTMLCanvasElement.prototype.getContext;

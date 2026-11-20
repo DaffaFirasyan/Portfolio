@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import LanguageToggle from '@/components/ui/LanguageToggle';
 import { useLanguage } from '@/context/LanguageContext';
 import { useActiveSection } from '@/hooks/useActiveSection';
+import { usePassport } from '@/passport/PassportProvider';
 
 const LINK = 'inline-flex min-h-9 items-center text-sm transition-colors';
 
@@ -20,6 +21,7 @@ const LINK = 'inline-flex min-h-9 items-center text-sm transition-colors';
 export default function Navbar() {
   const { profile, sections, language, t } = useLanguage();
   const { activeId } = useActiveSection(sections);
+  const { earn } = usePassport();
   const [open, setOpen] = useState(false);
   const toggle = useRef<HTMLButtonElement>(null);
   const listed = sections.filter((section) => section.id !== 'home');
@@ -69,6 +71,7 @@ export default function Navbar() {
             href={profile.cvUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => earn('reach')}
             className={`${LINK} font-medium text-accent underline underline-offset-4`}
           >
             {cvLabel} ↗
@@ -111,6 +114,7 @@ export default function Navbar() {
                 href={profile.cvUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => earn('reach')}
                 className="flex min-h-11 items-center font-medium text-accent"
               >
                 {cvLabel} ↗

@@ -6,6 +6,12 @@ import Skills from './Skills';
 import { profile } from '@/data/profile';
 import { skillCategories } from '@/data/skills';
 import { SkillHighlightProvider } from '@/highlight/SkillHighlight';
+import { PassportProvider, usePassport } from '@/passport/PassportProvider';
+
+function Peek() {
+  const { stamps } = usePassport();
+  return <p data-testid="peek">{stamps.join(',')}</p>;
+}
 
 describe('Hero', () => {
   it('renders the name as the only h1, with the tagline beneath it', () => {
@@ -45,15 +51,28 @@ describe('Hero', () => {
     );
   });
 
-  it('presses a round stamp onto the portrait plate, hidden from assistive technology', () => {
+  it('is the data page of a passport, with a stamp slot that is hidden from assistive technology', () => {
     const { container } = render(<Hero />);
 
-    // Everything the stamp says (name, role, city) is real text elsewhere, so
-    // it is decoration and must never be read out around its ring.
-    const stamp = container.querySelector('.stamp');
+    // The state of the stamp is said in words beside it; the ring is decoration.
+    const stamp = container.querySelector('[data-stamp="home"]');
     expect(stamp).not.toBeNull();
     expect(stamp).toHaveAttribute('aria-hidden', 'true');
     expect(container.querySelector('.plate')).not.toBeNull();
+    expect(screen.getByText('Arrival')).toBeInTheDocument();
+    expect(screen.getByText('Not yet stamped')).toBeInTheDocument();
+  });
+
+  it('stamps "reach" when the CV is opened', async () => {
+    const user = userEvent.setup();
+    render(
+      <PassportProvider>
+        <Hero />
+        <Peek />
+      </PassportProvider>,
+    );
+    await user.click(screen.getByRole('link', { name: /download cv/i }));
+    expect(screen.getByTestId('peek').textContent).toContain('reach');
   });
 
   it('prints no stat counters and no backdrop: the page makes its case in prose', () => {

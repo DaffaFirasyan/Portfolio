@@ -1,44 +1,43 @@
 ---
 name: Daffa Firasyan Portfolio
-description: A printed plate section on warm paper: hairlines, one grotesque, one vermilion seal.
+description: Night Passport. A calm reading column under a fixed canvas night sky; by day the same tokens become a printed star chart.
 colors:
-  ground: "#f6f3ec"
-  surface: "#ede9df"
-  elevated: "#e6e1d5"
-  hair: "#cbc5b8"
-  ink: "#1b1a17"
-  muted: "#5c584f"
-  seal: "#b0351b"
-  on-seal: "#f6f3ec"
+  ground: "#eef1f7"
+  surface: "#e1e6f1"
+  elevated: "#d6dcea"
+  hair: "#b9c0d4"
+  ink: "#11162b"
+  muted: "#4a5272"
+  seal: "#8a4b00"
+  on-seal: "#eef1f7"
   danger: "#b3261e"
-  ground-night: "#151412"
-  surface-night: "#1e1c19"
-  elevated-night: "#26231f"
-  hair-night: "#38342e"
-  ink-night: "#ede9e0"
-  muted-night: "#a49e92"
-  seal-night: "#ee7152"
-  on-seal-night: "#151412"
+  ground-night: "#0c1022"
+  surface-night: "#151a33"
+  elevated-night: "#1d2342"
+  hair-night: "#2c3358"
+  ink-night: "#eef0ff"
+  muted-night: "#a3a9c9"
+  seal-night: "#f2c14e"
+  on-seal-night: "#0c1022"
   danger-night: "#ff8a80"
 typography:
   display:
-    fontFamily: "Geist Variable, system-ui, sans-serif"
-    fontSize: "clamp(3.5rem, 11vw, 8.5rem)"
+    fontFamily: "Fraunces Variable, Georgia, serif"
+    fontSize: "clamp(3.25rem, 10vw, 8rem)"
     fontWeight: 400
-    lineHeight: 0.92
-    letterSpacing: "-0.045em"
+    lineHeight: 0.95
+    letterSpacing: "-0.03em"
   headline:
-    fontFamily: "Geist Variable, system-ui, sans-serif"
+    fontFamily: "Fraunces Variable, Georgia, serif"
     fontSize: "3rem"
     fontWeight: 400
-    lineHeight: 1.05
-    letterSpacing: "-0.03em"
+    lineHeight: 1.08
+    letterSpacing: "-0.02em"
   title:
     fontFamily: "Geist Variable, system-ui, sans-serif"
-    fontSize: "1.5rem"
+    fontSize: "1.125rem"
     fontWeight: 500
-    lineHeight: 1.25
-    letterSpacing: "-0.02em"
+    lineHeight: 1.375
   lead:
     fontFamily: "Geist Variable, system-ui, sans-serif"
     fontSize: "1.5rem"
@@ -51,23 +50,20 @@ typography:
     lineHeight: 1.5
   label:
     fontFamily: "JetBrains Mono Variable, ui-monospace, monospace"
-    fontSize: "11px"
+    fontSize: "0.75rem"
     fontWeight: 400
-    lineHeight: 1.5
+    lineHeight: 1.33
     letterSpacing: "0.14em"
 rounded:
   none: "0"
-  sm: "2px"
-  lg: "8px"
-  xl: "12px"
   full: "9999px"
 spacing:
-  gutter: "40px"
-  gutter-mobile: "24px"
-  section-bottom: "112px"
-  section-bottom-mobile: "80px"
-  max-width: "1120px"
-  nav-height: "56px"
+  gutter: "24px"
+  gutter-md: "40px"
+  column-gap: "40px"
+  section-bottom: "80px"
+  section-bottom-md: "112px"
+  tap: "44px"
 components:
   button-primary:
     backgroundColor: "{colors.seal}"
@@ -81,159 +77,155 @@ components:
     rounded: "{rounded.full}"
     padding: "0 20px"
     height: "44px"
-  input:
-    backgroundColor: "{colors.surface}"
+  passport-chip:
+    backgroundColor: "{colors.ground}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.lg}"
-    padding: "12px 16px"
+    rounded: "{rounded.full}"
+    padding: "0 16px"
     height: "44px"
   plate:
     backgroundColor: "{colors.surface}"
-    rounded: "{rounded.none}"
-    padding: "16px"
-  dialog:
-    backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.xl}"
+    rounded: "{rounded.none}"
     padding: "24px"
+  field:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.none}"
+    height: "44px"
 ---
 
 # Design System: Daffa Firasyan Portfolio
 
 ## Overview
 
-**Creative North Star: "The Plate Section"**
+**Creative North Star: "Night Passport"**
 
-The page reads like the plate section of a design annual: uncoated warm paper, a never-pure-black ink, and a hairline grid that carries everything. Every section has the same shape. A 1px rule draws across the top, the title takes the left four of twelve columns, the evidence takes the right eight. Type does the work: one grotesque at regular weight, enormous where it matters (the name) and quiet elsewhere. Content is separated by rules, not boxes.
+A single calm reading column is laid over a fixed canvas sky. The page is a passport read top to bottom: the hero is the data page, every later section is a page of evidence with a stamp slot at its foot. At night (the default of the palette) the stars are light dots on deep blue ink; in daylight the same tokens become a printed star chart, dark dots on cool paper. Components never name a mode; they use semantic tokens and `src/index.css` swaps the values behind them with `prefers-color-scheme`.
 
-Colour is paper, ink and a single vermilion seal. Light and dark both follow the device (`prefers-color-scheme`); components only use semantic tokens and never name a mode. The seal is the only chroma. There is one remembered moment, a round letterpress stamp that presses itself half onto the portrait plate once at load; everything else is still.
-
-Rejected by the owner, and still the line: the previous departure-board world, with tiles everywhere, several colours and many things moving at once. Calm is the brief.
+The reading layer is quiet on purpose: hairlines instead of boxes, no cards, one amber accent, type doing the hierarchy. The sky does the atmosphere and the stamps do the delight, and neither is required to read anything.
 
 **Key Characteristics:**
-- Hairline (1px) rules and credits tables instead of cards.
-- Registration crosshairs mark the corners of image plates (hero portrait, project screenshots).
-- One typeface for display, body and caption; mono only for labels.
-- No shadows, no blur; depth is a tint change and a hairline.
-- One moving thing at load (the stamp), plus a rule that draws in per section.
+- Twelve-column grid, 1120px measure: title in the left four columns, evidence in the right eight.
+- Hairlines (1px, edge colour) carry structure. The `.plate` frame keeps crosshair corners as star-chart registration marks.
+- One accent (amber by night, burnt amber by day), used sparingly and always semantically.
+- Fraunces for the name and section titles, Geist for reading, JetBrains Mono for credit-row labels, coordinates and the machine line.
+- Motion is CSS plus one canvas loop; every moving thing has a still state.
 
 ## Colors
 
-Warm paper, bone-grey surfaces, near-black warm ink, one vermilion seal. The source documents every text pair as computed to 4.5:1 or better on ground and surface in both modes.
+A deep night-blue ground with pale lavender ink and a single warm star, inverted by day to cool paper, navy ink and a burnt amber seal. Values live in the frontmatter (the unsuffixed names are day, the `-night` names are the dark scheme); the prose names them only.
 
 ### Primary
-- **Vermilion Seal** (`seal` #b0351b light, `seal-night` #ee7152 dark): the stamp, the focus ring, the primary action (CV button), the current nav link underline, the CV link, text links with a destination (repository, demo, DOI, verify credential), the active skill, the active certificate filter, and the date of a running role. It is also the text-selection tint at 28%.
+- **Star Amber / Burnt Amber** (`seal`, `seal-night`): the single accent. Links, the active skill, the current nav item, the CV button, earned stamps, constellation lines, the dawn band, focus outline and selection tint. Button text on it is `on-seal`.
 
 ### Neutral
-- **Warm Paper** (`ground` #f6f3ec / `ground-night` #151412): page background, nav bar, dialog backdrop at 80%.
-- **Bone Tint** (`surface` #ede9df / `surface-night` #1e1c19): the faint panel behind portraits, screenshots, certificate scans, form inputs, and the dialog.
-- **Elevated Tint** (`elevated` #e6e1d5 / `elevated-night` #26231f): defined as a token; no shipped component uses it yet.
-- **Hairline** (`hair` #cbc5b8 / `hair-night` #38342e): every rule, plate frame, input border, scrollbar thumb.
-- **Warm Ink** (`ink` #1b1a17 / `ink-night` #ede9e0): headings, lead text, active states.
-- **Quiet Ink** (`muted` #5c584f / `muted-night` #a49e92): body paragraphs, labels, captions, crosshairs, inactive links.
-- **Seal Ground** (`on-seal` #f6f3ec / `on-seal-night` #151412): text on the seal fill.
-- **Error Red** (`danger` #b3261e / `danger-night` #ff8a80): form errors only.
+- **Night Ink / Cool Paper** (`ground`, `ground-night`): page ground and the fixed header.
+- **Chart Tint** (`surface`, `surface-night`): plates, dialog body.
+- **Elevated Tint** (`elevated`, `elevated-night`): defined as a token; reserved for raised surfaces.
+- **Hairline** (`hair`, `hair-night`): every rule, border, field underline and scrollbar.
+- **Ink** (`ink`, `ink-night`): headings and primary text.
+- **Muted Ink** (`muted`, `muted-night`): secondary text, labels, unearned stamps, registration crosshairs.
+- **Danger** (`danger`, `danger-night`): form errors only.
 
 ### Named Rules
-**The One Seal Rule.** Chroma is the seal and nothing else. Never add a second hue, a gradient fill, or a tinted background.
-**The Mode-Blind Rule.** Components use `bg-void`, `text-primary`, `border-edge` and the other semantic names; they never branch on light or dark. Only the values behind `--c-*` swap.
+**The One Star Rule.** There is one accent. Never add a second hue; state differences are expressed with ink, muted, weight and underline.
+
+**The 4.5 Rule.** Every text pair is checked by `src/lib/contrast.test.ts`, which reads `src/index.css` and fails under 4.5:1 in both schemes. Check a new pair there before using it.
+
+**The Semantic Rule.** Components use `bg-void`, `text-primary`, `text-muted`, `border-edge`, `bg-surface`, `text-accent`, `text-on-accent`. No hex values and no `dark:` classes in components. Canvas code reads tokens through `cssToken`, because canvas ignores `var()`.
 
 ## Typography
 
-**Display Font:** Geist Variable (system-ui, sans-serif)
+**Display Font:** Fraunces Variable (Georgia, serif)
 **Body Font:** Geist Variable (system-ui, sans-serif)
 **Label/Mono Font:** JetBrains Mono Variable (ui-monospace, monospace)
 
-**Character:** One grotesque carries every role, so hierarchy comes from size, tracking and ink-versus-muted colour rather than from a second face. Display tightens hard (-0.045em) and is set at regular weight, like a title page.
+**Character:** A soft, optical serif for the name and the section titles sits over a plain grotesque for reading, with mono as the clerk's hand on the credit rows.
 
 ### Hierarchy
-- **Display** (400, clamp(3.5rem, 11vw, 8.5rem), 0.92, -0.045em): the name in the hero h1, one word per line. Only one on the page.
-- **Headline** (400, 2.25rem rising to 3rem at md, 1.05, -0.03em): each section title, sticky in the left four columns from lg. The contact email is the same family at 1.875rem to 3rem (xl), -0.03em.
-- **Title** (500, 1.5rem, -0.02em): project titles (lead project 1.875rem) and degree names. Role titles are 500 at 1.25rem; the dialog title is 400 at 1.875rem.
-- **Lead** (400, 1.5rem, snug, 40ch): first About paragraph. The hero role line is 1.25rem to 1.5rem.
-- **Body** (400, 1rem, muted, 62ch): paragraphs; denser evidence text runs at 0.875rem with relaxed leading.
-- **Label** (mono, 11px, 0.14em, uppercase): credit-row labels (location, status), publication credit labels, project problem/solution/outcome captions. Experience dates and the dialog counter use mono at 0.75rem, not uppercase (a build departure; see Do's and Don'ts).
+- **Display** (400, clamp(3.25rem, 10vw, 8rem), 0.95): the owner's name in the hero, one word per line. The only h1.
+- **Headline** (400, 2.25rem to 3rem, 1.08, -0.02em): section titles (Fraunces), balanced, sticky in the left columns from `lg`. The passport sheet title is a smaller Fraunces step (1.875rem).
+- **Title** (500, 1.125rem to 1.5rem): project and paper titles in Geist.
+- **Lead** (400, 1.25rem to 1.5rem): hero role line and the About opening statement, capped near 40ch.
+- **Body** (400, 1rem, 1.5): reading text, 62ch maximum; secondary paragraphs in muted.
+- **Label** (400, 0.75rem, 0.14em tracking, uppercase, mono): credit-row labels (location, status, arrival), stamp captions, the passport chip (without uppercase), the machine line (no tracking).
 
 ### Named Rules
-**The One Grotesque Rule.** Display, body and caption are the same family. Mono never sits above a heading and never sets running text.
-**The Medium-Is-Enough Rule.** Weight tops out at 500 for titles and links; 600 appears only on active toggles and a few buttons. Display and headlines stay at 400.
+**The Clerk's Hand Rule.** Mono is for data: labels, coordinates, counts, the machine line. It is never used for headings or running text.
+
+**The Two Voices Rule.** The serif speaks only the name and section titles. Everything under a title is Geist.
 
 ## Layout
 
-A twelve-column grid inside a 1120px centred container, 40px column gap from lg, gutters of 24px (40px from md). Each section is a rule (full width), then title in 4 columns and evidence in 8. The hero is the exception: name, role, tagline, credits row and actions in 7 columns, the portrait plate in 5 aligned right, max 24rem wide. Sections end with 80px of space (112px from md); the hero opens with 112px (144px from md) to clear the 56px fixed nav. Anchored sections use a 56px scroll margin.
+A 1120px centred measure with 24px gutters (40px from `md`). Sections share one template: a hairline across the top, then twelve columns from `lg` with a 40px column gap, title in four columns and evidence in eight, 80px (112px from `md`) of space beneath. Below `lg` the columns stack. The hero is a single column with a 46rem data-page plate under the name; its grid is a 14rem photo slot beside the credit rows from `sm`. Fixed header is 56px tall. Interactive targets are 44px minimum height, with the nav links and skill chips allowed 32 to 36px where they are inline text. No horizontal overflow from 320 to 1440px.
 
-Below lg everything stacks: the plate drops under the name, section titles sit above their evidence and stop being sticky, the nav collapses to the short name plus a "Menu" pill that opens a plain disclosure (not a modal). Credits tables switch from a label column (9rem to 10rem) beside the value to stacked below sm. Project accounts are three columns from md. Certificates are 2, 3 and 4 columns at base, sm and lg. Breakpoints are Tailwind defaults: sm 640, md 768, lg 1024, xl 1280.
-
-Rhythm is generous and uneven by role: rows in credits tables take 16px to 32px of vertical padding, evidence blocks are separated by 64px.
+### Named Rules
+**The One Template Rule.** Every section uses the same shell. A new section reuses it rather than composing a new layout.
 
 ## Elevation & Depth
 
-Flat. There are no shadows, no blur and no glass. Depth is one tint step (`surface` behind images, inputs and the dialog) plus a 1px hairline. The dialog sits over an 80% ground backdrop. Opacity is used for state only: a project dims to 40% while a hovered skill is not in it.
+Flat. There are no box shadows. Depth is a stack of three things: the fixed canvas sky behind everything (`-z-10`), the paper-coloured column over it, and hairlines. The hero plate uses `surface` at 70% opacity so stars faintly show through; project plates are solid `surface`. Dialogs use a `ground` backdrop at 80%. The passport chip and header sit on solid `ground`.
 
 ### Named Rules
-**The Hairline Rule.** A 1px `hair` line is the only separator. If something needs emphasis, enlarge the type; do not box it or lift it.
+**The No Shadow Rule.** Separation is a hairline or a tint, never a shadow.
 
 ## Shapes
 
-Square is the default: plates, tables, rules and certificate mounts have no radius. Controls are pills (fully rounded, 1px hairline outline or seal fill). Form inputs are 8px, the status panel and the dialog are 12px, certificate scan images carry 2px.
-
-The signature silhouette is the plate: a square hairline frame with registration crosshairs on its corners. The `.plate` class draws them as one pseudo-element extending 8px beyond the frame, built from eight 17px by 1px gradients in `muted`. The stamp is a circle: two concentric rings (radius 75 and 45 on a 160 viewBox) with the name, role and city around the outer ring in mono and the initials in the middle at weight 500, drawn in the seal colour.
+Square by default: plates, fields, dialogs and the photo slot are right-angled (0). Only actions and the passport chip are fully round pills (9999px). Stamps are circles with a dashed ring when empty and a solid ring plus inner ring when earned. The `.plate` frame is a 1px hairline with a 17px registration crosshair standing 8px outside each corner.
 
 ## Components
 
 ### Buttons
-- **Shape:** pill (9999px), minimum 44px tall, 20px side padding.
-- **Primary:** seal fill, on-seal text, 0.875rem weight 500, used once in the hero (CV download, trailing arrow). Hover drops opacity to 90%.
-- **Secondary (pill):** transparent, 1px hairline border, ink text; hover darkens the border to ink. Used for email and view-projects; the mobile Menu button is the same shape at 36px.
-- **Text links:** seal-coloured, underlined with 4px offset, weight 500, trailing arrow for external destinations. Contact links are ink with an underline that turns seal on hover.
-- **Focus:** a 2px seal outline at 3px offset on everything.
-
-### Inputs / Fields
-- **Style:** 1px hairline border, `surface` fill, 8px radius, 44px minimum height, 16px by 12px padding, muted placeholder. Labels above at 0.875rem weight 500 in muted.
-- **Error:** message beneath in `danger` at 0.875rem; `aria-invalid` and `aria-describedby` wire it. Validation shows only after a field is left.
-- **Outcome panel:** after sending, a 12px, hairline, surface panel above the form carries the status and takes focus.
+- **Shape:** full pill, 44px high, 20px horizontal padding, 14px medium text.
+- **Primary (CV, form submit, passport email):** `seal` fill, `on-seal` text; hover drops opacity to 0.9.
+- **Pill (email, view projects):** transparent, 1px hairline border, ink text; hover turns the border to ink.
+- **Text links:** accent, medium weight, underlined with 4px offset; the hover sweep (`.sweep`) draws a 2px underline from the left.
+- **Focus:** 2px accent outline, 3px offset, on every element.
 
 ### Navigation
-Fixed 56px bar on ground with a hairline beneath. Short name left (1rem, weight 500). From lg the section links sit inline at 0.875rem, muted, ink for the current one with a 2px seal underline at 10px offset; the EN / ID toggle (active word underlined and semibold, inactive at 70% opacity) and the seal CV link follow. Below lg: the Menu pill and a disclosure list with 44px rows, closing on selection and Escape.
+Fixed 56px bar on `ground` with a hairline beneath: short name left, section links centre, language toggle and the CV link (accent, underlined) right. The current section is ink with a 2px accent underline. Below `lg` a Menu pill opens a plain disclosure.
 
 ### Plate (signature)
-The `.plate` hairline frame with corner crosshairs. In the hero it holds the portrait on `surface`, 3:4, with the stamp absolutely placed at the lower-left. In a project it holds the 16:10 screenshot with 12px (16px from sm) padding inside the frame. Under a project plate a hairline-topped caption row sets the title left and "category · year · role" right in muted, then problem, solution and outcome as three labelled columns, the stack as one ink line, and links.
+A hairline frame with crosshair corners, `surface` at 70%. Holds the hero data page and the project images. The hero plate carries the portrait (3:4, 224px wide), two ruled credit rows, an Arrival stamp slot and a decorative mono machine line (`P<NAME<<<...`, aria-hidden) under a hairline.
 
-### Stamp
-The one moment. Press animation over 0.95s after a 0.45s delay: drops in from 20px above at -16deg and 1.18 scale, settles at -9deg. Transform and opacity only, once, and only under `prefers-reduced-motion: no-preference`. It is aria-hidden because all of its words exist as text elsewhere.
+### Stamp (signature)
+An SVG circle: dashed muted ring when empty; accent double ring, the section name set around the ring in mono and the owner's initials in the centre when earned. Resting tilt is -9deg. Decorative and aria-hidden; its state is also stated in words beside it. Ten stamps: seven sections and three secrets (Comet, Language, Reach). A section stamp is earned by being in a band across the screen centre for 5 seconds in total and then scrolling past it. Earned ids persist in localStorage. Nothing is gated behind a stamp.
 
-### Credits table
-A `dl` or `ol` with a top hairline and a hairline under each row: label or date in the left column, content right. Used for the hero credits row (two cells), the publication, skills by category and the experience list. Skill names are buttons: muted at rest, seal and underlined while active, which lights the projects that use that skill.
+### Passport chip and sheet
+A fixed bottom-right pill ("Passport n/10", mono) opens a dialog on `surface`: the ten stamps in a grid (secrets are hinted until earned), a closing note and email button once all seven section stamps are in, and a sound checkbox. The click sound is WebAudio, a single oscillator, off by default. A full ten-stamp passport writes the owner's initials in stars on the sky.
 
-### Dialog
-Native `<dialog>` for certificate scans, 12px radius, `surface` fill, hairline border, `min(72rem, 92vw)` wide. Hairline-outlined pills for Previous, Next and Close; mono counter.
+### Sky
+A fixed canvas of 150 stars in three parallax layers that drift with scroll, yield to the pointer, twinkle, and join into a project's constellation (accent line, 3px nodes) when a skill that project used is hovered. A flat amber dawn band tints the bottom 45% and strengthens (up to 14% alpha) with scroll progress. A comet crosses every 30 to 40 seconds after the first 15; clicking it earns the Comet stamp.
+- **Tiers:** full, lite (half the stars, 30fps, no trail, no comet), still (one frame, redrawn on change). Chosen from the median drawing work of the first 60 drawn frames (over 8ms steps down one tier, never back up; the gap between frames is not measured, so a 30Hz power-saver is not demoted); save-data starts at lite; reduced motion starts at still. It stops in a hidden tab.
+
+### Fields
+Underline only: transparent, no radius, 1px hairline bottom border turning ink on focus, 44px minimum height, muted placeholder, muted label above. Errors in `danger` beneath.
 
 ### Motion
-- **The rule draws in** (`.rule`): scaleX 0 to 1 from the left as the section enters view, via scroll-driven `animation-timeline: view()` only where supported and only without a reduced-motion preference.
-- **Sweep** (`.sweep`): a 2px underline growing from 0 to 100% over 0.3s ease-out on hover and focus; used on the contact email.
-- Reduced motion is honoured in CSS blocks and through `useMotionAllowed()`; no component tests the media query itself.
+Colour and opacity transitions only, plus two CSS animations behind `prefers-reduced-motion: no-preference`: the stamp press (0.7s, cubic-bezier(0.2, 0.8, 0.2, 1), rotate and translate and scale from above) and the hairline draw-in above each section (scroll-driven, `animation-timeline: view()`, only where supported). The `.sweep` underline carries `transition: none` under reduce. No animation library and no JavaScript that reads the reduced-motion setting, other than the sky's own tier choice.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** separate content with 1px `hair` rules and credits-table rows, not with boxes.
-- **Do** put the title in the left four columns and the evidence in the right eight in every new section, using `SectionShell`.
-- **Do** spend `seal` on the stamp, focus, the primary action, the current or active state and links that lead somewhere.
-- **Do** use semantic tokens (`bg-void`, `text-primary`, `text-muted`, `border-edge`, `text-accent`) and let `--c-*` swap per mode.
-- **Do** frame images in `.plate` on a `surface` tint, and set mono labels in uppercase at 11px with 0.14em tracking.
-- **Do** keep touch targets at 44px minimum on primary controls.
+- **Do** use semantic colour utilities only, and add any new text pair to the contrast test.
+- **Do** reach for a hairline before a box, and a tint before a shadow.
+- **Do** reuse `SectionShell` for any new section and keep title left, evidence right.
+- **Do** keep the accent for links, the active item, the CV button, stamps and constellation lines.
+- **Do** give anything that moves a still state and a `motion-reduce` or `no-preference` guard.
+- **Do** keep everything readable without a stamp, the sky, sound or the passport.
 
 ### Don't:
-- **Don't** add shadows, blur or glass, or a second chroma beside the seal.
-- **Don't** set display type in anything but Geist at weight 400, and don't use the mono face for headings or running text.
-- **Don't** wrap content in rounded cards or tiles; plates are square and hairline-framed.
-- **Don't** add moving effects beyond the stamp press, the rule draw-in and the sweep; no parallax, marquees or hover glows.
-- **Don't** import the departure-board world (dense tiles, yellow bands, multiple accent colours).
+- **Don't** add a second accent colour, a card, or a drop shadow.
+- **Don't** write a hex value or a `dark:` class in a component.
+- **Don't** set body or label text in the serif, or headings in mono.
+- **Don't** make a stamp, the comet or the passport a gate on content.
+- **Don't** add an animation library; the sky is one canvas and one loop.
 
-### Departures from the contract (recorded in the build, not canonized as rules)
-- The contract limits the seal to the stamp, current link and primary action; the build also colours every outbound text link (DOI, repository, demo, CV in the bar), the active skill and the active certificate filter. The Do above records the reused pattern, which is wider than the contract.
-- The contract says "never boxes" and weight 400 throughout; the build has pill outlines, 8px inputs, a 12px status panel and dialog, and titles at 500 with 600 on toggles and some buttons.
-- The contract says mono is 11px uppercase only; experience dates and the dialog counter are mono at 12px, not uppercase. A defect the build carries, not a rule.
-- The contract says the stamp stays half off the frame on a phone; the build offsets it only 12px left of the plate below sm (48px from sm), so on a phone it sits mostly over the portrait.
-- The contract puts the section links on the right at every width; the build shows them only from lg and uses a Menu pill below.
-- The contract says no gradients; the crosshairs and the sweep underline draw their lines with gradient syntax (no gradient fill is visible).
+### Departures and defects carried by the build (recorded, not rules)
+These are deliberate departures or known defects. They are not patterns for future surfaces to copy.
+- **Dawn band.** A flat accent gradient tint across the lower sky, growing with scroll. It is a decoration of the world, not a general permission for gradient washes.
+- **Stars behind text.** Stars sit under body copy at low alpha (at most 0.55, times 0.55 by day). axe-core reports 8 color-contrast nodes as incomplete because the background is a canvas; legibility was judged by eye, not proven by the tool.
+- **Comet is full-tier only.** In lite and still tiers (including reduced motion) the comet never appears, so those readers cannot earn the Comet stamp or the ten-stamp reward. Known inequity; not resolved.
+- **Accent use is broad** (links, active skill, CV button, stamps, constellation lines, dawn band); it stays one hue but is less rare than a strict one-voice rule would ask.
+- **Project tiles dim to 40% opacity** when a skill filter excludes them; a low-contrast transient state.

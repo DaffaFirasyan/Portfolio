@@ -8,12 +8,16 @@ import Contact from '@/sections/Contact';
 import { SkillHighlightProvider } from '@/highlight/SkillHighlight';
 import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
 import Navbar from '@/nav/Navbar';
+import Passport from '@/passport/Passport';
+import { PassportProvider } from '@/passport/PassportProvider';
+import SkyCanvas from '@/sky/SkyCanvas';
 
 /**
- * A printed plate section read top to bottom: the title page, then each section
- * on the same twelve-column grid, a hairline above it, its title on the left
- * and its evidence on the right. The bar across the top carries the way to every
- * section, the language and the CV at every scroll position.
+ * A passport read top to bottom under a night sky: the data page, then each
+ * section on the same twelve-column grid, a hairline above it, its title on the
+ * left, its evidence on the right and a stamp slot at its end. The bar across
+ * the top carries the way to every section, the language and the CV at every
+ * scroll position; the chip in the corner opens the passport.
  */
 function AppContent() {
   const { profile, sections, t } = useLanguage();
@@ -31,6 +35,7 @@ function AppContent() {
       <Navbar />
 
       <SkillHighlightProvider>
+        <SkyCanvas />
         <main>
           <Hero />
           <About />
@@ -43,7 +48,7 @@ function AppContent() {
       </SkillHighlightProvider>
 
       <footer className="px-6 md:px-10">
-        <div className="mx-auto flex w-full max-w-[1120px] flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-edge py-8 text-sm text-muted">
+        <div className="mx-auto flex w-full max-w-[1120px] flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-edge pt-8 pb-24 text-sm text-muted">
           <p>
             © {new Date().getFullYear()} {profile.name} · {t.builtWith}
           </p>
@@ -55,6 +60,8 @@ function AppContent() {
           </a>
         </div>
       </footer>
+
+      <Passport />
     </>
   );
 }
@@ -62,7 +69,9 @@ function AppContent() {
 export default function App() {
   return (
     <LanguageProvider>
-      <AppContent />
+      <PassportProvider>
+        <AppContent />
+      </PassportProvider>
     </LanguageProvider>
   );
 }

@@ -24,10 +24,16 @@ afterEach(() => {
 });
 
 describe('the page under reduced motion', () => {
-  it('puts no canvas on the page at all', () => {
+  it('keeps exactly one canvas, the sky, as pure decoration behind the page', () => {
+    // The sky stays under reduced motion but drops straight to the still tier
+    // (engine.test.ts covers that choice); here it must stay one silent,
+    // untouchable layer that no reader or pointer can land on.
     setCapability({ animate: false, hover: false });
     const { container } = render(<App />);
-    expect(container.querySelectorAll('canvas')).toHaveLength(0);
+    const canvases = container.querySelectorAll('canvas');
+    expect(canvases).toHaveLength(1);
+    expect(canvases[0]).toHaveAttribute('aria-hidden', 'true');
+    expect(canvases[0]).toHaveClass('pointer-events-none', '-z-10');
   });
 
   it('still renders every section heading, so nothing was hidden by a dead animation', () => {

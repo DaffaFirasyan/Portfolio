@@ -4,6 +4,8 @@ import Navbar from './Navbar';
 import { observers } from '@/test/stubs';
 import { profile } from '@/data/profile';
 import { SECTIONS } from '@/data/sections';
+import { LanguageProvider } from '@/context/LanguageContext';
+import { PassportProvider, usePassport } from '@/passport/PassportProvider';
 
 /**
  * The strip along the top: links inline from lg up, a Menu disclosure below it.
@@ -116,6 +118,24 @@ describe('Navbar', () => {
     expect(cv).toHaveAttribute('href', profile.cvUrl);
     expect(cv).toHaveAttribute('target', '_blank');
     expect(cv).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  it('stamps "reach" when the CV on the bar is opened', async () => {
+    localStorage.clear();
+    function List() {
+      const { stamps } = usePassport();
+      return <p data-testid="list">{stamps.join(',')}</p>;
+    }
+    render(
+      <LanguageProvider>
+        <PassportProvider>
+          <Navbar />
+          <List />
+        </PassportProvider>
+      </LanguageProvider>,
+    );
+    await userEvent.click(screen.getAllByRole('link', { name: /^CV \(EN\)/ })[0]);
+    expect(screen.getByTestId('list').textContent).toBe('reach');
   });
 
   it('offers the language toggle on the bar and again inside the menu', async () => {

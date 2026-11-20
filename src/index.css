@@ -5,34 +5,33 @@
    "this class is in the bundle" useless as proof that a component uses it. */
 @source not '../docs';
 
-/* Warm paper and a never-pure-black ink, in both themes. Components use the
-   semantic tokens below and never name a mode; the values behind them swap with
-   prefers-color-scheme. Every text pair was computed, not eyeballed: ink,
-   muted and the seal colour all clear 4.5:1 on their ground and on the
-   surface tint, in both modes. */
+/* A night sky by default and a printed star chart in daylight. Components use
+   the semantic tokens below and never name a mode; the values behind them swap
+   with prefers-color-scheme. Every text pair is checked by
+   src/lib/contrast.test.ts, which reads this file and fails under 4.5:1. */
 :root {
   color-scheme: light dark;
-  --c-ground: #f6f3ec;
-  --c-surface: #ede9df;
-  --c-elevated: #e6e1d5;
-  --c-hair: #cbc5b8;
-  --c-ink: #1b1a17;
-  --c-muted: #5c584f;
-  --c-seal: #b0351b;
-  --c-on-seal: #f6f3ec;
+  --c-ground: #eef1f7;
+  --c-surface: #e1e6f1;
+  --c-elevated: #d6dcea;
+  --c-hair: #b9c0d4;
+  --c-ink: #11162b;
+  --c-muted: #4a5272;
+  --c-seal: #8a4b00;
+  --c-on-seal: #eef1f7;
   --c-danger: #b3261e;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --c-ground: #151412;
-    --c-surface: #1e1c19;
-    --c-elevated: #26231f;
-    --c-hair: #38342e;
-    --c-ink: #ede9e0;
-    --c-muted: #a49e92;
-    --c-seal: #ee7152;
-    --c-on-seal: #151412;
+    --c-ground: #0c1022;
+    --c-surface: #151a33;
+    --c-elevated: #1d2342;
+    --c-hair: #2c3358;
+    --c-ink: #eef0ff;
+    --c-muted: #a3a9c9;
+    --c-seal: #f2c14e;
+    --c-on-seal: #0c1022;
     --c-danger: #ff8a80;
   }
 }
@@ -48,9 +47,9 @@
   --color-on-accent: var(--c-on-seal);
   --color-danger: var(--c-danger);
 
-  /* One grotesque carries display, body and caption alike. Mono is for plate
-     captions and credit-row labels only. */
-  --font-display: 'Geist Variable', system-ui, sans-serif;
+  /* A soft serif for the name and the section titles, Geist for reading, mono
+     for coordinates, dates and credit-row labels. */
+  --font-display: 'Fraunces Variable', Georgia, serif;
   --font-sans: 'Geist Variable', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
 }
@@ -91,9 +90,9 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Plates. A plate is a hairline frame with a registration crosshair standing
-   on each corner, the way a printed plate section marks where the sheet is cut.
-   The crosshairs are one pseudo-element drawn from eight gradients.
+   Plates. A hairline frame with a crosshair standing on each corner, kept as
+   the star chart's registration marks (used by the Hero data page and the
+   project tiles). The crosshairs are one pseudo-element drawn from eight gradients.
    --------------------------------------------------------------------------- */
 .plate {
   position: relative;
@@ -133,8 +132,9 @@
 }
 
 /* ---------------------------------------------------------------------------
-   The one moment: the letterpress stamp presses onto the portrait plate.
-   Transform and opacity on a decorative element, once, at load.
+   A stamp lands on the page. `.stamp` is the resting tilt; `.stamp-new` is added
+   for a few seconds to the stamp that was just earned and presses it down.
+   Transform and opacity only, and only when motion is welcome.
    --------------------------------------------------------------------------- */
 @keyframes press {
   0% {
@@ -151,9 +151,13 @@
   }
 }
 
+.stamp {
+  transform: rotate(-9deg);
+}
+
 @media (prefers-reduced-motion: no-preference) {
-  .stamp {
-    animation: press 0.95s 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  .stamp-new {
+    animation: press 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   }
 }
 
@@ -196,17 +200,5 @@
 @media (prefers-reduced-motion: reduce) {
   .sweep {
     transition: none;
-  }
-}
-
-/* Below lg the plate stacks under the text and starts below the fold, so a stamp
-   timed from load would finish unseen. There it presses as the plate arrives. */
-@media (prefers-reduced-motion: no-preference) and (max-width: 1023px) {
-  @supports (animation-timeline: view()) {
-    .stamp {
-      animation: press linear both;
-      animation-timeline: view();
-      animation-range: entry 10% entry 90%;
-    }
   }
 }

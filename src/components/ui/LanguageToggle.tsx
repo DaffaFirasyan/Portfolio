@@ -1,4 +1,5 @@
 import { useLanguage } from '@/context/LanguageContext';
+import { usePassport } from '@/passport/PassportProvider';
 
 interface LanguageToggleProps {
   className?: string;
@@ -13,6 +14,12 @@ const BUTTON = 'inline-flex min-h-8 items-center px-1 text-sm transition-colors'
  */
 export default function LanguageToggle({ className = '' }: LanguageToggleProps) {
   const { language, setLanguage } = useLanguage();
+  const { earn } = usePassport();
+
+  const choose = (next: 'en' | 'id') => {
+    if (next !== language) earn('language');
+    setLanguage(next);
+  };
 
   return (
     <div
@@ -22,7 +29,7 @@ export default function LanguageToggle({ className = '' }: LanguageToggleProps) 
     >
       <button
         type="button"
-        onClick={() => setLanguage('en')}
+        onClick={() => choose('en')}
         aria-pressed={language === 'en'}
         title="English"
         className={`${BUTTON} ${
@@ -38,7 +45,7 @@ export default function LanguageToggle({ className = '' }: LanguageToggleProps) 
       </span>
       <button
         type="button"
-        onClick={() => setLanguage('id')}
+        onClick={() => choose('id')}
         aria-pressed={language === 'id'}
         title="Bahasa Indonesia"
         className={`${BUTTON} ${

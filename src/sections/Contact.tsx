@@ -4,6 +4,7 @@ import SectionShell from '@/components/layout/SectionShell';
 import ContactForm from '@/components/ui/ContactForm';
 import { shellPropsFrom } from '@/data/sections';
 import { useLanguage } from '@/context/LanguageContext';
+import { usePassport } from '@/passport/PassportProvider';
 
 const ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_KEY ?? '';
 
@@ -18,6 +19,7 @@ const LINK =
  */
 export default function Contact() {
   const { profile, sections, t, language } = useLanguage();
+  const { earn } = usePassport();
   const shell = shellPropsFrom(sections, 'contact');
   const [copied, setCopied] = useState(false);
   const [local, domain] = profile.email.split('@');
@@ -25,6 +27,7 @@ export default function Contact() {
   const handleCopyEmail = async () => {
     try {
       await navigator.clipboard.writeText(profile.email);
+      earn('reach');
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {

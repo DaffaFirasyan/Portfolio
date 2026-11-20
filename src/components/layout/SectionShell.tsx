@@ -1,5 +1,11 @@
 import type { ReactNode } from 'react';
 
+import { useLanguage } from '@/context/LanguageContext';
+import { usePassport } from '@/passport/PassportProvider';
+import StampMark from '@/passport/StampMark';
+import { isStampId } from '@/passport/stamps';
+import { useStampOnRead } from '@/passport/useStampOnRead';
+
 interface SectionShellProps {
   id: string;
   index: number;
@@ -11,27 +17,48 @@ interface SectionShellProps {
 }
 
 /**
- * One section of the plate section. A hairline draws across the top as it
- * arrives; under it the title takes the left four of twelve columns and the
- * evidence takes the right eight, so every section is laid out the same way and
- * the eye learns the page once. On wide screens the title stays beside its
- * evidence while it scrolls; on a phone the two simply stack.
+ * One section of the passport. A hairline draws across the top as it arrives;
+ * under it the title takes the left four of twelve columns and the evidence
+ * takes the right eight, so every section is laid out the same way and the eye
+ * learns the page once. At the end of the evidence sits a stamp slot: dashed
+ * until the reader has spent five seconds here and moved on, inked after.
  *
- * `index` and `label` are still accepted because the section metadata supplies
- * them; neither is printed. The heading carries its own weight.
+ * `index` is accepted because the section metadata supplies it; it is not
+ * printed. The heading carries its own weight.
  */
-export default function SectionShell({ id, title, aside, children }: SectionShellProps) {
+export default function SectionShell({ id, label, title, aside, children }: SectionShellProps) {
+  const { t } = useLanguage();
+  const { has, justEarned } = usePassport();
+  const ref = useStampOnRead<HTMLElement>(id);
+  const earned = has(id);
+
   return (
-    <section id={id} className="scroll-mt-14 px-6 md:px-10">
+    <section ref={ref} id={id} className="scroll-mt-14 px-6 md:px-10">
       <div className="mx-auto grid w-full max-w-[1120px] gap-x-10 gap-y-10 pb-20 md:pb-28 lg:grid-cols-12">
         <div aria-hidden="true" className="rule h-px bg-edge lg:col-span-12" />
         <div className="lg:sticky lg:top-24 lg:col-span-4 lg:self-start">
-          <h2 className="font-display text-4xl leading-[1.05] font-normal tracking-[-0.03em] text-primary text-balance md:text-5xl">
+          <h2 className="font-display text-4xl leading-[1.08] font-normal tracking-[-0.02em] text-primary text-balance md:text-5xl">
             {title}
           </h2>
           {aside && <div className="mt-8">{aside}</div>}
         </div>
-        <div className="min-w-0 lg:col-span-8">{children}</div>
+        <div className="min-w-0 lg:col-span-8">
+          {children}
+          {isStampId(id) && (
+            <div className="mt-16 flex items-center gap-4">
+              <StampMark
+                stampId={id}
+                label={label}
+                earned={earned}
+                fresh={justEarned === id}
+                className="h-16 w-16"
+              />
+              <p className="font-mono text-xs tracking-[0.14em] text-muted uppercase">
+                {earned ? t.stamped : t.notStamped}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

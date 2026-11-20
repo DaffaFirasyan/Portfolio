@@ -1,10 +1,10 @@
-/** Fallbacks match src/index.css, for the render before styles are applied. */
+/** Fallbacks match the dark palette in src/index.css, for the render before styles are applied. */
 const FALLBACKS: Record<string, string> = {
-  '--color-accent': '#f0a32e',
-  '--color-accent-2': '#5ec8d8',
-  '--color-edge': '#232c38',
-  '--color-muted': '#8a97a6',
-  '--color-void': '#0a0c10',
+  '--color-accent': '#f2c14e',
+  '--color-edge': '#2c3358',
+  '--color-muted': '#a3a9c9',
+  '--color-primary': '#eef0ff',
+  '--color-void': '#0c1022',
 };
 
 /**

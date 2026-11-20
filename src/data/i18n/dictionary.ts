@@ -77,6 +77,26 @@ export const DICTIONARY = {
     emailCopied: 'Copied!',
     chatOnWhatsApp: 'Chat on WhatsApp',
     emailMe: 'Email me',
+
+    // Passport
+    passport: 'Passport',
+    stamped: 'Stamped',
+    notStamped: 'Not yet stamped',
+    arrival: 'Arrival',
+    stampEarned: (name: string) => `Stamp earned: ${name}`,
+    passportHint:
+      'Read a section for five seconds and move on, and it is stamped. Nothing here is locked behind a stamp.',
+    secretStamp: 'Secret stamp',
+    stampComet: 'Comet',
+    stampLanguage: 'Two tongues',
+    stampReach: 'Reaching out',
+    hintComet: 'A shooting star crosses the sky now and then. Click it.',
+    hintLanguage: 'Switch the language of the page.',
+    hintReach: 'Open the CV or copy the email address.',
+    completeTitle: 'You read all of it.',
+    completeNote: 'Thank you. If something here fits what you are building, write to me.',
+    sound: 'Sound',
+    cometLabel: 'Shooting star. Catch it for a secret stamp.',
   },
   id: {
     // Navigation & Global
@@ -155,6 +175,26 @@ export const DICTIONARY = {
     emailCopied: 'Tersalin!',
     chatOnWhatsApp: 'Chat via WhatsApp',
     emailMe: 'Kirim email',
+
+    // Passport
+    passport: 'Paspor',
+    stamped: 'Sudah dicap',
+    notStamped: 'Belum dicap',
+    arrival: 'Kedatangan',
+    stampEarned: (name: string) => `Stempel didapat: ${name}`,
+    passportHint:
+      'Baca satu bagian selama lima detik lalu lanjutkan, maka bagian itu dicap. Tidak ada isi yang dikunci di balik stempel.',
+    secretStamp: 'Stempel rahasia',
+    stampComet: 'Komet',
+    stampLanguage: 'Dua bahasa',
+    stampReach: 'Menghubungi',
+    hintComet: 'Sesekali ada bintang jatuh melintas. Klik bintang itu.',
+    hintLanguage: 'Ganti bahasa halaman.',
+    hintReach: 'Buka CV atau salin alamat email.',
+    completeTitle: 'Anda membaca semuanya.',
+    completeNote: 'Terima kasih. Jika ada yang cocok dengan yang sedang Anda bangun, tulis ke saya.',
+    sound: 'Suara',
+    cometLabel: 'Bintang jatuh. Tangkap untuk stempel rahasia.',
   },
 } as const;
 
