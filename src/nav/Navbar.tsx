@@ -1,186 +1,135 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import { useLanguage } from '@/context/LanguageContext';
 import LanguageToggle from '@/components/ui/LanguageToggle';
+import { useLanguage } from '@/context/LanguageContext';
 import { useActiveSection } from '@/hooks/useActiveSection';
-import { useLenis } from '@/hooks/useLenis';
-import { useScrolledPast } from '@/hooks/useScrolledPast';
-import StarButton from '@/motion/StarButton';
-import NodeRailNav from './NodeRailNav';
+
+const LINK = 'inline-flex min-h-9 items-center text-sm transition-colors';
 
 /**
- * Owns the scroll state and hands it to whichever navigation is rendered.
+ * The bar across the top: his short name, the way to every section, the
+ * language and the CV. It is one line of small type on the paper with a hairline
+ * under it, and it stays put so the CV is one glance away at any scroll
+ * position. The seal colour marks the current section and the CV, nothing else.
  *
- * This is the only non-test file that names a SectionNavProps implementation,
- * which is what makes swapping one for another a single-line change. A test in
- * Navbar.test.tsx enforces that.
- *
- * The mobile menu is a plain disclosure rather than an overlay: a button with
- * aria-expanded and a panel that closes on selection and on Escape. It is not
- * a modal, so it needs no focus trap and no inert background — for seven links
- * that is a lot of machinery to get right for no gain.
- *
- * The CV link sits outside the disclosure so it stays reachable at every width
- * without opening the menu first.
+ * Wide screens get the links inline. Below lg a Menu button opens a plain
+ * disclosure (aria-expanded, closes on selection and on Escape), which is not a
+ * modal, so it needs no focus trap. Only this component writes the URL hash
+ * through `useActiveSection`; a second instance would fight it.
  */
 export default function Navbar() {
-  const { profile, sections, language } = useLanguage();
-  const { activeId, progress } = useActiveSection(sections);
-  const { scrollTo } = useLenis();
-  const scrolled = useScrolledPast(80);
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  // The rail says where the reader is; this says what it is called. The rail's
-  // labels only appear on hover, and hover is not something a reader does while
-  // reading — so without this the section name is never on screen. Built from
-  // the same metadata SectionShell uses, so the two can never disagree.
-  const active = sections.find((section) => section.id === activeId);
-  const activeLabel = active ? `${String(active.index).padStart(2, '0')} / ${active.label}` : '';
-
-  const navigate = useCallback(
-    (id: string) => {
-      setMenuOpen(false);
-      scrollTo(id);
-    },
-    [scrollTo],
-  );
+  const { profile, sections, language, t } = useLanguage();
+  const { activeId } = useActiveSection(sections);
+  const [open, setOpen] = useState(false);
+  const toggle = useRef<HTMLButtonElement>(null);
+  const listed = sections.filter((section) => section.id !== 'home');
+  const cvLabel = language === 'id' ? 'CV (ID)' : 'CV (EN)';
 
   useEffect(() => {
-    if (!menuOpen) return;
-
+    if (!open) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setMenuOpen(false);
+      if (event.key === 'Escape') {
+        setOpen(false);
+        toggle.current?.focus();
+      }
     };
-
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [menuOpen]);
+  }, [open]);
 
   return (
-    <>
-      <header
-        className={`fixed inset-x-0 top-0 z-40 transition-colors ${
-          scrolled ? 'border-b border-edge bg-void/80 backdrop-blur' : 'bg-transparent'
-        }`}
-      >
-        <div className="relative mx-auto flex h-16 w-full max-w-[1200px] items-center justify-between px-6 md:h-18 md:px-12">
-          <a
-            href="#home"
-            onClick={(event) => {
-              if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-              event.preventDefault();
-              navigate('home');
-            }}
-            className="inline-flex min-h-11 items-center font-display text-lg font-extrabold text-primary"
-          >
-            {profile.shortName}
-          </a>
+    <header className="fixed inset-x-0 top-0 z-40 border-b border-edge bg-void px-6 md:px-10">
+      <div className="mx-auto flex h-14 w-full max-w-[1120px] items-center justify-between gap-6">
+        <a
+          href="#home"
+          className="inline-flex min-h-11 items-center text-base font-medium tracking-[-0.01em] text-primary"
+        >
+          {profile.shortName}
+        </a>
 
-          {/* Absolutely centred rather than a third flex child, so it stays on
-              the page's centre line regardless of how wide the name or the CV
-              button turn out to be. pointer-events-none so it can never sit in
-              front of either of them. */}
-          <p className="pointer-events-none absolute left-1/2 hidden -translate-x-1/2 font-mono text-xs uppercase tracking-[0.12em] text-primary md:block">
-            {activeLabel}
-          </p>
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            <LanguageToggle />
-
-            <StarButton
-              as="a"
-              href={profile.cvUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              // Below 430px the three controls plus the logo measure 383px and push Menu off the
-              // right edge (measured at 320, 360 and 375). The link moves into the menu instead.
-              className="hidden min-h-11 items-center gap-1.5 rounded-full border border-accent px-4 text-sm font-semibold text-accent transition-colors hover:bg-accent/10 min-[430px]:inline-flex"
-            >
-              <span>{language === 'id' ? 'CV (ID)' : 'CV (EN)'}</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="h-3.5 w-3.5 opacity-80"
-                aria-hidden="true"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </StarButton>
-
-            {/* lg, not md. At 768 the seven pills that used to live here
-                measured 687px inside a 753px container, which pushed the CV
-                link off screen while this button was already hidden. The pills
-                are gone, but the rail replaces them at exactly the same
-                breakpoint, so the disclosure still has to cover everything
-                below lg. */}
-            <button
-              type="button"
-              aria-label="Menu"
-              aria-expanded={menuOpen}
-              onClick={() => setMenuOpen((open) => !open)}
-              className="inline-flex min-h-11 items-center rounded-full border border-edge px-4 text-sm text-muted lg:hidden"
-            >
-              Menu
-            </button>
-          </div>
-        </div>
-
-        {menuOpen && (
-          <nav
-            aria-label="Sections, mobile"
-            className="border-b border-edge bg-void px-6 py-4 lg:hidden"
-          >
-            <div className="mb-3 flex justify-end">
-              <LanguageToggle />
-            </div>
-            <ul className="flex flex-col gap-1">
-              {sections.map((section) => (
-                <li key={section.id}>
-                  <a
-                    href={`#${section.id}`}
-                    aria-current={section.id === activeId ? 'page' : undefined}
-                    onClick={(event) => {
-                      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-                      event.preventDefault();
-                      navigate(section.id);
-                    }}
-                    className="flex min-h-11 items-center rounded-lg px-3 text-primary"
-                  >
-                    {section.label}
-                  </a>
-                </li>
-              ))}
-              <li className="min-[430px]:hidden">
+        <nav aria-label="Sections" className="hidden lg:block">
+          <ul className="flex items-center gap-7">
+            {listed.map((section) => (
+              <li key={section.id}>
                 <a
-                  href={profile.cvUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex min-h-11 items-center gap-1.5 rounded-lg px-3 font-semibold text-accent"
+                  href={`#${section.id}`}
+                  aria-current={section.id === activeId ? 'true' : undefined}
+                  className={`${LINK} text-muted underline-offset-[10px] hover:text-primary aria-[current=true]:text-primary aria-[current=true]:underline aria-[current=true]:decoration-accent aria-[current=true]:decoration-2`}
                 >
-                  {language === 'id' ? 'CV (ID)' : 'CV (EN)'} ↗
+                  {section.label}
                 </a>
               </li>
-            </ul>
-          </nav>
-        )}
-      </header>
+            ))}
+          </ul>
+        </nav>
 
-      {/* Outside the header on purpose. backdrop-filter makes an element the
-          containing block for its fixed descendants, and the header gains
-          backdrop-blur the moment the page scrolls past 80px — nested here, the
-          rail would be positioned against the viewport at the top of the page
-          and against the header everywhere else, jumping on the first scroll. */}
-      <NodeRailNav
-        sections={sections}
-        activeId={activeId}
-        progress={progress}
-        onNavigate={navigate}
-      />
-    </>
+        <div className="hidden items-center gap-6 lg:flex">
+          <LanguageToggle className="text-primary" />
+          <a
+            href={profile.cvUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`${LINK} font-medium text-accent underline underline-offset-4`}
+          >
+            {cvLabel} ↗
+          </a>
+        </div>
+
+        <button
+          ref={toggle}
+          type="button"
+          aria-label={open ? t.close : t.menu}
+          aria-expanded={open}
+          aria-controls="mobile-sections"
+          onClick={() => setOpen((value) => !value)}
+          className="inline-flex min-h-9 items-center rounded-full border border-edge px-4 text-sm text-primary lg:hidden"
+        >
+          {open ? t.close : t.menu}
+        </button>
+      </div>
+
+      {open && (
+        <nav
+          id="mobile-sections"
+          aria-label="Sections, mobile"
+          className="border-t border-edge pb-5 pt-2 lg:hidden"
+        >
+          <ul className="flex flex-col">
+            {sections.map((section) => (
+              <li key={section.id}>
+                <a
+                  href={`#${section.id}`}
+                  onClick={() => setOpen(false)}
+                  className="flex min-h-11 items-center text-primary"
+                >
+                  {section.label}
+                </a>
+              </li>
+            ))}
+            <li>
+              <a
+                href={profile.cvUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex min-h-11 items-center font-medium text-accent"
+              >
+                {cvLabel} ↗
+              </a>
+            </li>
+            <li>
+              <a
+                href={`mailto:${profile.email}`}
+                className="flex min-h-11 items-center font-medium text-primary"
+              >
+                {t.emailMe}
+              </a>
+            </li>
+          </ul>
+          <div className="mt-3 flex justify-end">
+            <LanguageToggle className="text-primary" />
+          </div>
+        </nav>
+      )}
+    </header>
   );
 }

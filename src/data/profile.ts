@@ -36,6 +36,8 @@ export const profile: Profile = {
   whatsapp: '087738992241',
   cvUrl: '/cv/daffa-firasyan-cv-en.pdf',
   avatarUrl: '/profile/avatar.webp',
+  avatarSrcSet:
+    '/profile/avatar-640.webp 640w, /profile/avatar-960.webp 960w, /profile/avatar-1280.webp 1280w',
   openToWork: true,
   socials: [
     { label: 'GitHub', url: 'https://github.com/DaffaFirasyan', icon: 'github' },

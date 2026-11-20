@@ -78,7 +78,10 @@ describe('published metadata', () => {
     const preload = html.match(/<link[^>]*rel="preload"[^>]*>/s);
     if (!preload) throw new Error('index.html carries no preload for the avatar');
 
-    expect(preload[0]).toContain(`href="${profile.avatarUrl}"`);
+    // It names the responsive candidates, exactly as the profile does, so a
+    // phone fetches one small copy rather than the original on top of it.
+    expect(preload[0]).toContain(`imagesrcset="${profile.avatarSrcSet}"`);
+    expect(preload[0]).toContain('imagesizes=');
     expect(preload[0]).toContain('as="image"');
     expect(preload[0]).toContain('fetchpriority="high"');
   });

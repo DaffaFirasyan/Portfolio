@@ -21,7 +21,7 @@ describe('Contact', () => {
   it('still lists every social link', () => {
     render(<Contact />);
     for (const social of profile.socials) {
-      expect(screen.getByRole('link', { name: social.label })).toHaveAttribute('href', social.url);
+      expect(screen.getByRole('link', { name: new RegExp(`^${social.label}`) })).toHaveAttribute('href', social.url);
     }
   });
 });

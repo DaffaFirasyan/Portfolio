@@ -24,9 +24,6 @@ export default defineConfig({
         manualChunks(id: string) {
           const pkg = (name: string) => id.includes(`node_modules/${name}/`);
           if (pkg('react') || pkg('react-dom') || pkg('scheduler')) return 'react';
-          if (pkg('gsap') || id.includes('node_modules/@gsap/')) return 'gsap';
-          if (pkg('motion') || pkg('motion-dom') || pkg('motion-utils')) return 'motion';
-          if (pkg('lenis')) return 'lenis';
           if (pkg('lucide-react')) return 'icons';
           return undefined;
         },

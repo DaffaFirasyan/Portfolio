@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import Experience from './Experience';
 import Projects from './Projects';
 import Education from './Education';
@@ -13,14 +14,14 @@ describe('Experience', () => {
     render(<Experience />);
     for (const e of experiences) {
       expect(screen.getByRole('heading', { level: 3, name: e.role })).toBeInTheDocument();
-      expect(screen.getAllByText(e.organization).length).toBeGreaterThan(0);
+      // The organisation shares a line with the kind of role, so match inside it.
+      expect(screen.getAllByText(new RegExp(e.organization)).length).toBeGreaterThan(0);
     }
     // The date line renders as "Feb 2026 — Present" in a single element, so
     // match the tail rather than the bare word.
     //
     // queryAllByText, not getAllByText: getAllBy* throws when nothing matches,
-    // which made zero current roles inexpressible. It is zero today — the two
-    // ongoing entries were both organisational and left with them — and "the
+    // which made zero current roles inexpressible. It is zero today, and "the
     // page marks exactly as many roles current as the data does" is the
     // assertion, whatever that number is.
     expect(screen.queryAllByText(/— Present$/).length).toBe(
@@ -32,38 +33,34 @@ describe('Experience', () => {
     render(<Experience />);
 
     // experience.type was in the data, covered by a type, and rendered nowhere.
-    // "Work" and "Internship" are the difference between entries that look
-    // identical and entries a reader can weigh.
+    // "Freelance" and "Internship" are the difference between entries that
+    // look identical and entries a reader can weigh.
     for (const e of experiences) {
-      expect(screen.getAllByText(EXPERIENCE_TYPE_LABEL[e.type]).length).toBeGreaterThan(0);
+      expect(
+        screen.getAllByText(new RegExp(`· ${EXPERIENCE_TYPE_LABEL[e.type]}$`)).length,
+      ).toBeGreaterThan(0);
     }
   });
 
-  it('leads each entry with its start year', () => {
+  it('puts the start year of each entry in its date line', () => {
     render(<Experience />);
 
     for (const e of experiences) {
-      expect(screen.getAllByText(e.startDate.slice(0, 4)).length).toBeGreaterThan(0);
+      expect(
+        screen.getAllByText(new RegExp(`${e.startDate.slice(0, 4)}`)).length,
+      ).toBeGreaterThan(0);
     }
   });
 
-  it('never lets the pulse dot decide where a year starts', () => {
+  it('keeps the dates in a column of their own from sm up and stacks them on a phone', () => {
     const { container } = render(<Experience />);
 
-    // The year cell used to be `justify-end` inside a 7rem column. Measured at
-    // 1280: the year renders 120–123px wide, so it did not fit and the
-    // overflow went leftwards, putting every year past the section's own left
-    // edge — and because the dot shares this flex row, the one current entry
-    // lost a further 18px to it and sat 19px left of its neighbours.
-    //
-    // jsdom computes no layout, so this guards the two mechanisms rather than
-    // the pixels: left-aligned, so only the year's own box sets its start, and
-    // a column wide enough that it fits.
-    for (const cell of container.querySelectorAll('ol > li > div:first-child')) {
-      expect(cell.className).not.toMatch(/justify-end/);
-    }
+    // jsdom computes no layout, so this guards the mechanism rather than the
+    // pixels: a two-column grid from sm up, one column below it, with the
+    // dates left-aligned so only their own width sets where they start.
     for (const item of container.querySelectorAll('ol > li')) {
-      expect(item.className).toContain('md:grid-cols-[10rem_1fr]');
+      expect(item.className).toContain('sm:grid-cols-[9rem_1fr]');
+      expect(item.className).not.toMatch(/justify-end/);
     }
   });
 });
@@ -141,20 +138,27 @@ describe('Education', () => {
   it('offers a filter per category without hiding anything by default', async () => {
     render(<Education />);
 
-    const categories = [...new Set(certificates.map((c) => c.category))];
+    const isTile = (name: string) =>
+      certificates.some((c) => name.startsWith(c.title) && name.includes(c.issuer));
+    const tiles = () => screen.getAllByRole('button', { name: isTile });
+
     expect(screen.getByRole('button', { name: /^All \d+$/ })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
+    expect(tiles()).toHaveLength(certificates.length);
 
-    // Narrowing shows exactly the matches, and All brings the wall back whole.
-    const first = categories[0];
-    const label = screen.getAllByRole('button', { pressed: false }).find((b) =>
-      new RegExp(`\\b${certificates.filter((c) => c.category === first).length}$`).test(
-        b.textContent ?? '',
-      ),
-    );
-    expect(label).toBeDefined();
+    // Narrowing shows exactly the matches. The filter buttons name themselves
+    // "<label> <count>", so the count is read from there.
+    const first = certificates[0].category;
+    const count = certificates.filter((c) => c.category === first).length;
+    const filter = screen
+      .getAllByRole('button', { pressed: false })
+      .find((b) => new RegExp(` ${count}$`).test(b.getAttribute('aria-label') ?? ''));
+    expect(filter).toBeDefined();
+
+    await userEvent.click(filter!);
+    expect(tiles()).toHaveLength(count);
   });
 });
 

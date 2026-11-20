@@ -57,38 +57,34 @@ describe('project filter', () => {
     expect(new Set(titles).size).toBe(titles.length);
   });
 
-  it('promotes the featured projects while All is selected', () => {
+  it('leads with the featured projects while All is selected', () => {
     render(<Projects />);
 
     const expected = projects.filter((p) => p.featured);
     expect(expected.length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/— Featured$/)).toHaveLength(expected.length);
 
     // Promoted, not merely reordered: they lead the section.
     expect(visibleTitles().slice(0, expected.length)).toEqual(expected.map((p) => p.title));
   });
 
-  it('drops the split entirely once a category narrows the set', async () => {
+  it('keeps the data order inside a filtered subset, with no featuring', async () => {
     render(<Projects />);
     await userEvent.click(screen.getByRole('button', { name: firstReal }));
 
     // Featuring judges the whole body of work. Inside a filtered subset it
-    // claims an importance it does not have, and a single match would render
-    // one enormous row above an empty grid.
-    expect(screen.queryAllByText(/— Featured$/)).toHaveLength(0);
-    expect(visibleTitles()).toHaveLength(
-      projects.filter((p) => p.category === firstReal).length,
+    // claims an importance it does not have.
+    expect(visibleTitles()).toEqual(
+      projects.filter((p) => p.category === firstReal).map((p) => p.title),
     );
   });
 
-  it('brings the split back when the filter is cleared', async () => {
+  it('brings the featured-first order back when the filter is cleared', async () => {
     render(<Projects />);
     await userEvent.click(screen.getByRole('button', { name: firstReal }));
     await userEvent.click(screen.getByRole('button', { name: ALL }));
 
-    expect(screen.getAllByText(/— Featured$/)).toHaveLength(
-      projects.filter((p) => p.featured).length,
-    );
+    const featured = projects.filter((p) => p.featured).map((p) => p.title);
+    expect(visibleTitles().slice(0, featured.length)).toEqual(featured);
   });
 
   it('keeps the data order rather than reshuffling what stays on screen', async () => {

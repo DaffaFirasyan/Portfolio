@@ -5,75 +5,54 @@
    "this class is in the bundle" useless as proof that a component uses it. */
 @source not '../docs';
 
-@theme {
-  --color-void: #0a0c10;
-  --color-surface: #12161d;
-  --color-elevated: #1a2029;
-  --color-edge: #232c38;
-  --color-primary: #e8edf2;
-  --color-muted: #8a97a6;
-  --color-accent: #f0a32e;
-  --color-accent-2: #5ec8d8;
-  /* Errors need a colour that is not also the link and active-nav colour.
-     #ff6b6b on --color-void is about 6.5:1, above the 4.5:1 AA asks of text. */
-  --color-danger: #ff6b6b;
+/* Warm paper and a never-pure-black ink, in both themes. Components use the
+   semantic tokens below and never name a mode; the values behind them swap with
+   prefers-color-scheme. Every text pair was computed, not eyeballed: ink,
+   muted and the seal colour all clear 4.5:1 on their ground and on the
+   surface tint, in both modes. */
+:root {
+  color-scheme: light dark;
+  --c-ground: #f6f3ec;
+  --c-surface: #ede9df;
+  --c-elevated: #e6e1d5;
+  --c-hair: #cbc5b8;
+  --c-ink: #1b1a17;
+  --c-muted: #5c584f;
+  --c-seal: #b0351b;
+  --c-on-seal: #f6f3ec;
+  --c-danger: #b3261e;
+}
 
-  --font-display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --c-ground: #151412;
+    --c-surface: #1e1c19;
+    --c-elevated: #26231f;
+    --c-hair: #38342e;
+    --c-ink: #ede9e0;
+    --c-muted: #a49e92;
+    --c-seal: #ee7152;
+    --c-on-seal: #151412;
+    --c-danger: #ff8a80;
+  }
+}
+
+@theme {
+  --color-void: var(--c-ground);
+  --color-surface: var(--c-surface);
+  --color-elevated: var(--c-elevated);
+  --color-edge: var(--c-hair);
+  --color-primary: var(--c-ink);
+  --color-muted: var(--c-muted);
+  --color-accent: var(--c-seal);
+  --color-on-accent: var(--c-on-seal);
+  --color-danger: var(--c-danger);
+
+  /* One grotesque carries display, body and caption alike. Mono is for plate
+     captions and credit-row labels only. */
+  --font-display: 'Geist Variable', system-ui, sans-serif;
   --font-sans: 'Geist Variable', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
-
-  --text-h2: 2rem;
-  --text-display-sm: 3rem;
-  --text-display: 4.5rem;
-  --text-display-lg: 7rem;
-
-  /* StarBorder renders animate-star-movement-{top,bottom} and shipped its
-     config as Tailwind v3 JavaScript, which v4 does not read. No duration
-     here on purpose: the component writes animationDuration inline. */
-  --animate-star-movement-bottom: star-movement-bottom linear infinite alternate;
-  --animate-star-movement-top: star-movement-top linear infinite alternate;
-
-  /* Marks the current role on the timeline. Deliberately slow, and only
-     transform and opacity so it composites — it costs no main-thread work,
-     unlike the canvas border it replaced. */
-  --animate-pulse-ring: pulse-ring 3s ease-out infinite;
-}
-
-@keyframes pulse-ring {
-  0% {
-    transform: scale(1);
-    opacity: 0.45;
-  }
-  70% {
-    transform: scale(2.6);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(2.6);
-    opacity: 0;
-  }
-}
-
-@keyframes star-movement-bottom {
-  0% {
-    transform: translate(0%, 0%);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(-100%, 0%);
-    opacity: 0;
-  }
-}
-
-@keyframes star-movement-top {
-  0% {
-    transform: translate(0%, 0%);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(100%, 0%);
-    opacity: 0;
-  }
 }
 
 @layer base {
@@ -89,13 +68,145 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-accent-2);
-    outline-offset: 2px;
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  /* Browser surfaces that belong to no design system until themed. */
+  ::selection {
+    background: color-mix(in srgb, var(--color-accent) 28%, transparent);
+    color: var(--color-primary);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-edge) transparent;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Plates. A plate is a hairline frame with a registration crosshair standing
+   on each corner, the way a printed plate section marks where the sheet is cut.
+   The crosshairs are one pseudo-element drawn from eight gradients.
+   --------------------------------------------------------------------------- */
+.plate {
+  position: relative;
+  border: 1px solid var(--color-edge);
+}
+
+.plate::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  pointer-events: none;
+  color: var(--color-muted);
+  background-repeat: no-repeat;
+  background-image:
+    linear-gradient(currentColor, currentColor), linear-gradient(currentColor, currentColor),
+    linear-gradient(currentColor, currentColor), linear-gradient(currentColor, currentColor),
+    linear-gradient(currentColor, currentColor), linear-gradient(currentColor, currentColor),
+    linear-gradient(currentColor, currentColor), linear-gradient(currentColor, currentColor);
+  background-position:
+    left 0 top 8px,
+    left 8px top 0,
+    right 0 top 8px,
+    right 8px top 0,
+    left 0 bottom 8px,
+    left 8px bottom 0,
+    right 0 bottom 8px,
+    right 8px bottom 0;
+  background-size:
+    17px 1px,
+    1px 17px,
+    17px 1px,
+    1px 17px,
+    17px 1px,
+    1px 17px,
+    17px 1px,
+    1px 17px;
+}
+
+/* ---------------------------------------------------------------------------
+   The one moment: the letterpress stamp presses onto the portrait plate.
+   Transform and opacity on a decorative element, once, at load.
+   --------------------------------------------------------------------------- */
+@keyframes press {
+  0% {
+    opacity: 0;
+    transform: translateY(-1.25rem) rotate(-16deg) scale(1.18);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(0.15rem) rotate(-9deg) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(-9deg) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .stamp {
+    animation: press 0.95s 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The rule above each section draws in from the left as it arrives. Pure CSS,
+   only where the browser supports it; elsewhere the rule is simply there.
+   --------------------------------------------------------------------------- */
+@keyframes rule-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .rule {
+      transform-origin: left;
+      animation: rule-draw linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+  }
+}
+
+/* An underline that sweeps in from the left on hover and focus. */
+.sweep {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 2px;
+  transition: background-size 0.3s ease-out;
+}
+.sweep:hover,
+.sweep:focus-visible {
+  background-size: 100% 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sweep {
+    transition: none;
+  }
+}
+
+/* Below lg the plate stacks under the text and starts below the fold, so a stamp
+   timed from load would finish unseen. There it presses as the plate arrives. */
+@media (prefers-reduced-motion: no-preference) and (max-width: 1023px) {
+  @supports (animation-timeline: view()) {
+    .stamp {
+      animation: press linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 90%;
+    }
   }
 }

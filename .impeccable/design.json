@@ -1,0 +1,339 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-11T14:55:41.926Z",
+  "title": "Design System: Daffa Firasyan Portfolio",
+  "extensions": {
+    "colorMeta": {
+      "seal": {
+        "role": "primary",
+        "displayName": "Vermilion Seal",
+        "canonical": "#b0351b",
+        "night": "#ee7152",
+        "tonalRamp": [
+          "#151412",
+          "#411d15",
+          "#6e2717",
+          "#9a301a",
+          "#b94d36",
+          "#cb7e6c",
+          "#ddafa1",
+          "#efe0d7"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "Warm Paper",
+        "canonical": "#f6f3ec",
+        "night": "#151412",
+        "tonalRamp": [
+          "#151412",
+          "#555450",
+          "#96938f",
+          "#d6d3cd",
+          "#f6f3ec",
+          "#f6f3ec",
+          "#f6f3ec",
+          "#f6f3ec"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Bone Tint",
+        "canonical": "#ede9df",
+        "night": "#1e1c19",
+        "tonalRamp": [
+          "#151412",
+          "#53514d",
+          "#908e87",
+          "#cecbc2",
+          "#eeeae1",
+          "#f0ede4",
+          "#f3efe7",
+          "#f5f2eb"
+        ]
+      },
+      "elevated": {
+        "role": "neutral",
+        "displayName": "Elevated Tint",
+        "canonical": "#e6e1d5",
+        "night": "#26231f",
+        "tonalRamp": [
+          "#151412",
+          "#514f4a",
+          "#8c8981",
+          "#c8c4b9",
+          "#e8e3d8",
+          "#ece8de",
+          "#f0ede4",
+          "#f4f1ea"
+        ]
+      },
+      "hair": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#cbc5b8",
+        "night": "#38342e",
+        "tonalRamp": [
+          "#151412",
+          "#494741",
+          "#7d7971",
+          "#b1aca0",
+          "#d1cbbf",
+          "#dcd7cc",
+          "#e7e3d9",
+          "#f2eee7"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Warm Ink",
+        "canonical": "#1b1a17",
+        "night": "#ede9e0",
+        "tonalRamp": [
+          "#151412",
+          "#171613",
+          "#181715",
+          "#1a1916",
+          "#373632",
+          "#6f6e69",
+          "#a8a6a0",
+          "#e0ddd7"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Quiet Ink",
+        "canonical": "#5c584f",
+        "night": "#a49e92",
+        "tonalRamp": [
+          "#151412",
+          "#292723",
+          "#3e3b35",
+          "#524e46",
+          "#706c63",
+          "#97948c",
+          "#bfbcb4",
+          "#e7e4dc"
+        ]
+      },
+      "on-seal": {
+        "role": "neutral",
+        "displayName": "Seal Ground",
+        "canonical": "#f6f3ec",
+        "night": "#151412",
+        "tonalRamp": [
+          "#151412",
+          "#555450",
+          "#96938f",
+          "#d6d3cd",
+          "#f6f3ec",
+          "#f6f3ec",
+          "#f6f3ec",
+          "#f6f3ec"
+        ]
+      },
+      "danger": {
+        "role": "tertiary",
+        "displayName": "Error Red",
+        "canonical": "#b3261e",
+        "night": "#ff8a80",
+        "tonalRamp": [
+          "#151412",
+          "#421915",
+          "#6f1e19",
+          "#9c231c",
+          "#bc4038",
+          "#cd756d",
+          "#deaaa2",
+          "#efdfd7"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The hero name only, one word per line."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section titles in the left four columns."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Project, degree and role titles."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "First About paragraph and hero role line."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Muted running text, 62ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Credit-row labels and plate captions, mono uppercase."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "press",
+        "value": "0.95s 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both",
+        "purpose": "The stamp presses onto the portrait plate once at load; transform and opacity only."
+      },
+      {
+        "name": "rule-draw",
+        "value": "scaleX(0) to scaleX(1), linear, animation-timeline: view(), range entry 0% to entry 70%",
+        "purpose": "Section hairline draws in from the left on arrival, where supported."
+      },
+      {
+        "name": "sweep",
+        "value": "background-size 0% to 100%, 0.3s ease-out",
+        "purpose": "Underline sweep on hover and focus."
+      },
+      {
+        "name": "dim",
+        "value": "opacity 200ms",
+        "purpose": "Projects dim to 40% when a hovered skill is not in them."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Pill Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single seal-filled action (CV download).",
+      "html": "<a class=\"ds-btn-primary\" href=\"#\">Download CV ↗</a>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;min-height:44px;padding:0 20px;border-radius:9999px;background:#b0351b;color:#f6f3ec;font:500 14px/1 \"Geist Variable\",system-ui,sans-serif;text-decoration:none;transition:opacity .15s}.ds-btn-primary:hover{opacity:.9}.ds-btn-primary:focus-visible{outline:2px solid #b0351b;outline-offset:3px}"
+    },
+    {
+      "name": "Outline Pill Button",
+      "kind": "button",
+      "refersTo": "button-pill",
+      "description": "Secondary action: hairline outline, ink text.",
+      "html": "<a class=\"ds-btn-pill\" href=\"#\">Email me</a>",
+      "css": ".ds-btn-pill{display:inline-flex;align-items:center;min-height:44px;padding:0 20px;border-radius:9999px;border:1px solid #cbc5b8;color:#1b1a17;font:500 14px/1 \"Geist Variable\",system-ui,sans-serif;text-decoration:none;transition:border-color .15s}.ds-btn-pill:hover{border-color:#1b1a17}.ds-btn-pill:focus-visible{outline:2px solid #b0351b;outline-offset:3px}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Surface-tinted, hairline-bordered field with label above.",
+      "html": "<label class=\"ds-field-label\" for=\"ds-n\">Name</label><input class=\"ds-input\" id=\"ds-n\" type=\"text\" placeholder=\"Your name\">",
+      "css": ".ds-field-label{display:block;font:500 14px \"Geist Variable\",system-ui,sans-serif;color:#5c584f}.ds-input{display:block;margin-top:8px;width:260px;min-height:44px;padding:12px 16px;border:1px solid #cbc5b8;border-radius:8px;background:#ede9df;color:#1b1a17;font:400 16px \"Geist Variable\",system-ui,sans-serif}.ds-input::placeholder{color:#5c584f}.ds-input:focus-visible{outline:2px solid #b0351b;outline-offset:3px}"
+    },
+    {
+      "name": "Top Bar Navigation",
+      "kind": "nav",
+      "refersTo": "colors.hair",
+      "description": "Fixed 56px bar: short name, section links, seal CV link.",
+      "html": "<header class=\"ds-nav\"><a class=\"ds-nav-name\" href=\"#\">Daffa</a><nav><a class=\"ds-nav-link\" href=\"#\">About</a><a class=\"ds-nav-link ds-current\" href=\"#\">Skills</a><a class=\"ds-nav-link\" href=\"#\">Projects</a></nav><a class=\"ds-nav-cv\" href=\"#\">CV (EN) ↗</a></header>",
+      "css": ".ds-nav{display:flex;align-items:center;justify-content:space-between;gap:24px;height:56px;padding:0 24px;border-bottom:1px solid #cbc5b8;background:#f6f3ec;font-family:\"Geist Variable\",system-ui,sans-serif}.ds-nav nav{display:flex;gap:28px}.ds-nav-name{font-weight:500;font-size:16px;letter-spacing:-.01em;color:#1b1a17;text-decoration:none}.ds-nav-link{font-size:14px;color:#5c584f;text-decoration:none}.ds-nav-link:hover{color:#1b1a17}.ds-current{color:#1b1a17;text-decoration:underline;text-decoration-color:#b0351b;text-decoration-thickness:2px;text-underline-offset:10px}.ds-nav-cv{font-size:14px;font-weight:500;color:#b0351b;text-decoration:underline;text-underline-offset:4px}.ds-nav a:focus-visible{outline:2px solid #b0351b;outline-offset:3px}"
+    },
+    {
+      "name": "Plate",
+      "kind": "card",
+      "refersTo": "plate",
+      "description": "Hairline frame with registration crosshairs on each corner, image on a surface tint.",
+      "html": "<div class=\"ds-plate\"><div class=\"ds-plate-img\"></div></div>",
+      "css": ".ds-plate{position:relative;border:1px solid #cbc5b8;background:#ede9df;padding:16px;width:220px;margin:12px}.ds-plate::before{content:'';position:absolute;inset:-8px;pointer-events:none;color:#5c584f;background-repeat:no-repeat;background-image:linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor),linear-gradient(currentColor,currentColor);background-position:left 0 top 8px,left 8px top 0,right 0 top 8px,right 8px top 0,left 0 bottom 8px,left 8px bottom 0,right 0 bottom 8px,right 8px bottom 0;background-size:17px 1px,1px 17px,17px 1px,1px 17px,17px 1px,1px 17px,17px 1px,1px 17px}.ds-plate-img{aspect-ratio:3/4;background:#e6e1d5}"
+    },
+    {
+      "name": "Credits Row",
+      "kind": "custom",
+      "refersTo": "typography.label",
+      "description": "Mono 11px uppercase label over an ink value, divided by hairlines.",
+      "html": "<dl class=\"ds-credits\"><div class=\"ds-cell\"><dt>Location</dt><dd>Indonesia</dd></div><div class=\"ds-cell ds-cell-r\"><dt>Status</dt><dd>Open to work</dd></div></dl>",
+      "css": ".ds-credits{display:grid;grid-template-columns:1fr 1fr;width:360px;margin:0;border-top:1px solid #cbc5b8;font-family:\"Geist Variable\",system-ui,sans-serif}.ds-cell{padding:16px 24px 16px 0;border-bottom:1px solid #cbc5b8}.ds-cell-r{padding:16px 0 16px 24px;border-left:1px solid #cbc5b8}.ds-credits dt{font:400 11px/1.5 \"JetBrains Mono Variable\",ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:#5c584f}.ds-credits dd{margin:6px 0 0;color:#1b1a17}"
+    },
+    {
+      "name": "Letterpress Stamp",
+      "kind": "custom",
+      "refersTo": "colors.seal",
+      "description": "Round seal-coloured stamp: two rings and initials (the ring text is omitted here).",
+      "html": "<svg class=\"ds-stamp\" viewBox=\"0 0 160 160\" width=\"120\" height=\"120\"><circle cx=\"80\" cy=\"80\" r=\"75\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"/><circle cx=\"80\" cy=\"80\" r=\"45\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1\"/><text x=\"80\" y=\"91\" text-anchor=\"middle\" font-size=\"32\" font-weight=\"500\" letter-spacing=\"-1\" fill=\"currentColor\">DF</text></svg>",
+      "css": ".ds-stamp{color:#b0351b;transform:rotate(-9deg);font-family:\"Geist Variable\",system-ui,sans-serif}"
+    },
+    {
+      "name": "Skill Link",
+      "kind": "chip",
+      "refersTo": "colors.seal",
+      "description": "Text-only skill name; seal and underlined while active.",
+      "html": "<ul class=\"ds-skills\"><li><button class=\"ds-skill\">TypeScript</button></li><li><button class=\"ds-skill ds-on\">React</button></li></ul>",
+      "css": ".ds-skills{display:flex;gap:24px;list-style:none;margin:0;padding:0}.ds-skill{min-height:32px;background:none;border:0;padding:0;font:400 16px \"Geist Variable\",system-ui,sans-serif;color:#5c584f;cursor:pointer}.ds-skill:hover{color:#1b1a17}.ds-on{color:#b0351b;font-weight:500;text-decoration:underline;text-underline-offset:4px}.ds-skill:focus-visible{outline:2px solid #b0351b;outline-offset:3px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Plate Section",
+    "overview": "The page reads like the plate section of a design annual: uncoated warm paper, a never-pure-black ink, and a hairline grid that carries everything. Every section has the same shape. A 1px rule draws across the top, the title takes the left four of twelve columns, the evidence takes the right eight. Type does the work: one grotesque at regular weight, enormous where it matters (the name) and quiet elsewhere. Content is separated by rules, not boxes.\n\nColour is paper, ink and a single vermilion seal. Light and dark both follow the device (`prefers-color-scheme`); components only use semantic tokens and never name a mode. The seal is the only chroma. There is one remembered moment, a round letterpress stamp that presses itself half onto the portrait plate once at load; everything else is still.\n\nRejected by the owner, and still the line: the previous departure-board world, with tiles everywhere, several colours and many things moving at once. Calm is the brief.",
+    "keyCharacteristics": [
+      "Hairline (1px) rules and credits tables instead of cards.",
+      "Registration crosshairs mark the corners of image plates (hero portrait, project screenshots).",
+      "One typeface for display, body and caption; mono only for labels.",
+      "No shadows, no blur; depth is a tint change and a hairline.",
+      "One moving thing at load (the stamp), plus a rule that draws in per section."
+    ],
+    "rules": [
+      {
+        "name": "The One Seal Rule",
+        "body": "Chroma is the seal and nothing else. Never add a second hue, a gradient fill, or a tinted background.",
+        "section": "colors"
+      },
+      {
+        "name": "The Mode-Blind Rule",
+        "body": "Components use `bg-void`, `text-primary`, `border-edge` and the other semantic names; they never branch on light or dark. Only the values behind `--c-*` swap.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Grotesque Rule",
+        "body": "Display, body and caption are the same family. Mono never sits above a heading and never sets running text.",
+        "section": "typography"
+      },
+      {
+        "name": "The Medium-Is-Enough Rule",
+        "body": "Weight tops out at 500 for titles and links; 600 appears only on active toggles and a few buttons. Display and headlines stay at 400.",
+        "section": "typography"
+      },
+      {
+        "name": "The Hairline Rule",
+        "body": "A 1px `hair` line is the only separator. If something needs emphasis, enlarge the type; do not box it or lift it.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** separate content with 1px `hair` rules and credits-table rows, not with boxes.",
+      "**Do** put the title in the left four columns and the evidence in the right eight in every new section, using `SectionShell`.",
+      "**Do** spend `seal` on the stamp, focus, the primary action, the current or active state and links that lead somewhere.",
+      "**Do** use semantic tokens (`bg-void`, `text-primary`, `text-muted`, `border-edge`, `text-accent`) and let `--c-*` swap per mode.",
+      "**Do** frame images in `.plate` on a `surface` tint, and set mono labels in uppercase at 11px with 0.14em tracking.",
+      "**Do** keep touch targets at 44px minimum on primary controls."
+    ],
+    "donts": [
+      "**Don't** add shadows, blur or glass, or a second chroma beside the seal.",
+      "**Don't** set display type in anything but Geist at weight 400, and don't use the mono face for headings or running text.",
+      "**Don't** wrap content in rounded cards or tiles; plates are square and hairline-framed.",
+      "**Don't** add moving effects beyond the stamp press, the rule draw-in and the sweep; no parallax, marquees or hover glows.",
+      "**Don't** import the departure-board world (dense tiles, yellow bands, multiple accent colours)."
+    ]
+  }
+}

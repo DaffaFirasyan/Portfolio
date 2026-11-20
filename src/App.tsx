@@ -7,17 +7,23 @@ import Education from '@/sections/Education';
 import Contact from '@/sections/Contact';
 import { SkillHighlightProvider } from '@/highlight/SkillHighlight';
 import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
-import Marquee from '@/motion/Marquee';
 import Navbar from '@/nav/Navbar';
 
+/**
+ * A printed plate section read top to bottom: the title page, then each section
+ * on the same twelve-column grid, a hairline above it, its title on the left
+ * and its evidence on the right. The bar across the top carries the way to every
+ * section, the language and the CV at every scroll position.
+ */
 function AppContent() {
-  const { profile, t } = useLanguage();
+  const { profile, sections, t } = useLanguage();
+  const home = sections.find((section) => section.id === 'home');
 
   return (
     <>
       <a
-        href="#home"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-void"
+        href="#about"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-on-accent"
       >
         {t.skipToContent}
       </a>
@@ -36,17 +42,18 @@ function AppContent() {
         </main>
       </SkillHighlightProvider>
 
-      {/* overflow-hidden is load-bearing. The marquee is deliberately wider
-          than the viewport, and without clipping here the whole document
-          scrolls sideways — the same bug the grain canvas already shipped
-          once.
-          The credit line *is* the marquee now, rather than sitting under a
-          second one carrying the name and role. Printing it in both places
-          would be the same sentence twice in a footer ten lines tall, and the
-          name is already the h1 at the top of the page. The year stays
-          computed so it cannot go stale. */}
-      <footer className="overflow-hidden border-t border-edge py-10">
-        <Marquee text={`© ${new Date().getFullYear()} ${profile.name} · ${t.builtWith}`} />
+      <footer className="px-6 md:px-10">
+        <div className="mx-auto flex w-full max-w-[1120px] flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-edge py-8 text-sm text-muted">
+          <p>
+            © {new Date().getFullYear()} {profile.name} · {t.builtWith}
+          </p>
+          <a
+            href="#home"
+            className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4"
+          >
+            {home?.label} ↑
+          </a>
+        </div>
       </footer>
     </>
   );

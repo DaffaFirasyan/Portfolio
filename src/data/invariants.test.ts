@@ -358,6 +358,8 @@ describe('assets', () => {
   it('resolves every referenced file in public/', () => {
     const referenced = [
       profile.avatarUrl,
+      // Every file a srcset names, not just the first.
+      ...(profile.avatarSrcSet ?? '').split(',').map((entry) => entry.trim().split(' ')[0]).filter(Boolean),
       profile.cvUrl,
       profileId.cvUrl,
       site.ogImage,

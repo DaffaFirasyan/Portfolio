@@ -111,6 +111,15 @@ describe('certificate lightbox', () => {
     );
   });
 
+  it('puts focus on Close when it opens, not on Previous', async () => {
+    render(<Education />);
+    await userEvent.click(screen.getByRole('button', { name: tileName(first) }));
+
+    // The platform focuses the first control, which is navigation the reader
+    // did not ask for.
+    expect(screen.getByRole('button', { name: /close/i })).toHaveFocus();
+  });
+
   it('returns focus to the certificate that opened it', async () => {
     render(<Education />);
     const trigger = screen.getByRole('button', { name: tileName(first) });

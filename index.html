@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0a0c10" />
+    <meta name="theme-color" content="#f6f3ec" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#151412" media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
     <!--
@@ -13,13 +14,18 @@
       breakdown was 880ms of load delay against 220ms of actually loading it.
 
       Naming it here puts it in the initial document, where the preload scanner
-      finds it in the first few bytes. `profile.avatarUrl` is the source of
-      truth and site.test.ts fails if this drifts from it.
+      finds it in the first few bytes. It names the responsive candidates, not
+      the 2000px original: a preload of the original would be fetched on top of
+      whichever small copy the page then chose. `profile.avatarSrcSet` is the
+      source of truth and site.test.ts fails if this drifts from it; `href` is
+      only the fallback for a browser that ignores imagesrcset.
     -->
     <link
       rel="preload"
       as="image"
-      href="/profile/avatar.webp"
+      href="/profile/avatar-960.webp"
+      imagesrcset="/profile/avatar-640.webp 640w, /profile/avatar-960.webp 960w, /profile/avatar-1280.webp 1280w"
+      imagesizes="(min-width: 1024px) 384px, min(24rem, calc(100vw - 3rem))"
       type="image/webp"
       fetchpriority="high"
     />

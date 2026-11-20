@@ -76,6 +76,7 @@ export const DICTIONARY = {
     copyEmail: 'Copy email',
     emailCopied: 'Copied!',
     chatOnWhatsApp: 'Chat on WhatsApp',
+    emailMe: 'Email me',
   },
   id: {
     // Navigation & Global
@@ -153,6 +154,7 @@ export const DICTIONARY = {
     copyEmail: 'Salin email',
     emailCopied: 'Tersalin!',
     chatOnWhatsApp: 'Chat via WhatsApp',
+    emailMe: 'Kirim email',
   },
 } as const;
 

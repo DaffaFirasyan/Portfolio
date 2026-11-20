@@ -4,35 +4,13 @@ interface LanguageToggleProps {
   className?: string;
 }
 
-function FlagUk({ className = '' }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 32 32"
-      className={`h-4 w-4 shrink-0 overflow-hidden rounded-full shadow-sm ring-1 ring-white/20 ${className}`}
-      aria-hidden="true"
-    >
-      <rect width="32" height="32" fill="#012169" />
-      <path d="M0 0 L32 32 M32 0 L0 32" stroke="#ffffff" strokeWidth="5.5" />
-      <path d="M0 0 L32 32 M32 0 L0 32" stroke="#C8102E" strokeWidth="3" />
-      <path d="M16 0 V32 M0 16 H32" stroke="#ffffff" strokeWidth="9" />
-      <path d="M16 0 V32 M0 16 H32" stroke="#C8102E" strokeWidth="5.5" />
-    </svg>
-  );
-}
+const BUTTON = 'inline-flex min-h-8 items-center px-1 text-sm transition-colors';
 
-function FlagId({ className = '' }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 32 32"
-      className={`h-4 w-4 shrink-0 overflow-hidden rounded-full shadow-sm ring-1 ring-white/25 ${className}`}
-      aria-hidden="true"
-    >
-      <rect width="32" height="16" fill="#E70011" />
-      <rect y="16" width="32" height="16" fill="#FFFFFF" />
-    </svg>
-  );
-}
-
+/**
+ * EN / ID as two words in whatever colour the surrounding surface uses. The
+ * active one is underlined and full strength, the other at 70%: state is carried by weight and a rule, never
+ * by colour alone, and nothing here glows, tilts or casts a shadow.
+ */
 export default function LanguageToggle({ className = '' }: LanguageToggleProps) {
   const { language, setLanguage } = useLanguage();
 
@@ -40,36 +18,36 @@ export default function LanguageToggle({ className = '' }: LanguageToggleProps) 
     <div
       role="group"
       aria-label="Language selection"
-      className={`inline-flex items-center gap-1 rounded-full border border-edge bg-surface/80 p-1 text-xs font-semibold shadow-inner backdrop-blur-md ${className}`}
+      className={`inline-flex items-center gap-2 ${className}`}
     >
       <button
         type="button"
         onClick={() => setLanguage('en')}
         aria-pressed={language === 'en'}
         title="English"
-        className={`group relative flex items-center gap-1.5 rounded-full px-2.5 py-1.5 transition-all sm:px-3 duration-200 active:scale-95 ${
+        className={`${BUTTON} ${
           language === 'en'
-            ? 'bg-accent font-bold text-void shadow-sm shadow-accent/25'
-            : 'text-muted hover:bg-white/5 hover:text-primary'
+            ? 'font-semibold underline underline-offset-4'
+            : 'opacity-70 hover:opacity-100'
         }`}
       >
-        <FlagUk className="transition-transform duration-200 group-hover:scale-115 group-hover:rotate-3" />
-        <span>EN</span>
+        EN
       </button>
-
+      <span aria-hidden="true" className="opacity-40">
+        /
+      </span>
       <button
         type="button"
         onClick={() => setLanguage('id')}
         aria-pressed={language === 'id'}
         title="Bahasa Indonesia"
-        className={`group relative flex items-center gap-1.5 rounded-full px-2.5 py-1.5 transition-all sm:px-3 duration-200 active:scale-95 ${
+        className={`${BUTTON} ${
           language === 'id'
-            ? 'bg-accent font-bold text-void shadow-sm shadow-accent/25'
-            : 'text-muted hover:bg-white/5 hover:text-primary'
+            ? 'font-semibold underline underline-offset-4'
+            : 'opacity-70 hover:opacity-100'
         }`}
       >
-        <FlagId className="transition-transform duration-200 group-hover:scale-115 group-hover:rotate-3" />
-        <span>ID</span>
+        ID
       </button>
     </div>
   );

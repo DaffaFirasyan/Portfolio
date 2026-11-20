@@ -66,6 +66,12 @@ export interface Profile {
   whatsapp?: string;
   cvUrl: string;
   avatarUrl: string;
+  /**
+   * Optional. Downscaled copies of the portrait for `srcset`, so a phone is not
+   * sent the 2000px original for a 380px slot. They are derived by
+   * scripts/derive-avatar-sizes.mjs, which only reads the owner's file.
+   */
+  avatarSrcSet?: string;
   openToWork: boolean;
   socials: SocialLink[];
   stats: Stat[];

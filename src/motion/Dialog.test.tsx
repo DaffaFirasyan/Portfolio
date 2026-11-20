@@ -3,14 +3,6 @@ import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import Dialog from './Dialog';
 
-const stop = vi.fn();
-const start = vi.fn();
-
-vi.mock('@/hooks/useLenis', () => ({
-  useLenis: () => ({ scrollTo: () => {}, stop, start }),
-  NAV_OFFSET: 80,
-}));
-
 /** A trigger plus a dialog, wired the way a real caller wires them. */
 function Harness() {
   const [open, setOpen] = useState(false);
@@ -31,8 +23,6 @@ function Harness() {
 
 describe('Dialog', () => {
   beforeEach(() => {
-    stop.mockClear();
-    start.mockClear();
     document.body.style.overflow = '';
   });
 
@@ -64,23 +54,20 @@ describe('Dialog', () => {
     expect(trigger).toHaveFocus();
   });
 
-  it('stops the smooth scroll while open and starts it again after', async () => {
+  it('locks the page scroll while open and releases it after', async () => {
     render(<Harness />);
     await userEvent.click(screen.getByRole('button', { name: 'Open project' }));
 
-    expect(stop).toHaveBeenCalled();
     expect(document.body.style.overflow).toBe('hidden');
 
     await userEvent.click(screen.getByRole('button', { name: 'Close' }));
 
-    expect(start).toHaveBeenCalled();
     expect(document.body.style.overflow).not.toBe('hidden');
   });
 
   it('does not touch the scroll lock before it has ever opened', () => {
     render(<Harness />);
-    expect(stop).not.toHaveBeenCalled();
-    expect(start).not.toHaveBeenCalled();
+    expect(document.body.style.overflow).not.toBe('hidden');
   });
 
   it('tells its owner when the browser closes it, which is how Escape arrives', async () => {

@@ -30,7 +30,7 @@ const Context = createContext<SkillHighlight>(INERT);
  *
  * Two things this deliberately does not do:
  *
- * It does not consult `useMotionAllowed`. This is information, not decoration.
+ * It does not depend on motion at all. This is information, not decoration.
  * Someone who asked for reduced motion still benefits from seeing which
  * projects back a skill; what they asked to avoid is movement, and a change of
  * opacity is not movement.

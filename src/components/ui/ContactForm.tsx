@@ -3,7 +3,6 @@ import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } fr
 import { useLanguage } from '@/context/LanguageContext';
 import { validateContact, type ContactErrors, type ContactValues } from '@/lib/validate';
 import { sendContact } from '@/lib/web3forms';
-import StarButton from '@/motion/StarButton';
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 type FieldName = keyof ContactValues;
@@ -11,7 +10,7 @@ type FieldName = keyof ContactValues;
 const EMPTY: ContactValues = { name: '', email: '', message: '' };
 
 const CONTROL =
-  'mt-2 block min-h-11 w-full rounded-lg border border-edge bg-surface px-4 py-3 text-primary placeholder:text-muted';
+  'mt-2 block min-h-11 w-full rounded-none border-0 border-b border-edge bg-transparent px-0 py-3 text-primary placeholder:text-muted focus:border-primary';
 
 function mailtoHref(values: ContactValues, email: string): string {
   const subject = encodeURIComponent(`Portfolio message from ${values.name || 'a visitor'}`);
@@ -34,7 +33,7 @@ function Field({
 }) {
   return (
     <div>
-      <label htmlFor={htmlFor} className="font-mono text-xs uppercase tracking-[0.12em] text-muted">
+      <label htmlFor={htmlFor} className="text-sm font-medium text-muted">
         {label}
       </label>
       {children}
@@ -231,27 +230,13 @@ export default function ContactForm({ accessKey }: { accessKey: string }) {
             className="hidden"
           />
 
-          {/* StarButton forwards no `disabled`, and a submit that stays live
-              while a send is in flight would queue a second one. The plain
-              button carries the sending state; the decorated one carries the
-              idle state. */}
-          {status === 'sending' ? (
-            <button
-              type="submit"
-              disabled
-              className="inline-flex min-h-11 items-center rounded-full bg-accent px-6 text-sm font-semibold text-void opacity-60"
-            >
-              {t.sendingButton}
-            </button>
-          ) : (
-            <StarButton
-              as="button"
-              type="submit"
-              className="inline-flex min-h-11 items-center rounded-full bg-accent px-6 text-sm font-semibold text-void"
-            >
-              {t.sendButton}
-            </StarButton>
-          )}
+          <button
+            type="submit"
+            disabled={status === 'sending'}
+            className="inline-flex min-h-11 items-center rounded-full bg-accent px-6 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:opacity-60"
+          >
+            {status === 'sending' ? t.sendingButton : t.sendButton}
+          </button>
         </form>
       )}
     </div>

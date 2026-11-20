@@ -33,6 +33,7 @@ export const profileId: Profile = {
   whatsapp: profile.whatsapp,
   cvUrl: '/cv/daffa-firasyan-cv-id.pdf',
   avatarUrl: profile.avatarUrl,
+  avatarSrcSet: profile.avatarSrcSet,
   openToWork: true,
   socials: profile.socials,
   publication: profile.publication,

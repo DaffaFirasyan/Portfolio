@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, type ReactNode } from 'react';
 
-import { useLenis } from '@/hooks/useLenis';
 
 interface DialogProps {
   open: boolean;
@@ -33,7 +32,6 @@ interface DialogProps {
 export default function Dialog({ open, onClose, label, wide = false, children }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLElement | null>(null);
-  const { stop, start } = useLenis();
 
   const handleNativeClose = useCallback(() => {
     // Only report a close the owner does not already know about. The cleanup
@@ -60,7 +58,6 @@ export default function Dialog({ open, onClose, label, wide = false, children }:
 
     trigger.current = document.activeElement as HTMLElement | null;
     element.showModal();
-    stop();
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -69,22 +66,16 @@ export default function Dialog({ open, onClose, label, wide = false, children }:
     // page and the reader's place in it.
     return () => {
       if (element.open) element.close();
-      start();
       document.body.style.overflow = previousOverflow;
       trigger.current?.focus();
       trigger.current = null;
     };
-  }, [open, stop, start]);
+  }, [open]);
 
   return (
     <dialog
       ref={ref}
       aria-label={label}
-      // Lenis listens for wheel events on the window and drives the page from
-      // them, so without this the wheel never reaches the dialog's own scroll
-      // container — the page moved behind the modal instead. Lenis reads this
-      // attribute natively and leaves the subtree to scroll itself.
-      data-lenis-prevent
       // `m-auto` is load-bearing. The UA stylesheet centres a modal dialog with
       // `margin: auto`, and Tailwind's preflight resets margin to 0 on every
       // element — which pins the dialog to the top-left corner of the viewport.
@@ -92,7 +83,7 @@ export default function Dialog({ open, onClose, label, wide = false, children }:
       // One scroll container, on the dialog itself. Nesting a second one inside
       // gives two scrollbars that fight each other. The scrollbar is coloured
       // because the browser default is a pale bar on a near-black surface.
-      className={`m-auto max-h-[85vh] overflow-y-auto rounded-xl border border-edge bg-surface p-0 text-primary [scrollbar-color:var(--color-edge)_transparent] [scrollbar-width:thin] backdrop:bg-void/80 backdrop:backdrop-blur-sm ${
+      className={`m-auto max-h-[85vh] overflow-y-auto rounded-none border border-edge bg-surface p-0 text-primary [scrollbar-color:var(--color-edge)_transparent] [scrollbar-width:thin] backdrop:bg-void/80 ${
         wide ? 'w-[min(72rem,92vw)]' : 'w-[min(48rem,92vw)]'
       }`}
     >
