@@ -103,6 +103,10 @@ export const DICTIONARY = {
     viewRead: 'Reading mode',
     backToSky: 'Back to the sky',
     mapHint: 'Drag the sky. Pick a constellation.',
+    mapStart: 'Start exploring',
+    mapScrollHint: 'Scroll to begin.',
+    prevSection: (name: string) => `Previous: ${name}`,
+    nextSection: (name: string) => `Next: ${name}`,
   },
   id: {
     // Navigation & Global
@@ -207,6 +211,10 @@ export const DICTIONARY = {
     viewRead: 'Mode baca',
     backToSky: 'Kembali ke langit',
     mapHint: 'Seret langit. Pilih sebuah rasi.',
+    mapStart: 'Mulai menjelajah',
+    mapScrollHint: 'Scroll untuk mulai.',
+    prevSection: (name: string) => `Sebelumnya: ${name}`,
+    nextSection: (name: string) => `Berikutnya: ${name}`,
   },
 } as const;
 

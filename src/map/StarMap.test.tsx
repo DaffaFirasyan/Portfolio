@@ -7,15 +7,17 @@ import { REGIONS, projectFigures, stepCamera, toScreen } from './mapEngine';
 import StarMap from './StarMap';
 import { useView } from './ViewProvider';
 
-const grabbed = {} as Pick<ReturnType<typeof useView>, 'camera' | 'motion'>;
+const grabbed = {} as Pick<ReturnType<typeof useView>, 'camera' | 'motion' | 'interacted' | 'hover'>;
 function Probe() {
   const v = useView();
-  const { camera, motion } = v;
+  const { camera, motion, interacted, hover } = v;
   // In an effect: the hooks lint forbids writing outside variables during render.
   useEffect(() => {
     grabbed.camera = camera;
     grabbed.motion = motion;
-  }, [camera, motion]);
+    grabbed.interacted = interacted;
+    grabbed.hover = hover;
+  }, [camera, motion, interacted, hover]);
   return <p data-testid="region">{v.region ?? ''}</p>;
 }
 const tree = (
@@ -33,6 +35,16 @@ function pointer(type: string, x: number, y: number, id = 1, target: EventTarget
   act(() => {
     target.dispatchEvent(event);
   });
+}
+
+// A wheel on the surface at a chosen time: a hand-built event's timeStamp is otherwise real time.
+function wheel(deltaY: number, timeStamp: number, ctrlKey = false) {
+  const event = new WheelEvent('wheel', { deltaY, ctrlKey, clientX: 400, clientY: 300, bubbles: true, cancelable: true });
+  Object.defineProperty(event, 'timeStamp', { value: timeStamp });
+  act(() => {
+    surface().dispatchEvent(event);
+  });
+  return event;
 }
 
 afterEach(() => vi.restoreAllMocks());
@@ -78,15 +90,107 @@ describe('StarMap', () => {
     expect(screen.getByTestId('region').textContent).toBe('');
   });
 
-  it('zooms with the wheel and keeps the page from scrolling', () => {
+  it('zooms with Ctrl+wheel and keeps the page from scrolling', () => {
     renderInMap(tree);
     const before = grabbed.camera.current.zoom;
-    const event = new WheelEvent('wheel', { deltaY: -200, clientX: 400, clientY: 300, bubbles: true, cancelable: true });
-    act(() => {
-      surface().dispatchEvent(event);
-    });
+    const event = wheel(-200, 0, true);
     expect(grabbed.camera.current.zoom).toBeGreaterThan(before);
     expect(event.defaultPrevented).toBe(true);
+  });
+
+  it('does not zoom with a plain wheel, and keeps the page from scrolling', () => {
+    renderInMap(tree);
+    const before = grabbed.camera.current.zoom;
+    const event = wheel(-200, 0);
+    expect(grabbed.camera.current.zoom).toBe(before);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it('steps through the sections with a plain wheel, one step per gesture', () => {
+    renderInMap(tree);
+    const t = 10_000;
+    wheel(100, t);
+    expect(screen.getByTestId('region').textContent).toBe('about');
+    wheel(100, t + 50);
+    expect(screen.getByTestId('region').textContent).toBe('about');
+    wheel(100, t + 1050);
+    expect(screen.getByTestId('region').textContent).toBe('skills');
+  });
+
+  it('closes back to the sky with an upward wheel from the first section', () => {
+    renderInMap(tree, '#about');
+    wheel(-100, 10_000);
+    expect(screen.getByTestId('region').textContent).toBe('');
+  });
+
+  it('steps with PageDown and PageUp', () => {
+    renderInMap(tree);
+    act(() => {
+      fireEvent.keyDown(surface(), { key: 'PageDown' });
+    });
+    expect(screen.getByTestId('region').textContent).toBe('about');
+    act(() => {
+      fireEvent.keyDown(surface(), { key: 'PageDown' });
+    });
+    expect(screen.getByTestId('region').textContent).toBe('skills');
+    act(() => {
+      fireEvent.keyDown(surface(), { key: 'PageUp' });
+    });
+    expect(screen.getByTestId('region').textContent).toBe('about');
+  });
+
+  it('offers a Start pill on the overview only, which opens About', async () => {
+    const user = userEvent.setup();
+    renderInMap(tree);
+    await user.click(screen.getByRole('button', { name: /Start exploring/ }));
+    expect(screen.getByTestId('region').textContent).toBe('about');
+    expect(screen.queryByRole('button', { name: /Start exploring/ })).toBeNull();
+  });
+
+  it('previews a constellation under the mouse with its title and a pointer cursor', () => {
+    renderInMap(tree);
+    const view = { w: window.innerWidth, h: window.innerHeight };
+    const r = REGIONS.find((g) => g.id === 'skills')!;
+    const [x, y] = toScreen(grabbed.camera.current, view, r.x, r.y);
+    expect(surface()).toHaveClass('cursor-grab');
+    pointer('pointermove', x, y);
+    expect(screen.getByText('What I work with')).toBeInTheDocument();
+    expect(surface()).toHaveClass('cursor-pointer');
+    expect(grabbed.hover.current).toBe('skills');
+    pointer('pointermove', -5000, -5000);
+    expect(screen.queryByText('What I work with')).toBeNull();
+    expect(surface()).toHaveClass('cursor-grab');
+    expect(grabbed.hover.current).toBeNull();
+  });
+
+  it('forgets the hover after a trip through Reading mode', () => {
+    renderInMap(
+      <>
+        {tree}
+        <ModeSwitch />
+      </>,
+    );
+    const view = { w: window.innerWidth, h: window.innerHeight };
+    const r = REGIONS.find((g) => g.id === 'skills')!;
+    const [x, y] = toScreen(grabbed.camera.current, view, r.x, r.y);
+    pointer('pointermove', x, y);
+    expect(grabbed.hover.current).toBe('skills');
+    act(() => {
+      screen.getByText('to reading').click();
+    });
+    act(() => {
+      screen.getByText('to map').click();
+    });
+    expect(grabbed.hover.current).toBeNull();
+    expect(screen.queryByText('What I work with')).toBeNull();
+    expect(surface()).toHaveClass('cursor-grab');
+  });
+
+  it('marks the map as touched on the first press', () => {
+    renderInMap(tree);
+    expect(grabbed.interacted.current).toBe(false);
+    pointer('pointerdown', 500, 400, 1, surface());
+    expect(grabbed.interacted.current).toBe(true);
   });
 
   it('pinches to zoom with two pointers', () => {

@@ -75,7 +75,10 @@ export default function Hero() {
           <div className="pointer-events-none mt-6 hidden flex-wrap items-center gap-x-3 gap-y-3 md:flex [&>a]:pointer-events-auto">
             {actions}
           </div>
-          <p className="mt-6 font-mono text-xs tracking-[0.14em] text-muted uppercase">{t.mapHint}</p>
+          <p className="mt-6 font-mono text-xs tracking-[0.14em] text-muted uppercase">
+            {t.mapHint}
+            <span className="hidden [@media(pointer:fine)]:inline"> {t.mapScrollHint}</span>
+          </p>
         </div>
       </section>
     );

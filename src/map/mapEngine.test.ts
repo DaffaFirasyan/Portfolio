@@ -4,18 +4,22 @@ import {
   MIN_ZOOM,
   REGIONS,
   REGION_IDS,
+  SEQUENCE,
   WORLD,
   cameraFor,
   clampCamera,
+  createWheelStepper,
   figure,
   flyStep,
   frameFor,
   hitRegion,
   labelPosition,
+  neighbours,
   overviewCamera,
   panBy,
   projectFigures,
   stepCamera,
+  stepFrom,
   traceStep,
   toScreen,
   toWorld,
@@ -245,5 +249,89 @@ describe('tracing a figure', () => {
 
   it('stays on the last star once it is reached', () => {
     expect(traceStep(stars, 2, 100, 100)).toBe(2);
+  });
+});
+
+describe('moving through the sections', () => {
+  it('walks the whole sequence forward and back, and stays put at both ends', () => {
+    expect(SEQUENCE).toEqual([null, ...REGION_IDS]);
+    let at: (typeof SEQUENCE)[number] = null;
+    for (const id of REGION_IDS) {
+      at = stepFrom(at, 1);
+      expect(at).toBe(id);
+    }
+    expect(stepFrom('contact', 1)).toBe('contact');
+    for (const id of [...REGION_IDS].reverse().slice(1)) {
+      at = stepFrom(at, -1);
+      expect(at).toBe(id);
+    }
+    expect(stepFrom('about', -1)).toBeNull();
+    expect(stepFrom(null, -1)).toBeNull();
+  });
+
+  it('names the neighbours: the overview before About, nothing after Contact', () => {
+    expect(neighbours('about')).toEqual({ prev: null, next: 'skills' });
+    expect(neighbours('projects')).toEqual({ prev: 'experience', next: 'education' });
+    expect(neighbours('contact')).toEqual({ prev: 'education', next: undefined });
+  });
+});
+
+describe('createWheelStepper', () => {
+  const make = () => {
+    const steps: Array<1 | -1> = [];
+    return { steps, stepper: createWheelStepper((d) => steps.push(d), 80) };
+  };
+  /** A gesture: `delta` px every 16 ms for `ms`, from `start`. Returns the time of its last event. */
+  const gesture = (s: ReturnType<typeof make>, start: number, ms: number, delta: number) => {
+    let t = start;
+    for (; t < start + ms; t += 16) s.stepper.push(delta, t);
+    return t - 16;
+  };
+
+  it('does nothing below the threshold', () => {
+    const s = make();
+    s.stepper.push(30, 0);
+    s.stepper.push(30, 20);
+    expect(s.steps).toEqual([]);
+  });
+
+  it('steps once at the threshold, with the sign of the delta', () => {
+    const down = make();
+    down.stepper.push(80, 0);
+    expect(down.steps).toEqual([1]);
+    const up = make();
+    up.stepper.push(-80, 0);
+    expect(up.steps).toEqual([-1]);
+  });
+
+  it('gives one step for a long gesture', () => {
+    const s = make();
+    gesture(s, 0, 2000, 10);
+    expect(s.steps).toEqual([1]);
+  });
+
+  it('steps again once the wheel has been quiet and 700 ms have passed', () => {
+    const s = make();
+    const end = gesture(s, 0, 2000, 10);
+    expect(s.steps).toHaveLength(1);
+    gesture(s, end + 400, 200, 10);
+    expect(s.steps).toEqual([1, 1]);
+  });
+
+  it('sums deltas that change sign mid-gesture', () => {
+    const s = make();
+    s.stepper.push(60, 0);
+    s.stepper.push(-30, 16);
+    expect(s.steps).toEqual([]);
+    s.stepper.push(-120, 32);
+    expect(s.steps).toEqual([-1]);
+  });
+
+  it('forgets the sum on reset', () => {
+    const s = make();
+    s.stepper.push(60, 0);
+    s.stepper.reset();
+    s.stepper.push(60, 16);
+    expect(s.steps).toEqual([]);
   });
 });

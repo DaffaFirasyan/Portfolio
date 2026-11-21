@@ -14,6 +14,7 @@ import {
   FLY_MS,
   REGION_IDS,
   overviewCamera,
+  stepFrom,
   type Camera,
   type Motion,
   type RegionId,
@@ -31,6 +32,8 @@ interface View {
   region: RegionId | null;
   open: (id: RegionId) => void;
   close: () => void;
+  /** Go to the next (1) or previous (-1) section; the overview comes before About. */
+  step: (dir: 1 | -1) => void;
   /** Move the camera: a flight where motion is allowed, a cut where it is not. */
   flyTo: (target: Camera) => void;
   camera: MutableRefObject<Camera>;
@@ -45,6 +48,10 @@ interface View {
   trace: MutableRefObject<{ id: string; index: number } | null>;
   /** Scroll a project's card into view in the panel. */
   focusProject: (id: string) => void;
+  /** Set by the map once the visitor has touched it: the constellations stop pulsing. */
+  interacted: MutableRefObject<boolean>;
+  /** Set by the map: the constellation under the pointer, which the sky brightens. */
+  hover: MutableRefObject<RegionId | null>;
 }
 
 const INERT: View = {
@@ -54,6 +61,7 @@ const INERT: View = {
   region: null,
   open: () => {},
   close: () => {},
+  step: () => {},
   flyTo: () => {},
   camera: { current: { x: 1500, y: 1000, zoom: 1 } },
   motion: { current: { vx: 0, vy: 0, fly: null } },
@@ -62,6 +70,8 @@ const INERT: View = {
   animated: { current: true },
   trace: { current: null },
   focusProject: () => {},
+  interacted: { current: false },
+  hover: { current: null },
 };
 
 const Context = createContext<View>(INERT);
@@ -102,6 +112,8 @@ export function ViewProvider({ children }: { children: ReactNode }) {
   const layout = useRef(() => {});
   const animated = useRef(true);
   const trace = useRef<{ id: string; index: number } | null>(null);
+  const interacted = useRef(false);
+  const hover = useRef<RegionId | null>(null);
   const scrollTo = useRef<string | null>(null);
 
   useEffect(() => {
@@ -165,6 +177,16 @@ export function ViewProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const step = useCallback(
+    (dir: 1 | -1) => {
+      const next = stepFrom(region, dir);
+      if (next === region) return;
+      if (next) open(next);
+      else close();
+    },
+    [region, open, close],
+  );
+
   const setMode = useCallback(
     (next: Mode) => {
       if (next === 'map' && !canMap) return;
@@ -181,8 +203,8 @@ export function ViewProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo<View>(
-    () => ({ mode, canMap, setMode, region, open, close, flyTo, camera, motion, paint, layout, animated, trace, focusProject }),
-    [mode, canMap, setMode, region, open, close, flyTo, focusProject],
+    () => ({ mode, canMap, setMode, region, open, close, step, flyTo, camera, motion, paint, layout, animated, trace, focusProject, interacted, hover }),
+    [mode, canMap, setMode, region, open, close, step, flyTo, focusProject],
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

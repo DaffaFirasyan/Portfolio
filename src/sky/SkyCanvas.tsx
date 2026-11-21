@@ -96,6 +96,8 @@ export default function SkyCanvas() {
     layout: layoutRef,
     animated: animatedRef,
     trace: traceRef,
+    interacted: interactedRef,
+    hover: hoverRef,
   } = view;
   const map = view.mode === 'map';
   const region = view.region;
@@ -287,14 +289,17 @@ export default function SkyCanvas() {
         const reach = Math.min(1.6, Math.sqrt(cam.zoom));
         ctx.lineWidth = 1;
         const showProjects = state.region === 'projects';
+        // Until the first touch the figures breathe, to say they can be picked; full tier only.
+        const pulse = !interactedRef.current && tier === 'full' && state.region === null;
+        const rest = pulse ? 0.35 + 0.35 * (0.5 + 0.5 * Math.sin(now / 650)) : 0.5;
         for (const r of REGIONS) {
           // Open, the Projects region gives way to one small figure per project.
           if (showProjects && r.id === 'projects') continue;
-          const active = state.region === r.id;
+          const active = state.region === r.id || hoverRef.current === r.id;
           const points = r.stars.map(([dx, dy]) => toScreen(cam, { w, h }, r.x + dx, r.y + dy));
           ctx.strokeStyle = active ? colors.accent : colors.ink;
           ctx.fillStyle = active ? colors.accent : colors.ink;
-          ctx.globalAlpha = active ? 0.9 : 0.5 * colors.dim;
+          ctx.globalAlpha = active ? 0.9 : rest * colors.dim;
           ctx.beginPath();
           points.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
           ctx.stroke();
@@ -558,7 +563,7 @@ export default function SkyCanvas() {
       reduced.removeEventListener('change', onReduced);
       cometButton.removeEventListener('click', onCatch);
     };
-  }, [earn, cameraRef, motionRef, paintRef, layoutRef, animatedRef, traceRef]);
+  }, [earn, cameraRef, motionRef, paintRef, layoutRef, animatedRef, traceRef, interactedRef, hoverRef]);
 
   return (
     <>

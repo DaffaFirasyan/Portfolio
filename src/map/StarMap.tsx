@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useLanguage } from '@/context/LanguageContext';
 import {
   MAX_COAST,
   REGIONS,
+  createWheelStepper,
   frameFor,
   hitRegion,
   labelPosition,
@@ -40,16 +41,55 @@ const viewport = () => ({ w: window.innerWidth, h: window.innerHeight });
  * that project's card into view.
  */
 export default function StarMap() {
-  const { sections, projects } = useLanguage();
+  const { sections, projects, t } = useLanguage();
   const view = useView();
-  const { mode, region, open, flyTo, focusProject } = view;
+  const { mode, region, open, step, flyTo, focusProject } = view;
   // Named *Ref so the React compiler lets the handlers write them.
-  const { camera: cameraRef, motion: motionRef, paint: paintRef, layout: layoutRef, animated: animatedRef, trace: traceRef } =
-    view;
+  const {
+    camera: cameraRef,
+    motion: motionRef,
+    paint: paintRef,
+    layout: layoutRef,
+    animated: animatedRef,
+    trace: traceRef,
+    interacted: interactedRef,
+    hover: hoverRef,
+  } = view;
   const surface = useRef<HTMLDivElement>(null);
   const labels = useRef(new Map<RegionId, HTMLButtonElement>());
   const moved = useRef(false);
   const previous = useRef<RegionId | null>(null);
+  const [hovered, setHovered] = useState<RegionId | null>(null);
+  const [dragging, setDragging] = useState(false);
+  // The stepper outlives the pointer effect, which re-runs on every region change: a fresh one would drop the lock and let an inertia tail step again.
+  const stepRef = useRef(step);
+  const stepperRef = useRef<ReturnType<typeof createWheelStepper> | null>(null);
+  useEffect(() => {
+    stepRef.current = step;
+  }, [step]);
+  useEffect(() => {
+    stepperRef.current = createWheelStepper((dir) => stepRef.current(dir), 80);
+  }, []);
+
+  // Mirrored into the shared ref for the sky; state changes only when the region under the mouse does.
+  const setHover = useCallback(
+    (id: RegionId | null) => {
+      if (hoverRef.current === id) return;
+      hoverRef.current = id;
+      setHovered(id);
+      paintRef.current();
+    },
+    [hoverRef, paintRef],
+  );
+
+  // Leaving the map forgets the hover and the drag, so a return shows no stale highlight or grabbing cursor.
+  useEffect(() => {
+    if (mode !== 'map') return;
+    return () => {
+      setHover(null);
+      setDragging(false);
+    };
+  }, [mode, setHover]);
 
   // The camera follows the region.
   useEffect(() => {
@@ -58,10 +98,12 @@ export default function StarMap() {
       previous.current = null;
       return;
     }
+    // Any way of opening a region (tap, label, step, link) counts as touching the map.
+    if (region) interactedRef.current = true;
     flyTo(frameFor(REGIONS.find((r) => r.id === region), viewport()));
     if (!region && previous.current) labels.current.get(previous.current)?.focus();
     previous.current = region;
-  }, [mode, region, flyTo]);
+  }, [mode, region, flyTo, interactedRef]);
 
   // The sky asks for the labels to be placed every frame.
   useEffect(() => {
@@ -139,8 +181,10 @@ export default function StarMap() {
 
     const onDown = (event: PointerEvent) => {
       if (event.pointerType === 'mouse' && event.button !== 0) return;
+      interactedRef.current = true;
       pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
       if (pointers.size === 1) {
+        setDragging(true);
         moved.current = false;
         startX = event.clientX;
         startY = event.clientY;
@@ -160,6 +204,13 @@ export default function StarMap() {
     };
 
     const onMove = (event: PointerEvent) => {
+      if (event.pointerType === 'mouse' && pointers.size === 0) {
+        // Over a label, its own enter and leave decide.
+        if (event.target instanceof Element && event.target.closest('[data-region-labels] button')) return;
+        const [wx, wy] = toWorld(cameraRef.current, viewport(), event.clientX, event.clientY);
+        setHover(hitRegion(REGIONS, wx, wy, Math.max(130, 44 / cameraRef.current.zoom))?.id ?? null);
+        return;
+      }
       const p = pointers.get(event.pointerId);
       if (!p) return;
       const dx = event.clientX - p.x;
@@ -210,6 +261,7 @@ export default function StarMap() {
       // Back to two fingers (or one): the next move starts a fresh pinch instead of jumping.
       if (pointers.size <= 2) pinch = 0;
       if (pointers.size > 0) return;
+      setDragging(false);
       traceRef.current = null;
       if (!moved.current) {
         const star = starAt(event.clientX, event.clientY);
@@ -234,18 +286,35 @@ export default function StarMap() {
 
     const onWheel = (event: WheelEvent) => {
       event.preventDefault();
+      interactedRef.current = true;
+      if (!event.ctrlKey) {
+        // A plain wheel walks the sections; the region change flies the camera.
+        const scale = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 400 : 1;
+        stepperRef.current?.push(event.deltaY * scale, event.timeStamp);
+        return;
+      }
+      // Ctrl+wheel, which is also how a trackpad pinch arrives. A pinch sends small deltas and a
+      // mouse notch sends about 100, so the delta is clamped: a notch zooms by about a third.
       stop();
       cameraRef.current = zoomAt(
         cameraRef.current,
         viewport(),
         event.clientX,
         event.clientY,
-        Math.exp(-event.deltaY * 0.0015),
+        Math.exp(-Math.max(-30, Math.min(30, event.deltaY)) * 0.01),
       );
       commit();
     };
 
+    const onLeave = () => setHover(null);
+
     const onKey = (event: KeyboardEvent) => {
+      interactedRef.current = true;
+      if (event.key === 'PageDown' || event.key === 'PageUp') {
+        event.preventDefault();
+        stepRef.current(event.key === 'PageDown' ? 1 : -1);
+        return;
+      }
       const steps: Record<string, [number, number]> = {
         ArrowLeft: [KEY_STEP, 0],
         ArrowRight: [-KEY_STEP, 0],
@@ -273,6 +342,7 @@ export default function StarMap() {
     el.addEventListener('pointerdown', onDown);
     el.addEventListener('wheel', onWheel, { passive: false });
     el.addEventListener('keydown', onKey);
+    el.addEventListener('pointerleave', onLeave);
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
     window.addEventListener('pointercancel', onUp);
@@ -280,11 +350,27 @@ export default function StarMap() {
       el.removeEventListener('pointerdown', onDown);
       el.removeEventListener('wheel', onWheel);
       el.removeEventListener('keydown', onKey);
+      el.removeEventListener('pointerleave', onLeave);
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
       window.removeEventListener('pointercancel', onUp);
     };
-  }, [mode, region, projects, open, flyTo, focusProject, cameraRef, motionRef, paintRef, layoutRef, animatedRef, traceRef]);
+  }, [
+    mode,
+    region,
+    projects,
+    open,
+    flyTo,
+    focusProject,
+    setHover,
+    cameraRef,
+    motionRef,
+    paintRef,
+    layoutRef,
+    animatedRef,
+    traceRef,
+    interactedRef,
+  ]);
 
   if (mode !== 'map') return null;
 
@@ -294,41 +380,65 @@ export default function StarMap() {
     if (x < 0 || x > w || y < 56 || y > h) flyTo({ ...cameraRef.current, x: r.x, y: r.y });
   };
 
+  const cursor = dragging ? 'cursor-grabbing' : hovered ? 'cursor-pointer' : 'cursor-grab';
+
   return (
-    <div
-      ref={surface}
-      data-map-surface
-      tabIndex={-1}
-      className="fixed inset-0 z-0 touch-none outline-none"
-    >
+    <>
       <div
-        data-region-labels
-        inert={region !== null}
-        onClickCapture={(event) => {
-          // The release of a drag is not a click on whatever label it ended over.
-          // detail is 0 for Enter or Space, which must still open a label after an earlier drag.
-          if (moved.current && event.detail > 0) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
-        }}
+        ref={surface}
+        data-map-surface
+        tabIndex={-1}
+        className={`fixed inset-0 z-0 touch-none outline-none ${cursor}`}
       >
-        {REGIONS.map((r) => (
-          <button
-            key={r.id}
-            ref={(el) => {
-              if (el) labels.current.set(r.id, el);
-              else labels.current.delete(r.id);
-            }}
-            type="button"
-            onClick={() => open(r.id)}
-            onFocus={() => reveal(r)}
-            className="absolute top-0 left-0 inline-flex min-h-11 items-center rounded-full bg-void/80 px-3 font-mono text-xs tracking-[0.14em] text-primary uppercase"
-          >
-            {sections.find((s) => s.id === r.id)?.label ?? r.id}
-          </button>
-        ))}
+        <div
+          data-region-labels
+          inert={region !== null}
+          onClickCapture={(event) => {
+            // The release of a drag is not a click on whatever label it ended over.
+            // detail is 0 for Enter or Space, which must still open a label after an earlier drag.
+            if (moved.current && event.detail > 0) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+          }}
+        >
+          {REGIONS.map((r) => (
+            <button
+              key={r.id}
+              ref={(el) => {
+                if (el) labels.current.set(r.id, el);
+                else labels.current.delete(r.id);
+              }}
+              type="button"
+              onClick={() => open(r.id)}
+              onFocus={() => reveal(r)}
+              onPointerEnter={(event) => {
+                if (event.pointerType === 'mouse') setHover(r.id);
+              }}
+              onPointerLeave={() => setHover(null)}
+              className="absolute top-0 left-0 inline-flex min-h-11 flex-col items-center justify-center rounded-full bg-void/80 px-3 font-mono text-xs tracking-[0.14em] text-primary uppercase"
+            >
+              {sections.find((s) => s.id === r.id)?.label ?? r.id}
+              {hovered === r.id && (
+                // Out of the accessible name, which stays the section's label.
+                <span aria-hidden="true" className="block text-[10px] tracking-normal text-muted normal-case">
+                  {sections.find((s) => s.id === r.id)?.title}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
+      {region === null && (
+        // Outside the surface, so its press is never also a tap on the sky beneath it.
+        <button
+          type="button"
+          onClick={() => step(1)}
+          className="fixed bottom-4 left-4 z-20 inline-flex min-h-11 items-center rounded-full border border-edge bg-void px-4 text-sm font-medium text-primary hover:border-primary"
+        >
+          {t.mapStart} ↓
+        </button>
+      )}
+    </>
   );
 }

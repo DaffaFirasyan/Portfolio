@@ -74,6 +74,14 @@ describe('sections in Map mode', () => {
     expect(container.querySelector('.plate')).toBeNull();
   });
 
+  it('adds the scroll hint to the overview hint, for fine pointers only', () => {
+    renderInMap(<Hero />);
+    const hint = screen.getByText('Drag the sky. Pick a constellation.');
+    expect(hint.textContent).toContain('Scroll to begin.');
+    // jsdom cannot evaluate the media query, so the class is what is checked.
+    expect(screen.getByText('Scroll to begin.')).toHaveClass('hidden', '[@media(pointer:fine)]:inline');
+  });
+
   it('hides the overview while a region is open', () => {
     const { container } = renderInMap(<Hero />, '#about');
     expect(container.querySelector('#home')).toHaveAttribute('hidden');

@@ -10,6 +10,9 @@ import SkyCanvas from './SkyCanvas';
 
 function fakeContext(alpha?: Uint8ClampedArray) {
   const calls: string[] = [];
+  // The alpha and stroke style in force at each stroke() call.
+  const strokes: Array<{ alpha: unknown; style: unknown }> = [];
+  const props: Record<string, unknown> = {};
   const ctx = new Proxy(
     {},
     {
@@ -18,12 +21,16 @@ function fakeContext(alpha?: Uint8ClampedArray) {
         if (prop === 'getImageData') return () => ({ data: alpha ?? new Uint8ClampedArray(4) });
         return () => {
           calls.push(prop);
+          if (prop === 'stroke') strokes.push({ alpha: props.globalAlpha, style: props.strokeStyle });
         };
       },
-      set: () => true,
+      set: (_target, prop: string, value) => {
+        props[prop] = value;
+        return true;
+      },
     },
   );
-  return { ctx, calls };
+  return { ctx, calls, strokes };
 }
 
 function mockMotion(reduced: boolean) {
@@ -281,6 +288,73 @@ describe('SkyCanvas in Map mode', () => {
       return calls.filter((c) => c === 'lineTo').length;
     };
     expect(linesWith('#projects')).toBeGreaterThan(linesWith('#about'));
+  });
+
+  describe('before and after the first touch', () => {
+    const DIM = 0.55; // The light-mode dim: the mocked colour-scheme query never matches dark.
+    const refs: Partial<Pick<ReturnType<typeof useView>, 'interacted' | 'hover'>> = {};
+    function Refs() {
+      const { interacted, hover } = useView();
+      useEffect(() => {
+        refs.interacted = interacted;
+        refs.hover = hover;
+      }, [interacted, hover]);
+      return null;
+    }
+    const setup = () => {
+      const fake = fakeContext();
+      vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(fake.ctx as never);
+      mockMotion(false);
+      const tick = captureLoop();
+      inViews(
+        <>
+          <Refs />
+          <SkyCanvas />
+        </>,
+      );
+      // Before the first comet, so every stroke is a region figure.
+      const run = () => {
+        fake.strokes.length = 0;
+        for (let t = 100; t <= 4000; t += 130) tick(t);
+        return fake.strokes;
+      };
+      return { run };
+    };
+
+    it('pulses the constellations in the full tier until the map is touched', () => {
+      const { run } = setup();
+      const alphas = new Set(run().map((s) => s.alpha as number));
+      expect(alphas.size).toBeGreaterThan(1);
+      for (const a of alphas) {
+        expect(a).toBeGreaterThanOrEqual(0.35 * DIM - 1e-9);
+        expect(a).toBeLessThanOrEqual(0.7 * DIM + 1e-9);
+      }
+    });
+
+    it('stops pulsing after the first touch', () => {
+      const { run } = setup();
+      refs.interacted!.current = true;
+      expect(new Set(run().map((s) => s.alpha))).toEqual(new Set([0.5 * DIM]));
+    });
+
+    it('draws the hovered constellation in the accent and the others in ink', () => {
+      const { run } = setup();
+      refs.hover!.current = 'skills';
+      const frame = run().slice(0, REGIONS.length);
+      const skills = REGIONS.findIndex((r) => r.id === 'skills');
+      expect(frame[skills]).toEqual({ alpha: 0.9, style: '#f2c14e' });
+      expect(frame[(skills + 1) % REGIONS.length].style).toBe('#eef0ff');
+    });
+
+    it('does not pulse in the lite tier', () => {
+      Object.defineProperty(navigator, 'connection', { value: { saveData: true }, configurable: true });
+      try {
+        const { run } = setup();
+        expect(new Set(run().map((s) => s.alpha))).toEqual(new Set([0.5 * DIM]));
+      } finally {
+        delete (navigator as Navigator & { connection?: unknown }).connection;
+      }
+    });
   });
 
   it('flies the camera to its target over the flight time', () => {

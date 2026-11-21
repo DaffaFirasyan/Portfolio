@@ -34,7 +34,7 @@ Query the registry — `npm view <pkg> version`. Versions recalled from memory w
 
 ```bash
 npm run dev        # dev server
-npm test           # vitest, currently 379 tests across 44 files
+npm test           # vitest, currently 415 tests across 44 files
 npm run lint       # eslint, includes the import boundary
 npm run build      # tsc --noEmit && vite build
 npm run avatar     # REFUSES without --force. The hero portrait is the owner's own file.

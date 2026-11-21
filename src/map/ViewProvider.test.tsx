@@ -1,10 +1,19 @@
+import { useEffect } from 'react';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderInMap } from '@/test/mapHarness';
 import { VIEW_KEY, ViewProvider, regionFromHash, useView } from './ViewProvider';
 
+const refs = {} as { interacted: boolean; hover: unknown };
+
 function Probe() {
   const v = useView();
+  const { interacted, hover } = v;
+  // In an effect: the hooks lint forbids writing outside variables during render.
+  useEffect(() => {
+    refs.interacted = interacted.current;
+    refs.hover = hover.current;
+  }, [interacted, hover]);
   return (
     <>
       <p data-testid="mode">{v.mode}</p>
@@ -12,6 +21,8 @@ function Probe() {
       <p data-testid="region">{v.region ?? ''}</p>
       <button onClick={() => v.open('skills')}>open</button>
       <button onClick={v.close}>close</button>
+      <button onClick={() => v.step(1)}>forward</button>
+      <button onClick={() => v.step(-1)}>backward</button>
       <button onClick={() => v.setMode('map')}>map</button>
       <button onClick={() => v.setMode('read')}>read</button>
       <button onClick={() => v.focusProject('assetmind')}>focus</button>
@@ -125,6 +136,36 @@ describe('ViewProvider', () => {
     await user.click(screen.getByText('focus'));
     expect(scroll).toHaveBeenCalledTimes(1);
     expect(scroll.mock.contexts[0]).toBe(document.getElementById('project-assetmind'));
+  });
+
+  it('steps through the sections, and does nothing past either end', async () => {
+    const user = userEvent.setup();
+    renderInMap(<Probe />);
+    await user.click(screen.getByText('backward'));
+    expect(text('region')).toBe('');
+    await user.click(screen.getByText('forward'));
+    expect(text('region')).toBe('about');
+    expect(window.location.hash).toBe('#about');
+    await user.click(screen.getByText('forward'));
+    expect(text('region')).toBe('skills');
+    await user.click(screen.getByText('backward'));
+    expect(text('region')).toBe('about');
+    await user.click(screen.getByText('backward'));
+    expect(text('region')).toBe('');
+    expect(window.location.hash).toBe('');
+  });
+
+  it('does not step forward from Contact', async () => {
+    const user = userEvent.setup();
+    renderInMap(<Probe />, '#contact');
+    await user.click(screen.getByText('forward'));
+    expect(text('region')).toBe('contact');
+  });
+
+  it('starts with nothing touched and nothing hovered', () => {
+    renderInMap(<Probe />);
+    expect(refs.interacted).toBe(false);
+    expect(refs.hover).toBeNull();
   });
 
   it('is inert outside a provider', async () => {

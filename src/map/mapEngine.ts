@@ -228,3 +228,53 @@ export function traceStep(
   const [x, y] = points[next];
   return Math.hypot(x - px, y - py) <= tol ? next : index;
 }
+
+/** The order sections are visited in: the overview, then the six regions. */
+export const SEQUENCE: Array<RegionId | null> = [null, ...REGION_IDS];
+
+/** The next (dir 1) or previous (dir -1) place in the sequence; the same place at either end. */
+export function stepFrom(region: RegionId | null, dir: 1 | -1): RegionId | null {
+  const at = SEQUENCE.indexOf(region);
+  return SEQUENCE[Math.min(SEQUENCE.length - 1, Math.max(0, at + dir))];
+}
+
+/** Where the previous and next buttons lead; undefined means there is no such neighbour (the overview has no previous, Contact has no next). */
+export function neighbours(region: RegionId): { prev: RegionId | null; next: RegionId | undefined } {
+  const at = SEQUENCE.indexOf(region);
+  return { prev: SEQUENCE[at - 1] ?? null, next: SEQUENCE[at + 1] ?? undefined };
+}
+
+/**
+ * Turns a stream of wheel deltas into one step per gesture. A step needs
+ * `threshold` pixels of delta; after it, the stepper stays locked until the
+ * wheel has been quiet for 200 ms AND 700 ms have passed, so a trackpad's long
+ * inertia tail cannot skip sections. A pause of 300 ms starts a fresh sum.
+ * The caller supplies the clock (`now`), which keeps this pure.
+ */
+export function createWheelStepper(onStep: (dir: 1 | -1) => void, threshold: number) {
+  let sum = 0;
+  let last = -Infinity;
+  let lockedAt = -Infinity;
+  let locked = false;
+  return {
+    push(delta: number, now: number) {
+      if (now - last > 300) sum = 0;
+      const quiet = now - last > 200;
+      last = now;
+      if (locked) {
+        if (quiet && now - lockedAt > 700) locked = false;
+        else return;
+      }
+      sum += delta;
+      if (Math.abs(sum) >= threshold) {
+        onStep(sum > 0 ? 1 : -1);
+        sum = 0;
+        locked = true;
+        lockedAt = now;
+      }
+    },
+    reset() {
+      sum = 0;
+    },
+  };
+}
