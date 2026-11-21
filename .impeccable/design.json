@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-20T12:00:00.000Z",
+  "generatedAt": "2026-11-21T02:10:48.009Z",
   "title": "Design System: Daffa Firasyan Portfolio",
   "extensions": {
     "colorMeta": {
@@ -9,77 +9,210 @@
         "displayName": "Star Amber (night) / Burnt Amber (day)",
         "canonical": "#8a4b00",
         "night": "#f2c14e",
-        "tonalRamp": ["#2a1700", "#4d2a00", "#6e3c00", "#8a4b00", "#b8741f", "#d9a04f", "#f2c14e", "#fbe8b8"]
+        "tonalRamp": [
+          "#2a1700",
+          "#4d2a00",
+          "#6e3c00",
+          "#8a4b00",
+          "#b8741f",
+          "#d9a04f",
+          "#f2c14e",
+          "#fbe8b8"
+        ]
       },
       "ground": {
         "role": "neutral",
         "displayName": "Cool Paper (day) / Night Ink (night)",
         "canonical": "#eef1f7",
         "night": "#0c1022",
-        "tonalRamp": ["#0c1022", "#151a33", "#2c3358", "#4a5272", "#a3a9c9", "#d6dcea", "#e1e6f1", "#eef1f7"]
+        "tonalRamp": [
+          "#0c1022",
+          "#151a33",
+          "#2c3358",
+          "#4a5272",
+          "#a3a9c9",
+          "#d6dcea",
+          "#e1e6f1",
+          "#eef1f7"
+        ]
       },
       "surface": {
         "role": "neutral",
         "displayName": "Chart Tint",
         "canonical": "#e1e6f1",
         "night": "#151a33",
-        "tonalRamp": ["#0c1022", "#151a33", "#1d2342", "#2c3358", "#b9c0d4", "#d6dcea", "#e1e6f1", "#eef1f7"]
+        "tonalRamp": [
+          "#0c1022",
+          "#151a33",
+          "#1d2342",
+          "#2c3358",
+          "#b9c0d4",
+          "#d6dcea",
+          "#e1e6f1",
+          "#eef1f7"
+        ]
       },
       "elevated": {
         "role": "neutral",
         "displayName": "Elevated Tint",
         "canonical": "#d6dcea",
         "night": "#1d2342",
-        "tonalRamp": ["#0c1022", "#151a33", "#1d2342", "#2c3358", "#b9c0d4", "#d6dcea", "#e1e6f1", "#eef1f7"]
+        "tonalRamp": [
+          "#0c1022",
+          "#151a33",
+          "#1d2342",
+          "#2c3358",
+          "#b9c0d4",
+          "#d6dcea",
+          "#e1e6f1",
+          "#eef1f7"
+        ]
       },
       "hair": {
         "role": "neutral",
         "displayName": "Hairline",
         "canonical": "#b9c0d4",
         "night": "#2c3358",
-        "tonalRamp": ["#0c1022", "#151a33", "#2c3358", "#4a5272", "#7d85a6", "#b9c0d4", "#d6dcea", "#eef1f7"]
+        "tonalRamp": [
+          "#0c1022",
+          "#151a33",
+          "#2c3358",
+          "#4a5272",
+          "#7d85a6",
+          "#b9c0d4",
+          "#d6dcea",
+          "#eef1f7"
+        ]
       },
       "ink": {
         "role": "neutral",
         "displayName": "Ink",
         "canonical": "#11162b",
         "night": "#eef0ff",
-        "tonalRamp": ["#11162b", "#1d2342", "#2c3358", "#4a5272", "#7d85a6", "#a3a9c9", "#d6dcea", "#eef0ff"]
+        "tonalRamp": [
+          "#11162b",
+          "#1d2342",
+          "#2c3358",
+          "#4a5272",
+          "#7d85a6",
+          "#a3a9c9",
+          "#d6dcea",
+          "#eef0ff"
+        ]
       },
       "muted": {
         "role": "neutral",
         "displayName": "Muted Ink",
         "canonical": "#4a5272",
         "night": "#a3a9c9",
-        "tonalRamp": ["#11162b", "#2c3358", "#4a5272", "#656d8e", "#8890b0", "#a3a9c9", "#c7cbe0", "#eef0ff"]
+        "tonalRamp": [
+          "#11162b",
+          "#2c3358",
+          "#4a5272",
+          "#656d8e",
+          "#8890b0",
+          "#a3a9c9",
+          "#c7cbe0",
+          "#eef0ff"
+        ]
       },
       "danger": {
         "role": "tertiary",
         "displayName": "Error Red",
         "canonical": "#b3261e",
         "night": "#ff8a80",
-        "tonalRamp": ["#3a0b08", "#5f1510", "#85201a", "#b3261e", "#d4605a", "#ff8a80", "#ffb4ad", "#ffe0dd"]
+        "tonalRamp": [
+          "#3a0b08",
+          "#5f1510",
+          "#85201a",
+          "#b3261e",
+          "#d4605a",
+          "#ff8a80",
+          "#ffb4ad",
+          "#ffe0dd"
+        ]
       }
     },
     "typographyMeta": {
-      "display": { "displayName": "Name", "purpose": "The owner's name in the hero, in Fraunces, one word per line." },
-      "headline": { "displayName": "Section Title", "purpose": "Section titles in Fraunces, sticky in the left four columns from lg." },
-      "title": { "displayName": "Item Title", "purpose": "Project and paper titles in Geist." },
-      "lead": { "displayName": "Lead", "purpose": "Hero role line and the About opening statement." },
-      "body": { "displayName": "Body", "purpose": "Reading text in Geist, 62ch maximum." },
-      "label": { "displayName": "Credit-row Label", "purpose": "Mono labels, coordinates, counts and the machine line." }
+      "display": {
+        "displayName": "Name",
+        "purpose": "The owner's name in Reading mode, in Fraunces, one word per line."
+      },
+      "headline": {
+        "displayName": "Section Title",
+        "purpose": "Section titles in Fraunces; sticky in the left four columns from lg in Reading mode, top of the column in the map panel."
+      },
+      "title": {
+        "displayName": "Item Title",
+        "purpose": "Project and paper titles in Geist."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "Hero role line and the About opening statement."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Reading text in Geist, 62ch maximum."
+      },
+      "label": {
+        "displayName": "Credit-row Label",
+        "purpose": "Mono labels, coordinates, counts, region-label buttons, the map hint and the machine line."
+      },
+      "display-map": {
+        "displayName": "Name, overview",
+        "purpose": "The same h1 over the sky as the Star map overview title block (clamp 2.75rem to 6rem)."
+      }
     },
     "shadows": [],
     "motion": [
-      { "name": "stamp-press", "value": "0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both", "purpose": "The just-earned stamp presses down; only under prefers-reduced-motion: no-preference." },
-      { "name": "rule-draw", "value": "animation-timeline: view(); animation-range: entry 0% entry 70%", "purpose": "The hairline above each section draws in from the left; no-preference and @supports only." },
-      { "name": "sweep", "value": "background-size 0.3s ease-out", "purpose": "Underline sweep on hover and focus; none under reduce." },
-      { "name": "sky-tiers", "value": "full | lite (half stars, 30fps, no comet) | still", "purpose": "Chosen from the median drawing work of the first 60 drawn frames (over 8ms steps down); reduced motion starts still; stops in a hidden tab." }
+      {
+        "name": "stamp-press",
+        "value": "0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both",
+        "purpose": "The just-earned stamp presses down; only under prefers-reduced-motion: no-preference."
+      },
+      {
+        "name": "rule-draw",
+        "value": "animation-timeline: view(); animation-range: entry 0% entry 70%",
+        "purpose": "The hairline above each section draws in from the left; no-preference and @supports only."
+      },
+      {
+        "name": "sweep",
+        "value": "background-size 0.3s ease-out",
+        "purpose": "Underline sweep on hover and focus; none under reduce."
+      },
+      {
+        "name": "sky-tiers",
+        "value": "full | lite (half stars, 30fps, no comet) | still (camera cuts, paints on demand)",
+        "purpose": "Chosen from the median drawing work of the first 60 drawn frames (over 8ms steps down); reduced motion starts still; stops in a hidden tab."
+      },
+      {
+        "name": "camera-flight",
+        "value": "650ms ease-in-out (cubic), zoom interpolated geometrically; drag coast decays over ~220ms, capped at 2.5 px/ms",
+        "purpose": "Map camera flies to a region or back to the overview; cut instantly in the still tier (reduced motion)."
+      },
+      {
+        "name": "panel-slide",
+        "value": "transform 300ms; motion-reduce:transition-none",
+        "purpose": "The section panel slides in from the right."
+      }
     ],
     "breakpoints": [
-      { "name": "sm", "value": "640px" },
-      { "name": "md", "value": "768px" },
-      { "name": "lg", "value": "1024px" }
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "panel-wide",
+        "value": "1024px (lg): 720px drawer; below it a full-width sheet"
+      }
     ]
   },
   "components": [
@@ -98,6 +231,30 @@
       "description": "Secondary action: hairline pill whose border turns to ink on hover.",
       "html": "<a class=\"ds-btn-pill\" href=\"#\">Email me</a>",
       "css": ".ds-btn-pill { display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 9999px; border: 1px solid var(--color-edge); color: var(--color-primary); font-size: 14px; font-weight: 500; text-decoration: none; transition: border-color 0.2s; } .ds-btn-pill:hover { border-color: var(--color-primary); } .ds-btn-pill:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }"
+    },
+    {
+      "name": "Mode Switch",
+      "kind": "button",
+      "refersTo": "mode-switch",
+      "description": "Top-bar pill that goes to the other mode: Star map or Reading mode.",
+      "html": "<button class=\"ds-mode\">Reading mode</button>",
+      "css": ".ds-mode { display: inline-flex; align-items: center; min-height: 36px; padding: 0 16px; border-radius: 9999px; border: 1px solid var(--color-edge); background: transparent; color: var(--color-primary); font-size: 14px; cursor: pointer; transition: border-color 0.2s; } .ds-mode:hover { border-color: var(--color-primary); } .ds-mode:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }"
+    },
+    {
+      "name": "Region Label",
+      "kind": "chip",
+      "refersTo": "region-label",
+      "description": "A real button under each constellation, named by its section; sits on a translucent ground pill over the stars.",
+      "html": "<button class=\"ds-region\">Projects</button>",
+      "css": ".ds-region { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 9999px; border: 0; background: color-mix(in srgb, var(--color-void) 80%, transparent); color: var(--color-primary); font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; } .ds-region:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }"
+    },
+    {
+      "name": "Map Panel Back Bar",
+      "kind": "nav",
+      "refersTo": "map-panel",
+      "description": "Sticky top of the section panel: hairline below, underlined back button.",
+      "html": "<div class=\"ds-back\"><button>← Back to the sky</button></div>",
+      "css": ".ds-back { padding: 8px 24px; border-bottom: 1px solid var(--color-edge); background: var(--color-void); } .ds-back button { display: inline-flex; align-items: center; min-height: 44px; border: 0; background: transparent; color: var(--color-primary); font-size: 14px; font-weight: 500; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; } .ds-back button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }"
     },
     {
       "name": "Passport Chip",
@@ -138,37 +295,67 @@
     }
   ],
   "narrative": {
-    "northStar": "Night Passport",
-    "overview": "A single calm reading column is laid over a fixed canvas sky. The page is a passport read top to bottom: the hero is the data page, every later section is a page of evidence with a stamp slot at its foot. At night the stars are light dots on deep blue ink; in daylight the same tokens become a printed star chart, dark dots on cool paper. Components never name a mode; they use semantic tokens and src/index.css swaps the values behind them with prefers-color-scheme.\n\nThe reading layer is quiet on purpose: hairlines instead of boxes, no cards, one amber accent, type doing the hierarchy. The sky does the atmosphere and the stamps do the delight, and neither is required to read anything.",
+    "northStar": "Star Map",
+    "overview": "By default the sky is the page. A fixed canvas of stars is a map you move across: drag it, zoom it, and six constellations, one per section, wait on a ring. Choosing one flies the camera there and opens that section in a panel beside it. A switch in the top bar turns the same content into Reading mode, the earlier Night Passport column: a passport read top to bottom, the data page first, each section a page of evidence with a stamp slot at its foot. At night the stars are light dots on deep blue ink; in daylight the same tokens become a printed star chart, dark dots on cool paper.\n\nThe reading layer stays quiet on purpose: hairlines instead of boxes, no cards, one amber accent, type doing the hierarchy. The sky does the atmosphere, the map does the wayfinding and the stamps do the delight, and none of them is required to read anything.",
     "keyCharacteristics": [
-      "Twelve-column grid, 1120px measure: title in the left four columns, evidence in the right eight.",
+      "Two modes over one set of sections: Star map (default) and Reading mode, remembered in localStorage; with no 2D canvas the page is always Reading.",
+      "Map: six constellations on a ring, a 720px drawer on the right from 1024px wide (a full sheet below), the Hero title block laid over the sky as the overview.",
+      "Reading: twelve-column grid, 1120px measure, title in the left four columns, evidence in the right eight.",
       "Hairlines (1px, edge colour) carry structure. The .plate frame keeps crosshair corners as star-chart registration marks.",
-      "One accent (amber by night, burnt amber by day), used sparingly and always semantically.",
-      "Fraunces for the name and section titles, Geist for reading, JetBrains Mono for credit-row labels, coordinates and the machine line.",
+      "One accent (amber by night, burnt amber by day), always semantic.",
+      "Fraunces for the name and section titles, Geist for reading, JetBrains Mono for labels, coordinates, region names and the machine line.",
       "Motion is CSS plus one canvas loop; every moving thing has a still state."
     ],
     "rules": [
-      { "name": "The One Star Rule", "body": "There is one accent. Never add a second hue; state differences are expressed with ink, muted, weight and underline.", "section": "colors" },
-      { "name": "The 4.5 Rule", "body": "Every text pair is checked by src/lib/contrast.test.ts, which reads src/index.css and fails under 4.5:1 in both schemes. Check a new pair there before using it.", "section": "colors" },
-      { "name": "The Semantic Rule", "body": "Components use bg-void, text-primary, text-muted, border-edge, bg-surface, text-accent, text-on-accent. No hex values and no dark: classes in components. Canvas code reads tokens through cssToken, because canvas ignores var().", "section": "colors" },
-      { "name": "The Clerk's Hand Rule", "body": "Mono is for data: labels, coordinates, counts, the machine line. It is never used for headings or running text.", "section": "typography" },
-      { "name": "The Two Voices Rule", "body": "The serif speaks only the name and section titles. Everything under a title is Geist.", "section": "typography" },
-      { "name": "The One Template Rule", "body": "Every section uses the same shell. A new section reuses it rather than composing a new layout.", "section": "layout" },
-      { "name": "The No Shadow Rule", "body": "Separation is a hairline or a tint, never a shadow.", "section": "elevation" }
+      {
+        "name": "The One Star Rule",
+        "body": "There is one accent. Never add a second hue; state differences are expressed with ink, muted, weight and underline. On the map \"state\" is the accent: the open region, a lit or traced figure.",
+        "section": "colors"
+      },
+      {
+        "name": "The 4.5 Rule",
+        "body": "Every text pair is checked by src/lib/contrast.test.ts, which reads src/index.css and fails under 4.5:1 in both schemes. Check a new pair there before using it.",
+        "section": "colors"
+      },
+      {
+        "name": "The Semantic Rule",
+        "body": "Components use bg-void, text-primary, text-muted, border-edge, bg-surface, text-accent, text-on-accent. No hex values and no dark: classes in components. Canvas code reads tokens through cssToken, because canvas ignores var().",
+        "section": "colors"
+      },
+      {
+        "name": "The Clerk's Hand Rule",
+        "body": "Mono is for data: labels, coordinates, counts, region names, the machine line. It is never used for headings or running text.",
+        "section": "typography"
+      },
+      {
+        "name": "The Two Voices Rule",
+        "body": "The serif speaks only the name and section titles. Everything under a title is Geist.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Template Rule",
+        "body": "Every section uses the same SectionShell; a new section reuses it, and it renders as the Reading column or the panel column from the mode alone.",
+        "section": "layout"
+      },
+      {
+        "name": "The No Shadow Rule",
+        "body": "Separation is a hairline or a tint, never a shadow.",
+        "section": "elevation"
+      }
     ],
     "dos": [
       "Do use semantic colour utilities only, and add any new text pair to the contrast test.",
       "Do reach for a hairline before a box, and a tint before a shadow.",
-      "Do reuse SectionShell for any new section and keep title left, evidence right.",
-      "Do keep the accent for links, the active item, the CV button, stamps and constellation lines.",
-      "Do give anything that moves a still state and a motion-reduce or no-preference guard.",
-      "Do keep everything readable without a stamp, the sky, sound or the passport."
+      "Do reuse SectionShell for any new section and add its id to the map's regions so it gets a constellation and a label button.",
+      "Do keep the accent for links, the active item, the CV button, stamps, and lit or open constellations.",
+      "Do give anything that moves a still state and a motion-reduce or no-preference guard, and make any new sky effect droppable by the lite and still tiers.",
+      "Do keep everything readable and reachable without a stamp, the sky, sound, the passport, a pointer or the trace gesture."
     ],
     "donts": [
       "Don't add a second accent colour, a card, or a drop shadow.",
       "Don't write a hex value or a dark: class in a component.",
       "Don't set body or label text in the serif, or headings in mono.",
-      "Don't make a stamp, the comet or the passport a gate on content.",
+      "Don't make a stamp, the comet, the passport or a map gesture a gate on content.",
       "Don't add an animation library; the sky is one canvas and one loop."
     ]
   }

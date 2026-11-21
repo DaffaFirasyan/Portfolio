@@ -26,6 +26,7 @@ export default function ProjectTile({ project, dimmed, lead = false }: ProjectTi
 
   return (
     <article
+      id={`project-${project.id}`}
       data-dimmed={dimmed ? 'true' : undefined}
       className={`transition-opacity duration-200 ${dimmed ? 'opacity-40' : 'opacity-100'}`}
     >

@@ -6,12 +6,15 @@ import { profile } from '@/data/profile';
 import { SECTIONS } from '@/data/sections';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { PassportProvider, usePassport } from '@/passport/PassportProvider';
+import { renderInMap } from '@/test/mapHarness';
 
 /**
  * The strip along the top: links inline from lg up, a Menu disclosure below it.
  * CSS decides which is visible, so jsdom sees both.
  */
 describe('Navbar', () => {
+  afterEach(() => vi.restoreAllMocks());
+
   it('is a banner holding the name, the section links and a menu button', () => {
     render(<Navbar />);
     expect(screen.getByRole('banner')).toBeInTheDocument();
@@ -136,6 +139,24 @@ describe('Navbar', () => {
     );
     await userEvent.click(screen.getAllByRole('link', { name: /^CV \(EN\)/ })[0]);
     expect(screen.getByTestId('list').textContent).toBe('reach');
+  });
+
+  it('offers the Map / Reading switch only where a map can be drawn', () => {
+    render(<LanguageProvider><Navbar /></LanguageProvider>);
+    expect(screen.queryByRole('button', { name: /star map|reading mode/i })).not.toBeInTheDocument();
+  });
+
+  it('switches between the map and the page, and says where it will take you', async () => {
+    const user = userEvent.setup();
+    renderInMap(<Navbar />);
+    const toggle = screen.getAllByRole('button', { name: 'Reading mode' })[0];
+    await user.click(toggle);
+    expect(screen.getAllByRole('button', { name: 'Star map' })[0]).toBeInTheDocument();
+  });
+
+  it('marks the open constellation as the current section in Map mode', () => {
+    renderInMap(<Navbar />, '#skills');
+    expect(screen.getByRole('link', { name: 'Skills' })).toHaveAttribute('aria-current', 'true');
   });
 
   it('offers the language toggle on the bar and again inside the menu', async () => {

@@ -23,7 +23,7 @@ The sky becomes a map the reader moves through. Instead of a guide, the reader i
 
 ## Modes
 
-- **Map** (default). The overview shows the name, role, tagline, the CV and email actions, a one-line hint ("Drag the sky. Pick a constellation.") and six named constellations.
+- **Map** (default). The overview shows the name, role, tagline, the CV and email actions, a one-line hint ("Drag the sky. Pick a constellation.") and six named constellations. Below `md` (phones) it drops the tagline and the two action buttons to leave the sky room; the CV and email stay one tap away in the Menu.
 - **Reading**. Exactly the current linear page: Hero, About, Skills, Experience, Projects, Education, Contact, with the sky behind it scrolling as now.
 - A switch in the top bar ("Map / Read") sets the mode. The choice is remembered in `localStorage` (`daffa_view`, try/catch). The first visit is Map.
 - Forced to Reading, with the switch hidden, when there is no 2D canvas context.
@@ -31,15 +31,16 @@ The sky becomes a map the reader moves through. Instead of a guide, the reader i
 
 ## Map mode behaviour
 
-1. **Regions.** Six constellations at fixed positions in a world about 3000 by 2000 units, named by the existing section labels (About, Skills, Experience, Projects, Education, Contact). Home is the overview itself. Each is a small star figure with its label; the label brightens as the region nears the centre.
-2. **Camera.** `{x, y, zoom}`, zoom between 0.6 and 3.
+1. **Regions.** Six constellations at fixed positions in a world about 3000 by 2000 units, named by the existing section labels (About, Skills, Experience, Projects, Education, Contact). Home is the overview itself. Each is a small star figure with its label button under it (labels are styled the same everywhere; none brightens with distance).
+2. **Camera.** `{x, y, zoom}`, zoom between 0.2 and 3 (the floor is low because the overview must fit six constellations on a phone, about 0.25).
    - One finger or mouse drag pans, with simple inertia.
    - Wheel or two-finger pinch zooms around the pointer, so the point under the cursor stays put.
    - Arrow keys pan, plus and minus zoom, when the map has focus.
 3. **Open a region.** Click or tap a constellation, press Enter on its focus-ordered button, or follow a hash. The camera flies there in about 650 ms (an instant cut under reduced motion) with the region offset to the free side of the screen, then the panel opens.
 4. **Panel.** On wide screens a drawer on the right (about 720 px, the sky visible on the left); on phones a full-height sheet. It holds the existing section component unchanged apart from a compact single-column layout (SectionShell reads the mode). Close with the button ("Back to the sky"), Escape, or the browser Back button. Focus returns to the region's button.
-5. **Hint and onboarding.** One line of hint on first visit, hidden after the first drag or open. No narration in any region.
-6. **Skills lighting projects.** In Map mode, hovering or focusing a skill in the Skills panel brightens the matching project constellations in the Projects region (stage two).
+5. **Hint and onboarding.** One line of hint on the overview ("Drag the sky. Pick a constellation."), shown whenever the overview is. No narration in any region.
+6. **The sky beside an open panel.** On a wide screen the sky stays draggable, zoomable and traceable next to the panel; only the region labels go inert (and stay out of the tab order) while a panel is open. The Projects region is framed at a fitted zoom so its four project figures fit the free area and never sit under the panel.
+7. **Skills lighting projects.** In Map mode, hovering or focusing a skill in the Skills panel brightens the matching project constellations in the Projects region (stage two).
 
 ## Stage two: projects as constellations
 
@@ -48,7 +49,7 @@ Zooming into Projects reveals four constellations, one per project. Dragging a l
 ## Passport in Map mode
 
 - The ten stamps, the chip, the sheet, the secrets and the rewards are unchanged.
-- The reading rule for a region: its panel has been open for five seconds in total and the reader then closes it or opens another region. Home: the overview has been shown five seconds and the reader then opens a region. In Reading mode the existing rule applies.
+- The reading rule for a region: its panel has been open for five seconds in total and the reader then closes it or opens another region. Home: the overview has been shown five seconds and the reader then opens a region or switches to Reading mode. In Reading mode the existing rule applies.
 - The comet crosses the Map overview as well (screen space), and the ten-stamp initials appear in the sky.
 
 ## Architecture
@@ -72,7 +73,7 @@ Zooming into Projects reveals four constellations, one per project. Dragging a l
 ## Accessibility
 
 - The canvas stays decorative (`aria-hidden`). Every region is a real button with the section's name; Tab visits them and focusing one pans the camera to it.
-- The panel announces its section by heading and returns focus on close. The mode switch is a labelled toggle button (`aria-pressed`).
+- The panel announces its section by heading and returns focus on close. The mode switch is a button whose label names where it will take you ("Reading mode" on the map, "Star map" on the page), so it needs no `aria-pressed`. It sits in the top bar from 1024 px wide and in the Menu below that.
 - Every word of content exists in Reading mode, and in Map mode all sections stay in the DOM and the inactive ones are `hidden`.
 - Reduced motion: no fly-to animation, no inertia, no trail, no comet.
 

@@ -7,20 +7,27 @@ import Education from '@/sections/Education';
 import Contact from '@/sections/Contact';
 import { SkillHighlightProvider } from '@/highlight/SkillHighlight';
 import { LanguageProvider, useLanguage } from '@/context/LanguageContext';
+import MapPanel from '@/map/MapPanel';
+import MapStamps from '@/map/MapStamps';
+import StarMap from '@/map/StarMap';
+import { ViewProvider, useView } from '@/map/ViewProvider';
 import Navbar from '@/nav/Navbar';
 import Passport from '@/passport/Passport';
 import { PassportProvider } from '@/passport/PassportProvider';
 import SkyCanvas from '@/sky/SkyCanvas';
 
 /**
- * A passport read top to bottom under a night sky: the data page, then each
- * section on the same twelve-column grid, a hairline above it, its title on the
- * left, its evidence on the right and a stamp slot at its end. The bar across
- * the top carries the way to every section, the language and the CV at every
- * scroll position; the chip in the corner opens the passport.
+ * By default a star map: the sky is the page, each constellation opens its
+ * section in a panel. In Reading mode it is the passport read top to bottom
+ * under the night sky: the data page, then each section on the same
+ * twelve-column grid, a hairline above it, its title on the left, its evidence
+ * on the right and a stamp slot at its end. The bar across the top carries the
+ * way to every section, the switch, the language and the CV; the chip in the
+ * corner opens the passport.
  */
 function AppContent() {
   const { profile, sections, t } = useLanguage();
+  const { mode } = useView();
   const home = sections.find((section) => section.id === 'home');
 
   return (
@@ -36,30 +43,36 @@ function AppContent() {
 
       <SkillHighlightProvider>
         <SkyCanvas />
+        <StarMap />
+        <MapStamps />
         <main>
           <Hero />
-          <About />
-          <Skills />
-          <Experience />
-          <Projects />
-          <Education />
-          <Contact />
+          <MapPanel>
+            <About />
+            <Skills />
+            <Experience />
+            <Projects />
+            <Education />
+            <Contact />
+          </MapPanel>
         </main>
       </SkillHighlightProvider>
 
-      <footer className="px-6 md:px-10">
-        <div className="mx-auto flex w-full max-w-[1120px] flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-edge pt-8 pb-24 text-sm text-muted">
-          <p>
-            © {new Date().getFullYear()} {profile.name} · {t.builtWith}
-          </p>
-          <a
-            href="#home"
-            className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4"
-          >
-            {home?.label} ↑
-          </a>
-        </div>
-      </footer>
+      {mode === 'read' && (
+        <footer className="px-6 md:px-10">
+          <div className="mx-auto flex w-full max-w-[1120px] flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-edge pt-8 pb-24 text-sm text-muted">
+            <p>
+              © {new Date().getFullYear()} {profile.name} · {t.builtWith}
+            </p>
+            <a
+              href="#home"
+              className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4"
+            >
+              {home?.label} ↑
+            </a>
+          </div>
+        </footer>
+      )}
 
       <Passport />
     </>
@@ -70,7 +83,9 @@ export default function App() {
   return (
     <LanguageProvider>
       <PassportProvider>
-        <AppContent />
+        <ViewProvider>
+          <AppContent />
+        </ViewProvider>
       </PassportProvider>
     </LanguageProvider>
   );

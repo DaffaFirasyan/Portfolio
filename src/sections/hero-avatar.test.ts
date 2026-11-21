@@ -44,13 +44,13 @@ describe('avatar dimensions', () => {
     expect(meta.height, 'avatar has no height').toBeTruthy();
 
     const fileRatio = meta.width! / meta.height!;
-    const declared = declaredIn('Hero.tsx');
-    expect(declared, 'Hero.tsx no longer declares width/height on an image').not.toBeNull();
+    const declared = declaredIn('PassportPage.tsx');
+    expect(declared, 'PassportPage.tsx no longer declares width/height on an image').not.toBeNull();
 
     const declaredRatio = declared!.width / declared!.height;
     expect(
       Math.abs(declaredRatio - fileRatio) / fileRatio,
-      `Hero declares ${declared!.width}x${declared!.height} (${declaredRatio.toFixed(3)}) ` +
+      `PassportPage declares ${declared!.width}x${declared!.height} (${declaredRatio.toFixed(3)}) ` +
         `but ${profile.avatarUrl} is ${meta.width}x${meta.height} (${fileRatio.toFixed(3)}). ` +
         `Update the declared pair to match the file.`,
     ).toBeLessThanOrEqual(TOLERANCE);

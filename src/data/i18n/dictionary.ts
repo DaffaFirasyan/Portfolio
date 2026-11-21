@@ -97,6 +97,12 @@ export const DICTIONARY = {
     completeNote: 'Thank you. If something here fits what you are building, write to me.',
     sound: 'Sound',
     cometLabel: 'Shooting star. Catch it for a secret stamp.',
+
+    // Star map
+    viewMap: 'Star map',
+    viewRead: 'Reading mode',
+    backToSky: 'Back to the sky',
+    mapHint: 'Drag the sky. Pick a constellation.',
   },
   id: {
     // Navigation & Global
@@ -195,6 +201,12 @@ export const DICTIONARY = {
     completeNote: 'Terima kasih. Jika ada yang cocok dengan yang sedang Anda bangun, tulis ke saya.',
     sound: 'Suara',
     cometLabel: 'Bintang jatuh. Tangkap untuk stempel rahasia.',
+
+    // Star map
+    viewMap: 'Peta bintang',
+    viewRead: 'Mode baca',
+    backToSky: 'Kembali ke langit',
+    mapHint: 'Seret langit. Pilih sebuah rasi.',
   },
 } as const;
 

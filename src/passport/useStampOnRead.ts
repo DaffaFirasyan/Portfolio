@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 
+import { useView } from '@/map/ViewProvider';
+
 import { usePassport } from './PassportProvider';
 import { DWELL_MS, isStampId } from './stamps';
 
@@ -17,15 +19,18 @@ export function hasPassed(bottom: number, viewportHeight: number, atEnd: boolean
  * "Near the middle" is a band across the centre of the viewport rather than a
  * share of the section, so a section three screens tall counts as readily as a
  * short one.
+ *
+ * In Map mode this hook does nothing; `MapStamps` applies the map's own rule.
  */
 export function useStampOnRead<T extends HTMLElement>(id: string) {
   const { earn, has } = usePassport();
+  const { mode } = useView();
   const ref = useRef<T>(null);
   const earned = has(id);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || earned || !isStampId(id)) return;
+    if (!el || earned || mode === 'map' || !isStampId(id)) return;
 
     let dwelled = 0;
     let since = 0;
@@ -63,7 +68,7 @@ export function useStampOnRead<T extends HTMLElement>(id: string) {
       window.removeEventListener('scroll', check);
       clearTimeout(timer);
     };
-  }, [earned, earn, id]);
+  }, [earned, earn, id, mode]);
 
   return ref;
 }

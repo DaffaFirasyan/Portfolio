@@ -1,6 +1,8 @@
 import SectionShell from '@/components/layout/SectionShell';
 import { shellPropsFrom } from '@/data/sections';
 import { useLanguage } from '@/context/LanguageContext';
+import { useView } from '@/map/ViewProvider';
+import PassportPage from './PassportPage';
 
 const LABEL = 'font-mono text-xs uppercase tracking-[0.14em] text-muted';
 
@@ -57,11 +59,17 @@ function Publication() {
 
 export default function About() {
   const { profile, sections } = useLanguage();
+  const { mode } = useView();
   const shell = shellPropsFrom(sections, 'about');
   const [lead, ...rest] = profile.bio;
 
   return (
     <SectionShell {...shell}>
+      {mode === 'map' && (
+        <div className="mb-10">
+          <PassportPage />
+        </div>
+      )}
       <p className="max-w-[40ch] text-2xl leading-snug text-primary text-pretty">{lead}</p>
       <div className="mt-8 space-y-5">
         {rest.map((paragraph) => (

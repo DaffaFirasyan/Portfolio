@@ -4,6 +4,8 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useSkillHighlight } from '@/highlight/SkillHighlight';
 import { scrollProgress } from '@/lib/scroll';
 import { cssToken } from '@/lib/token';
+import { REGIONS, WORLD, projectFigures, stepCamera, toScreen, type Camera } from '@/map/mapEngine';
+import { useView } from '@/map/ViewProvider';
 import { usePassport } from '@/passport/PassportProvider';
 import { TOTAL, initialsOf } from '@/passport/stamps';
 import {
@@ -27,12 +29,17 @@ const FIRST_COMET_MS = 15000;
 /** A frame costing more than this in drawing cannot hold 60 fps on a mid device. */
 const WORK_LIMIT_MS = 8;
 const WINDOW = 60;
+const MAP_PARALLAX = [1, 0.55, 0.25] as const;
+
+const wrap = (value: number, size: number) => ((value % size) + size) % size;
 
 interface Live {
   projectIds: string[];
   lit: string[];
   finale: boolean;
   initials: string;
+  map: boolean;
+  region: string | null;
   redraw: () => void;
 }
 
@@ -63,7 +70,9 @@ function initialsDots(text: string): Array<[number, number]> {
  * The sky behind the whole page: three layers of stars that drift under scroll,
  * give way to the pointer, join into a project's constellation when a skill that
  * project used is hovered, warm towards dawn as the page is read, and now and
- * then let a comet cross. One canvas, one loop, no library.
+ * then let a comet cross. One canvas, one loop, no library. In Map mode the stars
+ * are placed through a camera instead of the scroll offset, six constellations are
+ * drawn, and the camera is stepped in the same loop.
  *
  * It looks after the device it is on. The drawing work of the first sixty frames
  * is timed (the work, not the gap between frames, so a browser that caps frames
@@ -78,6 +87,18 @@ export default function SkyCanvas() {
   const { projects, profile, t } = useLanguage();
   const { isHighlighted } = useSkillHighlight();
   const { earn, stamps } = usePassport();
+  const view = useView();
+  // Named *Ref so the React compiler lets the loop write them.
+  const {
+    camera: cameraRef,
+    motion: motionRef,
+    paint: paintRef,
+    layout: layoutRef,
+    animated: animatedRef,
+    trace: traceRef,
+  } = view;
+  const map = view.mode === 'map';
+  const region = view.region;
 
   const lit = projects
     .filter((project) => isHighlighted(project.id))
@@ -87,15 +108,17 @@ export default function SkyCanvas() {
   const finale = stamps.length === TOTAL;
 
   // The loop reads these live instead of restarting whenever one changes.
-  const live = useRef<Live>({ projectIds: [], lit: [], finale: false, initials: '', redraw: () => {} });
+  const live = useRef<Live>({ projectIds: [], lit: [], finale: false, initials: '', map: false, region: null, redraw: () => {} });
 
   useEffect(() => {
     live.current.projectIds = projects.map((project) => project.id);
     live.current.lit = lit ? lit.split(',') : [];
     live.current.finale = finale;
     live.current.initials = initials;
+    live.current.map = map;
+    live.current.region = region;
     live.current.redraw();
-  }, [projects, lit, finale, initials]);
+  }, [projects, lit, finale, initials, map, region]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -110,9 +133,12 @@ export default function SkyCanvas() {
       reducedMotion: reduced.matches,
       saveData: connection?.saveData === true,
     });
+    animatedRef.current = tier !== 'still';
 
     const stars: Star[] = makeStars(STAR_COUNT);
     const paths = new Map(live.current.projectIds.map((id) => [id, pathFor(id, stars)]));
+    const projectsRegion = REGIONS.find((r) => r.id === 'projects')!;
+    const figures = projectFigures(live.current.projectIds, projectsRegion);
     const reveal = new Map<string, number>();
     const pointer = { x: -9999, y: -9999 };
     const trail: Array<{ x: number; y: number; at: number }> = [];
@@ -131,6 +157,8 @@ export default function SkyCanvas() {
     let frame = 0;
     let queued = false;
     let soon = 0;
+    // The camera the labels were last placed for; null so the first frame places them.
+    let laidOut: Camera | null = null;
     // The same object the live-sync effect writes to; copied so the cleanup provably clears this one.
     const state = live.current;
 
@@ -159,6 +187,16 @@ export default function SkyCanvas() {
     };
 
     const place = (s: Star): [number, number] => {
+      if (state.map) {
+        const cam = cameraRef.current;
+        const p = MAP_PARALLAX[s.layer];
+        // Never smaller than the screen, or a zoomed-out layer would wrap into a thin, repeated patch.
+        const z = Math.max(1 + (cam.zoom - 1) * p, w / WORLD.w, h / WORLD.h);
+        return [
+          wrap(w / 2 + (s.x * WORLD.w - cam.x * p) * z, w),
+          wrap(h / 2 + (s.y * WORLD.h - cam.y * p) * z, h),
+        ];
+      }
       let x = s.x * w;
       let y = (((s.y * h - scrollY * LAYER_SPEED[s.layer]) % h) + h) % h;
       if (tier === 'full' && pointer.x > -9000) {
@@ -191,6 +229,14 @@ export default function SkyCanvas() {
         reveal.set(id, tier === 'still' ? target : current + (target - current) * Math.min(1, dt / 220));
       }
       while (trail.length && now - trail[0].at > TRAIL_MS) trail.shift();
+      if (state.map) {
+        cameraRef.current = stepCamera(cameraRef.current, motionRef.current, now, dt);
+        // The labels move only with the camera; a still paint (dt 0) always places them, since a cut relies on it.
+        if (cameraRef.current !== laidOut || dt === 0) {
+          laidOut = cameraRef.current;
+          layoutRef.current();
+        }
+      }
       if (tier !== 'full') return;
 
       if (!flight && now >= nextComet) {
@@ -236,36 +282,97 @@ export default function SkyCanvas() {
         ctx.fill();
       });
 
+      if (state.map) {
+        const cam = cameraRef.current;
+        const reach = Math.min(1.6, Math.sqrt(cam.zoom));
+        ctx.lineWidth = 1;
+        const showProjects = state.region === 'projects';
+        for (const r of REGIONS) {
+          // Open, the Projects region gives way to one small figure per project.
+          if (showProjects && r.id === 'projects') continue;
+          const active = state.region === r.id;
+          const points = r.stars.map(([dx, dy]) => toScreen(cam, { w, h }, r.x + dx, r.y + dy));
+          ctx.strokeStyle = active ? colors.accent : colors.ink;
+          ctx.fillStyle = active ? colors.accent : colors.ink;
+          ctx.globalAlpha = active ? 0.9 : 0.5 * colors.dim;
+          ctx.beginPath();
+          points.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+          ctx.stroke();
+          for (const [x, y] of points) {
+            ctx.beginPath();
+            ctx.arc(x, y, 2.4 * reach, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        if (showProjects) {
+          // Every figure is drawn faint in ink; lit by a skill it is all accent, traced it is accent up to the star reached.
+          const line = (points: Array<[number, number]>) => {
+            ctx.beginPath();
+            points.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+            ctx.stroke();
+          };
+          for (const f of figures) {
+            const traced = traceRef.current?.id === f.id ? traceRef.current.index : -1;
+            const points = f.stars.map(([x, y]) => toScreen(cam, { w, h }, x, y));
+            const bright = state.lit.includes(f.id) ? points.length - 1 : traced;
+            ctx.strokeStyle = colors.ink;
+            ctx.fillStyle = colors.ink;
+            ctx.globalAlpha = 0.35 * colors.dim;
+            if (bright < points.length - 1) line(points);
+            ctx.globalAlpha = 0.5 * colors.dim;
+            points.forEach(([x, y], i) => {
+              if (i <= bright) return;
+              ctx.beginPath();
+              ctx.arc(x, y, 3 * reach, 0, Math.PI * 2);
+              ctx.fill();
+            });
+            if (bright < 0) continue;
+            ctx.strokeStyle = colors.accent;
+            ctx.fillStyle = colors.accent;
+            ctx.globalAlpha = 0.95;
+            line(points.slice(0, bright + 1));
+            points.slice(0, bright + 1).forEach(([x, y]) => {
+              ctx.beginPath();
+              ctx.arc(x, y, 3 * reach, 0, Math.PI * 2);
+              ctx.fill();
+            });
+          }
+        }
+        ctx.globalAlpha = 1;
+      }
+
       ctx.strokeStyle = colors.accent;
       ctx.fillStyle = colors.accent;
       ctx.lineWidth = 1;
-      for (const [id, path] of paths) {
-        const amount = reveal.get(id) ?? 0;
-        if (amount <= 0.01) continue;
-        const points = path.map((i) => spots[i]);
-        const reach = amount * (points.length - 1);
-        ctx.globalAlpha = 0.7 * Math.min(1, amount * 2);
-        ctx.beginPath();
-        for (let i = 0; i < points.length - 1; i++) {
-          const [x0, y0] = points[i];
-          const [x1, y1] = points[i + 1];
-          const fraction = Math.min(1, reach - i);
-          if (fraction <= 0) break;
-          // A star that wrapped past the edge would draw a line across the screen.
-          if (Math.hypot(x1 - x0, y1 - y0) > h * 0.6) continue;
-          ctx.moveTo(x0, y0);
-          ctx.lineTo(x0 + (x1 - x0) * fraction, y0 + (y1 - y0) * fraction);
-        }
-        ctx.stroke();
-        points.forEach(([x, y], i) => {
-          if (i > reach) return;
+      if (!state.map) {
+        for (const [id, path] of paths) {
+          const amount = reveal.get(id) ?? 0;
+          if (amount <= 0.01) continue;
+          const points = path.map((i) => spots[i]);
+          const reach = amount * (points.length - 1);
+          ctx.globalAlpha = 0.7 * Math.min(1, amount * 2);
           ctx.beginPath();
-          ctx.arc(x, y, 3, 0, Math.PI * 2);
-          ctx.fill();
-        });
+          for (let i = 0; i < points.length - 1; i++) {
+            const [x0, y0] = points[i];
+            const [x1, y1] = points[i + 1];
+            const fraction = Math.min(1, reach - i);
+            if (fraction <= 0) break;
+            // A star that wrapped past the edge would draw a line across the screen.
+            if (Math.hypot(x1 - x0, y1 - y0) > h * 0.6) continue;
+            ctx.moveTo(x0, y0);
+            ctx.lineTo(x0 + (x1 - x0) * fraction, y0 + (y1 - y0) * fraction);
+          }
+          ctx.stroke();
+          points.forEach(([x, y], i) => {
+            if (i > reach) return;
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.fill();
+          });
+        }
       }
 
-      if (tier === 'full') {
+      if (tier === 'full' && !state.map) {
         for (const p of trail) {
           const age = now - p.at;
           if (age > TRAIL_MS) continue;
@@ -326,6 +433,7 @@ export default function SkyCanvas() {
     // An arrow, not a hoisted declaration: TypeScript keeps the null-narrowing of cometButton only for these.
     const setTier = (next: Tier) => {
       tier = next;
+      animatedRef.current = next !== 'still';
       if (next !== 'full' && flight) {
         flight = null;
         cometButton.hidden = true;
@@ -334,6 +442,12 @@ export default function SkyCanvas() {
       if (next === 'still') {
         cancelAnimationFrame(raf);
         raf = 0;
+        // The still tier never steps the camera, so a flight in progress lands now.
+        const fly = motionRef.current.fly;
+        if (fly) {
+          cameraRef.current = { ...fly.to };
+          motionRef.current = { vx: 0, vy: 0, fly: null };
+        }
         paintStill();
       }
     };
@@ -407,6 +521,9 @@ export default function SkyCanvas() {
     live.current.redraw = () => {
       if (tier === 'still') paintStill();
     };
+    paintRef.current = () => {
+      if (tier === 'still') paintStillSoon();
+    };
 
     size();
     measure();
@@ -428,6 +545,7 @@ export default function SkyCanvas() {
       cancelAnimationFrame(raf);
       cancelAnimationFrame(soon);
       state.redraw = () => {};
+      paintRef.current = () => {};
       cometButton.hidden = true;
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
@@ -440,7 +558,7 @@ export default function SkyCanvas() {
       reduced.removeEventListener('change', onReduced);
       cometButton.removeEventListener('click', onCatch);
     };
-  }, [earn]);
+  }, [earn, cameraRef, motionRef, paintRef, layoutRef, animatedRef, traceRef]);
 
   return (
     <>

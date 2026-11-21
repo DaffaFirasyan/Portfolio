@@ -27,7 +27,7 @@ export function seeded(seed: number): () => number {
   };
 }
 
-function hash(text: string): number {
+export function hash(text: string): number {
   let h = 2166136261;
   for (const char of text) h = Math.imul(h ^ char.charCodeAt(0), 16777619);
   return h >>> 0;

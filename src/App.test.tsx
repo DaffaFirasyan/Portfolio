@@ -3,6 +3,9 @@ import App from './App';
 import { SECTIONS } from '@/data/sections';
 
 describe('App', () => {
+  // The map test spies on the canvas and matchMedia; restore even if it fails.
+  afterEach(() => vi.restoreAllMocks());
+
   it('renders every section anchor in the documented order', () => {
     const { container } = render(<App />);
     const ids = Array.from(container.querySelectorAll('section')).map((s) => s.id);
@@ -54,6 +57,41 @@ describe('App', () => {
     const { container } = render(<App />);
     expect(container.querySelector('canvas')).toHaveAttribute('aria-hidden', 'true');
     expect(screen.getByRole('button', { name: /passport 0\/10/i })).toBeInTheDocument();
+  });
+
+  it('keeps the footer in Reading mode', () => {
+    const { container } = render(<App />);
+    expect(container.querySelector('footer')).not.toBeNull();
+  });
+
+  it('starts on the star map when a canvas is available', () => {
+    // The sky really draws here, so the context must answer every call; and
+    // reduced motion keeps it to one still frame instead of a running loop.
+    const ctx = new Proxy(
+      {},
+      {
+        get: (_target, prop: string) =>
+          prop === 'createLinearGradient' ? () => ({ addColorStop() {} }) : () => {},
+        set: () => true,
+      },
+    );
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(ctx as never);
+    vi.spyOn(window, 'matchMedia').mockImplementation(
+      (query: string) =>
+        ({
+          matches: query.includes('reduce'),
+          media: query,
+          addEventListener() {},
+          removeEventListener() {},
+        }) as unknown as MediaQueryList,
+    );
+    localStorage.clear();
+    window.history.replaceState(null, '', '/');
+    const { container } = render(<App />);
+    expect(container.querySelector('[data-map-surface]')).not.toBeNull();
+    expect(container.querySelector('footer')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Skills' })).toBeInTheDocument();
+    vi.restoreAllMocks();
   });
 
   it('gives every section a stamp slot', () => {

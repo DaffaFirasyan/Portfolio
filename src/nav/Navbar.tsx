@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import LanguageToggle from '@/components/ui/LanguageToggle';
 import { useLanguage } from '@/context/LanguageContext';
 import { useActiveSection } from '@/hooks/useActiveSection';
+import { useView } from '@/map/ViewProvider';
 import { usePassport } from '@/passport/PassportProvider';
 
 const LINK = 'inline-flex min-h-9 items-center text-sm transition-colors';
@@ -16,11 +17,16 @@ const LINK = 'inline-flex min-h-9 items-center text-sm transition-colors';
  * Wide screens get the links inline. Below lg a Menu button opens a plain
  * disclosure (aria-expanded, closes on selection and on Escape), which is not a
  * modal, so it needs no focus trap. Only this component writes the URL hash
- * through `useActiveSection`; a second instance would fight it.
+ * through `useActiveSection`; a second instance would fight it. In Map mode it
+ * writes nothing; the open region owns the hash.
  */
 export default function Navbar() {
   const { profile, sections, language, t } = useLanguage();
-  const { activeId } = useActiveSection(sections);
+  const { mode, region, canMap, setMode } = useView();
+  const { activeId } = useActiveSection(sections, mode === 'read');
+  const current = mode === 'map' ? (region ?? 'home') : activeId;
+  const switchLabel = mode === 'map' ? t.viewRead : t.viewMap;
+  const switchMode = () => setMode(mode === 'map' ? 'read' : 'map');
   const { earn } = usePassport();
   const [open, setOpen] = useState(false);
   const toggle = useRef<HTMLButtonElement>(null);
@@ -55,7 +61,7 @@ export default function Navbar() {
               <li key={section.id}>
                 <a
                   href={`#${section.id}`}
-                  aria-current={section.id === activeId ? 'true' : undefined}
+                  aria-current={section.id === current ? 'true' : undefined}
                   className={`${LINK} text-muted underline-offset-[10px] hover:text-primary aria-[current=true]:text-primary aria-[current=true]:underline aria-[current=true]:decoration-accent aria-[current=true]:decoration-2`}
                 >
                   {section.label}
@@ -66,6 +72,15 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-6 lg:flex">
+          {canMap && (
+            <button
+              type="button"
+              onClick={switchMode}
+              className={`${LINK} rounded-full border border-edge px-4 text-primary hover:border-primary`}
+            >
+              {switchLabel}
+            </button>
+          )}
           <LanguageToggle className="text-primary" />
           <a
             href={profile.cvUrl}
@@ -128,6 +143,20 @@ export default function Navbar() {
                 {t.emailMe}
               </a>
             </li>
+            {canMap && (
+              <li>
+                <button
+                  type="button"
+                  onClick={() => {
+                    switchMode();
+                    setOpen(false);
+                  }}
+                  className="flex min-h-11 w-full items-center text-left text-primary"
+                >
+                  {switchLabel}
+                </button>
+              </li>
+            )}
           </ul>
           <div className="mt-3 flex justify-end">
             <LanguageToggle className="text-primary" />

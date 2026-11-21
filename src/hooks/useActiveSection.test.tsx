@@ -59,6 +59,21 @@ describe('useActiveSection', () => {
     expect(history.length).toBe(before);
   });
 
+  it('leaves the url alone when told not to write the hash, and writes it by default', () => {
+    const spy = vi.spyOn(history, 'replaceState');
+    renderHook(() => useActiveSection(SECTIONS, false));
+    act(() => {
+      observers.at(-1)!.emit([
+        { target: document.getElementById('about')!, intersectionRatio: 0.9 },
+      ]);
+    });
+    expect(spy).not.toHaveBeenCalled();
+
+    renderHook(() => useActiveSection(SECTIONS));
+    expect(spy).toHaveBeenCalledWith(null, '', '#home');
+    spy.mockRestore();
+  });
+
   it('disconnects the observer on unmount', () => {
     const { unmount } = renderHook(() => useActiveSection(SECTIONS));
     expect(observers.length).toBe(1);

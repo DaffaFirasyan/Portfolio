@@ -63,6 +63,11 @@ describe('ProjectTile', () => {
     expect(image).toHaveAttribute('loading', 'lazy');
   });
 
+  it('carries an id the map can scroll to', () => {
+    const { container } = render(<ProjectTile project={base} dimmed={false} />);
+    expect(container.querySelector('article')).toHaveAttribute('id', 'project-kg-rag');
+  });
+
   it('marks itself dimmed only when asked to', () => {
     const { container, rerender } = render(<ProjectTile project={base} dimmed={false} />);
     expect(container.querySelector('article')).not.toHaveAttribute('data-dimmed');

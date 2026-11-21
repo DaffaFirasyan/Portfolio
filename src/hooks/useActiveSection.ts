@@ -15,7 +15,7 @@ export interface ActiveSection {
  * sections that changed, so state would have to be merged on every callback
  * and would re-render for sections the reader cannot see.
  */
-export function useActiveSection(sections: SectionMeta[]): ActiveSection {
+export function useActiveSection(sections: SectionMeta[], writeHash = true): ActiveSection {
   const order = useMemo(() => sections.map((section) => section.id), [sections]);
   const [activeId, setActiveId] = useState(order[0] ?? '');
   const [progress, setProgress] = useState(0);
@@ -71,9 +71,9 @@ export function useActiveSection(sections: SectionMeta[]): ActiveSection {
   }, []);
 
   useEffect(() => {
-    if (!activeId) return;
+    if (!activeId || !writeHash) return;
     history.replaceState(null, '', `#${activeId}`);
-  }, [activeId]);
+  }, [activeId, writeHash]);
 
   return { activeId, progress };
 }
